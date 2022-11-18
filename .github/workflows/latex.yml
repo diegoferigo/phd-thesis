@@ -1,0 +1,56 @@
+name: LaTeX CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+
+  compile_latex:
+    name: Compile LaTeX
+    runs-on: ubuntu-22.04
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends texlive-full latexmk
+
+      - name: Compile document
+        run: latexmk -pdf thesis
+
+      - name: Inspect folder
+        run: ls -lah .
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
+        with:
+          path: thesis.pdf
+          name: document
+
+  release_pdf:
+    name: Create release
+    needs: [ compile_latex ]
+    runs-on: ubuntu-22.04
+
+    steps:
+
+      - name: Download PDF
+        uses: actions/download-artifact@v3
+        with:
+          name: document
+
+      - name: Inspect folder
+        run: ls -lah .
+
+      - name: Release PDF
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: thesis.pdf
+          draft: true
+          generate_release_notes: true
