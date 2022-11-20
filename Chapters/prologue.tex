@@ -1,0 +1,210 @@
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\tocEntry{Prologue}}
+
+\acresetall
+\chapter*{Prologue}
+\chaptermark{Prologue}
+
+Technology and automation became, over time, seamlessly integrated commodities in the daily life of any person living in modern society.
+We became so used to their presence to the extent that we often forget their impact on our daily routine.
+We cruise the world either entering or driving highly automated machines endowed with motors and sensors.
+We load dishwashers and washing machines with dirty dishes and clothes, finding them clean when their cycle ends.
+We rely so much on the functionality of devices we constantly keep in our pockets that we would struggle to reach any new destination in their absence.
+We carry technology inside our bodies to prevent the fatal collapse of organs necessary to sustain life.
+
+Robots represent one of the categories of objects that better describe the combination of technology and automation.
+The Oxford Dictionary provides the following definition:
+%
+\begin{quote}
+    \hspace{-8.5mm}
+    \textbf{robot} \textit{a machine that can perform a complicated series of tasks by itself.}
+\end{quote}
+%
+We are surrounded by robots, even if we do not realise it.
+In fact, as soon as their intelligence becomes embodied with their functionality, we stop to call them robots.
+
+Our modern language considers robots those systems able to manipulate or navigate their surrounding environment with a degree of autonomy.
+Though, contrary to society's expectations built from science fiction, modern robotic systems can reliably operate only within controlled environments and perform narrow tasks.
+While we have already succeeded in deploying robots in environments with these characteristics like industry, bringing them outside production lines requires a different level of autonomy, dexterity, agility, and decision-making capabilities.
+Actions like interacting with a constantly-changing environment, predicting people's intents, or generalising prior knowledge are still far out of today’s robots' reach.
+
+Machine intelligence is among the most fascinating problems currently researched by our society.
+\ac{DL}, which consists of the recent combination of \ac{ML} with deep \acp{NN} recently enabled by the computational power of modern computing, revolutionised domains like computer vision and natural language processing.
+Under the assumption of large enough datasets, the most advanced algorithms belonging to the Supervised Learning family have been demonstrated to be capable of training systems that have often shown super-human performance.
+One could think of applying similar techniques to the field of robotics to obtaining comparable success without realising the inherent challenges posed by this domain.
+Robots are physical systems.
+Generating datasets as large as those that characterise the most recent research in computer vision and language processing would either take too long or not even be possible, without even considering the wear and tear of the hardware and the operational and maintenance cost.
+Furthermore, regardless of the feasibility of data collection, robotics is an interactive domain, and data sampled from robots has a sequential conformation.
+The application of Supervised Learning that excels on static and offline datasets has been either ineffective or not an option.
+
+Supervised Learning is just one of the subdomains belonging to \ac{ML}.
+The 1990s experienced an increased research interest in a new family of methods specialised in sequential decision-making problems, that nowadays belong to the \ac{RL} subdomain. 
+The technological progress triggered by the advent of \ac{DL} had a strong impact also to unlock the \ac{RL} potential, which was initially constrained by computational limits.
+The transfer to robotics was inevitable.
+However, \ac{RL} methods learn sequentially following a process similar to trial-and-error.
+When applied to robotics, during their training phase, these methods could generate control actions that may damage either the robot or its surroundings. 
+For this reason, the accomplishments in the past decade of \ac{RL} applied to robotics have been demonstrated mainly in simulations rather than with real-world robots.
+Generating synthetic data from simulators is cheap and effective, can be scaled to dozens or hundreds of concurrent instances, and there is no risk of damage.
+
+Undeniably, synthetic data can only capture physical effects that can be described through equations executed by a computer program, and similarly to other domains, also robotic simulations suffer from the trade-off between accuracy and speed.
+Particularly, contact dynamics have always been challenging to capture with high fidelity, and usually simulators neglect non-ideal effects like motor dynamics, actuation delays, and backlash.
+However, the past decades have shown that advances in computing hardware and software methodologies have always had a substantial impact on reducing the effects of this trade-off, also called \emph{reality gap}, and we believe that also research in robotic simulations will continue in this direction.
+
+In the 2010s, the \ac{RL} community has been particularly prolific, producing a considerable number of new algorithms.
+Despite their improved properties like increased sample efficiency, faster and more stable convergence, \etc they always rely on a given amount of trial-and-error experience, with no exception.
+If, on the one hand, better algorithms are lower-bounded by the least amount of data describing the decision-making logic to learn, on the other, the amount of synthetic data that simulators can generate has no theoretical upper bound.
+The rapid adoption of \ac{RL} in the robotics domain forced practitioners to use the simulation technology from either robotics or gaming available at that time, which was never optimised for maximising execution speed.
+In fact, a single simulation instance executing in real-time has always been more than enough for the original applications.
+It is not uncommon to find \ac{RL} experiments that require days, weeks, or even months worth of data, giving those with access to large computational resources a significant advantage.
+The robot learning community is aware of this limitation to the extent that today's research on domain-specific simulators that can be massively scaled on modern hardware accelerators, not necessarily as fully-fledged as in the past, is surging.
+
+\vspace{3mm}
+This thesis approaches the problem of generating synthetic data for robot planning and control, focusing particularly on the needs of data-hungry methodologies like \ac{RL}, and considering as targets multi-articulated robots like humanoids.
+It attempts to address questions regarding what kind of modern technology currently available, both hardware and software, suits this context best, taking into account domain-specific characteristics of legged robotics.
+To this end, we first evaluate how general-purpose simulators widely adopted by the robotics community can be integrated into complex learning pipelines, guaranteeing the reproducibility of sampled trajectories.
+Then, motivated by the limited sampling performance of traditional general-purpose simulators running on \acp{CPU}, we explore available technology for maximising sampling throughput and propose a solution that, by exploiting modern hardware accelerators, enables to scale rigid-body simulations horizontally over a massive amount of parallel instances.
+We believe that the progress of research in this domain is one of the critical factors that could lead to the emergence of the next generation of robots seamlessly operating around us.
+
+\vspace{3mm}
+This research project is part of a split-site Ph.D.\ programme between the Istituto Italiano di Tecnologia (Italian Institute of Technology) and the University of Manchester, from November 2018 to July 2022.
+In the continuation of this section, we provide a short outline describing the structure of this thesis.
+
+\subsubsection{Part I: Background and Fundamentals}
+
+This part introduces the reader to the fundamental concepts behind the contributions of this thesis, reviews the state-of-the-art of corresponding domains, and provides a detailed overview of the contributions to knowledge.
+
+\begin{itemize}
+    \item Chapter~\ref{ch:introduction} introduces robotic simulators, defining their main components and properties. It also describes the enabling technologies that made the work of this thesis possible, such as the Gazebo Sim simulator and the \jax framework.
+    \item Chapter~\ref{ch:robot_modelling} introduces the notation and the equations governing rigid multibody dynamics, and how relevant dynamics and kinematics quantities could be computed and propagated through the model of a robotic mechanical structure.
+    \item Chapter~\ref{ch:reinforcement_learning} introduces the main concepts and notation of \ac{RL}. It formulates the structure of the \ac{RL} problem, describes the main families of algorithms that could be used to compute a solution, and develops the theory behind policy optimisation, reaching the formulation of the \acl{PPO} algorithm.
+    \item Chapter~\ref{ch:sota} reviews the state-of-the-art of the domains of \acl{RL} applied to robot locomotion, simulators for robot learning, and methodologies for push recovery. It also details open problems that characterise these domains, and how the contributions to knowledge of this thesis aims to solve them.
+\end{itemize}
+
+\subsubsection{Part II: Contributions}
+
+This part presents the contributions to knowledge provided by this thesis, whose motivations will be discussed in more detail in Section~\ref{sec:thesis_content}.
+
+\begin{itemize}
+    \item Chapter~\ref{ch:rl_env_for_robotics} presents a software architecture for creating robotic environments for \ac{RL} research. It shows how to obtain environments that can be executed in both simulated and real-world settings, without the need to rewrite the decision-making logic. Sampling data from simulated environments is performed with the Gazebo Sim general-purpose simulator.
+    %
+    \item Chapter~\ref{ch:learning_from_scratch}, by sampling experience with the framework presented in the previous chapter, studies the problem of synthesising the appropriate control signals for balancing a simulated humanoid robot iCub in the presence of external disturbances.
+    It frames the objective as a \ac{RL} problem, guiding the exploration process during policy training with a reward shaping methodology.
+    Terms computed from the dynamical description of the robot are included in the reward signal, introducing prior knowledge to the problem.
+    Results show that after training, multiple push-recovery strategies emerge, and the policy is capable of selecting the most appropriate one as a consequence of external pushes.
+    %
+    \item Chapter~\ref{ch:contact_aware_dynamics} starts addressing the problem of optimising the generation of synthetic experience for robot locomotion, whose performance was a bottleneck in the experiment presented in the previous chapter. This chapter provides a state-space representation that models the dynamics of a floating-base robot that can be integrated numerically to simulate its evolution. It formulates a soft-contacts model to compute the interaction forces between the robot and the terrain surface, supporting both static (sticking) and dynamic (slipping) regimes, having a friction cone boundary without approximations. The dynamics of the contact model are then included in an extended state-space representation, obtaining a system of differential equations that describe the contact-aware dynamics of a floating-base robot.
+    %
+    \item Chapter~\ref{ch:scaling_rigid_body_simulations}, by exploiting the contact-aware state-space representation formulated in the previous chapter, presents a new physics engine in reduced coordinates that can be executed on hardware accelerators like \acsp{GPU} and \acsp{TPU} for maximising sampling throughput. To this end, with the notation introduced in Chapter~\ref{ch:robot_modelling}, this chapter also formulates canonical \aclp{RBDA} that can be executed in this accelerated context. The physics engine performance is finally benchmarked, assessing the accuracy and speed of its algorithms and the scaling properties when executed in a highly parallel setting integrating hundreds or thousands of robot models concurrently.
+\end{itemize}
+
+\section*{Research Publications}
+
+The content of Chapter~\ref{ch:rl_env_for_robotics} appears in
+
+\begin{quote}
+    \textbf{Gym-
+Ignition: Reproducible Robotic Simulations for Reinforcement
+Learning} \\
+    Diego Ferigo, Silvio Traversaro, Daniele Pucci \\
+    \textit{Robotics: Science and Systems (RSS) - Workshop on
+Closing the Reality Gap in Sim2real Transfer for Robotic Manipulation}, 2019
+\end{quote}
+
+\begin{quote}
+    \textbf{Gym-
+Ignition: Reproducible Robotic Simulations for Reinforcement
+Learning} \\
+    Diego Ferigo, Silvio Traversaro, Giorgio Metta, Daniele Pucci \\
+    \textit{International Symposium on System Integration (SII)}, 2020
+\end{quote}
+
+\noindent
+The content of Chapter~\ref{ch:learning_from_scratch} appears in
+
+\begin{quote}
+    \textbf{On the Emergence of Whole-body Strategies from
+Humanoid Robot Push-recovery Learning} \\
+    Diego Ferigo, Raffaello Camoriano, Paolo Maria Viceconte, Daniele Calandriello, Silvio Traversaro, Lorenzo Rosasco, Daniele Pucci \\
+    \textit{Robotics and Automation Letters}, 2021
+\end{quote}
+
+\noindent
+Beyond the previous main contributions directly supporting the contents of this thesis, during the research project I also contributed to other works whose content has not been included:
+
+\begin{quote}
+    \textbf{Simultaneous Floating-Base Estimation of Human Kinematics and Joint Torques} \\
+     Claudia Latella, Silvio Traversaro, Diego Ferigo, Yeshasvi Tirupachuri, Lorenzo Rapetti, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\
+    \textit{Sensors}, 2019
+\end{quote}
+
+\begin{quote}
+    \textbf{A Human Wearable Framework for Physical Human-Robot Interaction} \\
+     Claudia Latella, Yeshasvi Tirupachuri, Lorenzo Rapetti, Diego Ferigo, Silvio Traversaro, Ines Sorrentino, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\
+    \textit{I-RIM}, 2019
+\end{quote}
+
+\begin{quote}
+    \textbf{Learning to Sequence Multiple Tasks with Competing Constraints} \\
+     Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\
+    \textit{International Conference on Intelligent Robots and
+Systems (IROS)}, 2019
+\end{quote}
+
+\begin{quote}
+    \textbf{Whole-Body Geometric Retargeting for Humanoid Robots} \\
+    Kourosh Darvish, Yeshasvi Tirupachuri, Giulio Romualdi, Lorenzo Rapetti, Diego Ferigo, Francisco Javier Andrade Chavez, Daniele Pucci \\
+    \textit{International
+Conference on Humanoid Robots (Humanoids)}, 2019
+\end{quote}
+
+\begin{quote}
+    \textbf{A generic synchronous dataflow architecture to rapidly prototype and deploy robot controllers} \\
+    Diego Ferigo, Silvio Traversaro, Francesco Romano, Daniele Pucci \\
+    \textit{International Journal of Advanced Robotic Systems}, 2020
+\end{quote}
+
+\newpage
+\begin{quote}
+    \textbf{Towards Partner-Aware Humanoid Robot Control Under Physical Interactions} \\
+    Yeshasvi Tirupachuri, Gabriele Nava, Claudia Latella, Diego Ferigo, Lorenzo Rapetti, Luca Tagliapietra, Francesco Nori, Daniele Pucci \\
+    \textit{Advances in Intelligent Systems and Computing}, 2020
+\end{quote}
+
+\begin{quote}
+    \textbf{Learning to Avoid Obstacles With Minimal Intervention Control} \\
+    Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\
+    \textit{Frontiers in Robotics and AI}, 2020
+\end{quote}
+
+\begin{quote}
+    \textbf{ADHERENT: Learning Human-like Trajectory Generators for Whole-body Control of Humanoid Robots} \\
+    Paolo Maria Viceconte, Raffaello Camoriano, Giulio Romualdi, Diego Ferigo, Stefano Dafarra, Silvio Traversaro, Giuseppe Oriolo, Lorenzo Rosasco, Daniele Pucci \\
+    \textit{Robotics and Automation Letters}, 2022
+\end{quote}
+
+\begin{quote}
+    \textbf{Robot Platforms and Simulators} \\
+    Diego Ferigo, Alberto Parmiggiani, Elena Rampone, Vadim Tikhanoff, Silvio Traversaro, Daniele Pucci, Lorenzo Natale \\
+    \textit{Cognitive Robotics, Chapter 7}, 2022
+\end{quote}
+
+\section*{Software Projects}
+
+The results of the research conducted for this thesis produced the following software projects that I developed and I am maintaining:
+
+\vspace{3mm}
+\noindent
+\textbf{\texttt{scenario}} is an abstraction layer providing \acp{API} to interact with simulated and real robots. The goal of the project is to allow developing high-level code that can target all the available implementations using the same function calls. Currently, it provides a complete implementation for interfacing with robots simulated using the Gazebo Sim general-purpose simulator. The \acp{API} are developed and available in \cpp. Python bindings are also provided. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \url{https://github.com/robotology/gym-ignition/tree/master/scenario}.
+
+\vspace{3mm}
+\noindent
+\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \url{https://github.com/robotology/gym-ignition}.
+
+\vspace{3mm}
+\noindent
+\textbf{\texttt{gym-ignition-models}} is a Python project providing model descriptions tuned to be used in the Gazebo Sim simulator supported by \texttt{gym-ignition}. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \url{https://github.com/robotology/gym-ignition-models}.
+
+\vspace{3mm}
+\noindent
+\textbf{\texttt{jaxsim}} is a scalable physics engine in reduced coordinates implemented with \jax. It is developed in Python and supports most of the \jax features, including \ac{JIT} compilation and auto-vectorization. Simulations can be executed on all the hardware supported by \jax, including \acp{CPU}, \acp{GPU}, and \acp{TPU}. The library is open-source, released under the \emph{BSD-3-Clause}, and it is available at \url{https://github.com/ami-iit/jaxsim}.

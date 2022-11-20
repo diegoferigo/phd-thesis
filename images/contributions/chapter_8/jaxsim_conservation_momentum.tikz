@@ -1,0 +1,87 @@
+\begin{tikzpicture}
+
+\begin{axis}[
+title=\textbf{Momentum conservation},
+width=13cm,
+height=8cm,
+legend cell align={left},
+legend style={
+  font=\small,
+},
+legend pos=south east,
+log basis x={10},
+log basis y={10},
+tick align=outside,
+tick pos=left,
+x grid style={gray!30},
+y grid style={gray!30},
+xlabel={Integration step},
+xmode=log,
+xmajorgrids,
+xminorgrids,
+xtick style={color=black},
+xticklabels={0, 1 ms, 10 ms, 100 ms},
+ylabel={Momentum Error [$Nm|Nm/s$]},
+ymajorgrids,
+ymin=4.07312200922081e-13, ymax=46.1593526201007,
+ymode=log,
+ytick style={color=black}
+]
+
+\addplot [semithick, color=blue, mark=diamond*, mark size=3, mark options={solid}]
+table {%
+0.001 1.90101158232996e-11
+0.002 6.79043715040473e-10
+0.01 3.83657019345551e-06
+0.02 0.000135309502917322
+0.1 0.383867410887601
+};
+\addlegendentry{jaxsim$|$rk4$|$lin}
+\addplot [semithick, color=blue, style=dashed, mark=diamond*, mark size=3, mark options={solid}]
+table {%
+0.001 1.77321217833085e-12
+0.002 6.21961498964047e-11
+0.01 3.34150572284626e-07
+0.02 1.12866321872707e-05
+0.1 0.0350468654136314
+};
+\addlegendentry{jaxsim$|$rk4$|$ang}
+
+\addplot [semithick, color=red, mark=square*, mark size=3, mark options={solid}]
+table {%
+0.001 0.000438310539158653
+0.002 0.00351241495113189
+0.01 0.423147371782174
+0.02 1.04406881711968
+0.1 10.6029429182747
+};
+\addlegendentry{jaxsim$|$euler$|$lin}
+\addplot [semithick, color=red, style=dashed, mark=square*, mark size=3, mark options={solid}]
+table {%
+0.001 3.69804572109861e-05
+0.002 0.000296285789048488
+0.01 0.0353847170107457
+0.02 0.0934981550551262
+0.1 0.663030554407335
+};
+\addlegendentry{jaxsim$|$euler$|$ang}
+
+\addplot [semithick, color=black, mark=*, mark size=3, mark options={solid}]
+table {%
+0.001 6.4199003561524e-07
+0.002 5.13484585604931e-06
+0.01 0.000637443673732918
+0.02 0.00135045868665511
+};
+\addlegendentry{gazebo$|$euler$|$lin}
+\addplot [semithick, color=black, style=dashed, mark=*, mark size=3, mark options={solid}]
+table {%
+0.001 0.00016765534503528
+0.002 0.000326180638541951
+0.01 0.00272485241781917
+0.02 0.00552800342669997
+};
+\addlegendentry{gazebo$|$euler$|$ang}
+\end{axis}
+
+\end{tikzpicture}

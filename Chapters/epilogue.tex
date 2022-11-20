@@ -1,0 +1,160 @@
+\bookmarksetup{startatroot} % refer to ctan bookmark@startatroot
+% \phantomsection
+% \addtocontents{toc}{\protect\vspace{\beforebibskip}}
+% \addcontentsline{toc}{chapter}{\tocEntry{Conclusions}}
+
+% \chapter*{Conclusions}
+
+% Lorem ipsum at nusquam appellantur his, ut eos erant homero
+% concludaturque. Albucius appellantur deterruisset id eam, vivendum
+% partiendo dissentiet ei ius. Vis melius facilisis ea, sea id convenire
+% referrentur, takimata adolescens ex duo. Ei harum argumentum per. Eam
+% vidit exerci appetere ad, ut vel zzril intellegam interpretaris.
+
+% \cleardoublepage
+\phantomsection
+\addtocontents{toc}{\protect\vspace{\beforebibskip}}
+\addcontentsline{toc}{chapter}{\tocEntry{Epilogue}}
+
+\acresetall
+\chapter*{Epilogue}
+\chaptermark{Epilogue}
+
+\section*{Summary}
+
+Part~\ref{part:foundations} introduced the reader to the fundamental concepts and notation used throughout this thesis.
+In particular, Chapter~\ref{ch:introduction} introduced robotic simulators, describing their main components and properties, and provided a brief description of the technologies that enabled the activities related to this thesis.
+Chapter~\ref{ch:robot_modelling}, after an initial overview of frame kinematics and rigid body dynamics, derived the \acp{EoM} of a rigid multibody system describing the dynamics of floating-base robots.
+Then, Chapter~\ref{ch:reinforcement_learning} provided a bird-eye view of \ac{RL}.
+With the goal of formulating the theory behind \ac{PPO}, that is the \ac{RL} algorithm used in Part~\ref{part:contribution}, this second background chapter first defined all the elements necessary to formalise the \ac{RL} problem, then it described the taxonomy of the available algorithms available to compute a solution, and finally provided the theory of policy optimisation.
+
+The thesis continued with Part~\ref{part:contribution}, describing the contributions to knowledge of this thesis.
+The first two chapters analysed the challenges of creating robotic environments for \ac{RL} research for the aim of sampling experience.
+Motivated by the fragmented state of the existing frameworks providing environments for robotics and the desire to develop environments that could run deterministically on either simulated or real-time runtimes without the need for major refactoring, Chapter~\ref{ch:rl_env_for_robotics} presented \scenario and Gym-Ignition.
+\scenario (\spacedlowsmallcaps{SCEN}e interf\spacedlowsmallcaps{A}ces for \spacedlowsmallcaps{R}obot \spacedlowsmallcaps{I}nput/\spacedlowsmallcaps{O}utput) provides unified interfaces for entities part of a scene like World and Model.
+Gym-Ignition, instead, provides abstraction layers of different components that structure a robotic environment, like the Task and the Runtime.
+The combination of the two projects enables a modular development of environments for robotics, where the decision-making logic could be implemented only once and executed transparently on all the supported runtimes, either simulated or in real-time.
+Furthermore, the modular structure of Gym-Ignition isolates the boilerplate code of all environments sharing a specific runtime, reducing code duplication and speeding up the development by only focusing on the definition of decision-making logic.
+We validated the overall learning pipeline in Chapter~\ref{ch:learning_from_scratch}, where we introduced the definition of the decision-making logic for training a \ac{RL} policy capable of synthesising whole-body push recovery strategies for the humanoid robot iCub.
+The emergence of the policy's final behaviours was guided by a reward shaping approach that, while remaining within the model-free category from the \ac{RL} perspective, enabled the inclusion of prior information computed from the model description of the robot.
+
+To conclude, the last chapters of Part~\ref{part:contribution} analysed the problem of the high computational cost associated with the sampling of synthetic data from rigid multibody simulations.
+Motivated by the long time required for training the policy presented in Chapter~\ref{ch:learning_from_scratch}, and the increased interest by the robot learning community to offload and parallelize computation on hardware accelerators, we proposed a simulation architecture to maximise the sampling performance of simulated data for robot locomotion applications.
+Towards this aim, in Chapter~\ref{ch:contact_aware_dynamics}, we introduced a continuous state-space representation modelling the contact-aware dynamics of floating-base robots.
+Assuming the knowledge of the terrain surface's smooth profile, and formulating a soft-contacts model to compute the interaction forces for point-surface collisions, we obtained a continuous \acs{ODE} system that can be integrated numerically to simulate its dynamical evolution over time.
+Finally, exploiting this representation, in Chapter~\ref{ch:scaling_rigid_body_simulations} we presented \jaxsim, a new physics engine capable to execute simulations of floating-base robots entirely on hardware accelerators like \acsp{GPU} and \acsp{TPU}.
+We adapted widely used \aclp{RBDA} to run in this context, formulating them with the notation introduced in Chapter~\ref{ch:robot_modelling}.
+Their definition was unified to be applicable also on fixed-based robots.
+We have benchmarked, among other properties, the scalability of \jaxsim when executed on \acp{GPU}, showing its potential when experience sampling can be performed with large parallelism.
+
+\section*{Discussions, Limitations, and Future work}
+
+To conclude the thesis, we provide final discussion points of each contribution to knowledge, outlining pitfalls and future work directions.
+
+\subsection*{\autoref{ch:rl_env_for_robotics}: Reinforcement Learning Environments for Robotics}
+
+The proposed framework, composed by \scenario and Gym-Ignition, was initially aimed to be applicable to both simulated and real-world robots.
+We started the development with the simulation backend in late 2018, when we decided to leverage the Gazebo Sim general-purpose simulator that, at that time, did not even reach its first major release.
+Considering the status of \ac{RL} research for robotics in the same period, which was mainly performed either in PyBullet or the closed-source Mujoco, we saw the potential to obtain a complete, open-source, and actively maintained simulator to base our research.
+The possibility to extend the simulator through custom plugins, the support of integrating third-party physics engines, the new architecture allowing to use it as a library through programmatic calls, and the knowledge and infrastructure already developed for its predecessor Gazebo Classic, were all appealing to the direction we envisioned for our research.
+The Gazebo \scenario backend enabled us to experiment with our first \ac{RL} problem described in Chapter~\ref{ch:learning_from_scratch}, whose concluding details will be discussed in the next section.
+The framework remains a valid alternative to the other freely available online, especially nowadays since Gazebo Sim reached almost feature parity with its predecessor.
+Upstram activities are currently ongoing to bridge Gazebo Sim with Nvidia Omniverse and the Isaac simulator, expecting significant advances particularly regarding rendering capabilities.
+Considering the limitations of newer solutions like those presented in Chapter~\ref{ch:scaling_rigid_body_simulations}, general-purpose simulators will remain the standard when perception is required for the aim of sampling synthetic data for \ac{RL}-based robotics research.
+Nonetheless, our Gazebo \scenario backend still has limitations.
+Our \acp{API} do not yet support the sensor interfaces of Gazebo Sim, therefore their data can only be gathered from the network, a solution that does not ensure the reproducibility of sampled data.
+Considering the generic \scenario project, instead, after we refocused the research project to rely mainly on simulations, the activities of a real-time backend to communicate with YARP-based robots like the iCub remained on hold since.
+The possibility of running the same environment implementation on both simulated and real-world robots is an interesting solution for sim-to-real research, and it will be considered for future activities.
+From the Gym-Ignition point of view, instead, limitations are less impacting.
+The framework is generic enough for developing most categories of robotic environments.
+What is still missing is a collection of canonical examples and benchmarks similar to the robotic environments provided by OpenAI.
+Access to a new collection would help the community to have a more diverse range of environments that, thanks to Gazebo Sim, could run on any physics engine supported by the simulator.
+
+\subsection*{\autoref{ch:learning_from_scratch}: Learning from scratch exploiting robot models}
+
+In this chapter, we proposed a scheme to train a policy with \ac{RL} for balancing a simulated humanoid robot in the presence of external disturbances, sampling synthetic data from the framework proposed in the previous chapter.
+We adopted a process based on reward shaping to guide the the state space exploration throughout the training phase.
+Starting from a simple reward structure, we tried to address undesired behaviour by iteratively adding new terms, until its final form.
+We decided to control most of the \acp{DoF} of the iCub robot, acknowledging that the kinematics is highly redundant, and the policy optimisation could have stalled to local optima.
+Parameter tuning is paramount for these applications, and details are too often left out from research discussions.
+For tuning our reward function (for each term, its weights and kernel parameters), we adopted a heuristic method in which we analysed the learning curves of individual terms of the reward, tuning the sensitivity of the corresponding kernel if the algorithm was not improving its performance, and then balancing the gain to obtain the desired trade-off among all the reward terms.
+Nonetheless, each experiment was days long on powerful workstations, and parameter tuning resulted in a long and, at some point, quite extenuating process.
+Much work also went into the training infrastructure, leveraging a cluster of machines and implementing the proper experiment deployment, with logging and synchronisation support.
+
+Beyond the training process, also our results show limitations, particularly when possible future sim-to-real applications are considered.
+Our control architecture relies on a policy providing velocity references, that are integrated and given as inputs to independent \pid joint controllers, generating the final joint torques actuated by the simulator.
+Beyond being difficult to tune with performance comparable to those of the real-world counterpart, the low-level \pid controllers present a trade-off between accuracy and compliance.
+In our experiment, the position \pid controllers resulted in a stiff robot, that together with rigid contacts, limited the emergence of a natural, smooth, and more human-like behaviour.
+We think two different directions can be considered for improvements.
+As first direction, \pid controllers could be replaced by a single whole-body controller that typically exploits the information of the model dynamics.
+It would consider the entire robot as a whole and possibly reduce the differences from real robots.
+However, they are more complex to design, more computationally expensive, and making them work reliably on all the robot configurations allowed by the state space of the \ac{MDP} is difficult.
+A second direction could consider different policy outputs (joint torques, velocities, positions, \etc), which means a different nature of the high-level trajectory.
+Previous studies~\parencite{peng_learning_2017,reda_learning_2020} on the subject were not conclusive, and the choice of the action space remains highly related to the type of the decision making logic.
+In both cases, a change in policy output and its corresponding action space could have major effects on exploration.
+Common \ac{RL} algorithms for continuous actions usually learn a distribution from which actions are sampled during the training process for exploration purposes.
+The typical choice is a multivariate Gaussian distribution, but it does not play well with bounded spaces.
+Other studies have found other distributions like the Beta~\parencite{chou_improving_2017} that behave better in this context.
+
+Studies investigating robot control with \ac{RL} could be considered part of the bigger umbrella of trajectory optimisation, in which applications like push-recovery and locomotion are instances.
+As reviewed in Section~\ref{sec:review_rl_robot_locomotion}, application targeting quadrupeds already managed to successfully target real robots.
+The situation for real bipeds, instead, from when our research project started in 2018, didn't progress noticeably.
+The gap between the latest simulated results~\parencite{peng_ase_2022} and the few ones targeting real-world robots~\parencite{castillo_robust_2021,li_reinforcement_2021,rodriguez_deepwalk_2021,bloesch_towards_2022} is still wide.
+Common characteristics of these studies are either the usage of large simulations with techniques of domain randomization and imitation learning, or the usage of curriculum learning and the introduction of non-ideal effects in simulation like actuation delays.
+
+In view of this discussion, for locomotion purposes, we think that imitation learning could provide a suitable trade-off between exploration guidance, avoidance of local minima, and learning stability.
+Future activities will focus of integrating novel motion generation techniques~\parencite{viceconte_adherent_2022} within \ac{RL} environments.
+Practitioners working in \ac{RL} applied to robotics must be aware that this field suffers of mostly all the challenges that have been identified by the community~\parencite{dulac-arnold_empirical_2021}, and can learn from their successes and failures~\parencite{ibarz_how_2021}.
+
+\subsection*{\autoref{ch:contact_aware_dynamics}: Contact-aware Multibody Dynamics}
+
+This chapter proposed a state-space representation modelling the dynamics of a floating-base robot in contact with a ground surface, that can be integrated numerically over time to compute the trajectory of the system.
+Being formulated in reduced coordinates, the system dynamics is forced to evolve enforcing the joint constraints.
+While being quite generic and providing a compact formulation applicable to any articulated structure, it presents different limitations.
+The collision detection corresponding to the contact model considers only points rigidly attached to the links and a smooth ground surface.
+Despite being able to approximate generic collision shapes like arbitrarily complex meshes, the cost of collision detection grows linearly with the number of considered points.
+For what regards primitive shapes, better methodologies based on geometrical properties exists, and would be much more efficient (think, as an example, the simple case of a sphere, that now has to be approximated with dozens or hundreds of points).
+With these methodologies in place, the implemented logic could also be extended to detect collisions between bodies, enabling the applicability to neighbour domains like robot manipulation.
+Another direction of possible improvements regards the integration schemes.
+As shown in the benchmarks of Chapter~\ref{ch:scaling_rigid_body_simulations}, the forward Euler scheme is the fastest (and simpler) integrator, but its accuracy is not as good as what  is achieved by the \ac{RK4} scheme.
+Other common methods often used in similar physics engines, like semi-implicit and implicit schemes, could provide performance similar to \ac{RK4} at a cost comparable to forward Euler.
+Finally, the state-space representation, in its default form, does not allow to enforce bounds to state space variables.
+Common workarounds involve the introduction of penalty-based continuous forces~\parencite{xu_accelerated_2022}, or introducing exogenous variables mapping the unbounded joint positions to a bounded range.
+Future work will address all these limitations, extending the supported use-cases for the physics engine proposed in Chapter~\ref{ch:scaling_rigid_body_simulations}.
+
+\subsection*{\autoref{ch:scaling_rigid_body_simulations}: Scaling Rigid Body Simulations}
+
+In this last chapter, we presented and benchmarked \jaxsim, a new physics engine in reduced coordinates capable of executing rigid-body simulations on modern hardware accelerators, including \acp{CPU}, \acp{GPU}, and \acp{TPU}.
+It is based on \jax, a new framework developed by Google that, thanks to its properties, is experiencing a quick and wide adoption in diverse domains.
+Its key features are the possibility to compile kernels developed in Python with a \ac{JIT} approach, auto-vectorization support, NumPy compatibility, and high-order \ac{AD} support.
+All these features are inherited by \jaxsim, whose algorithms can be executed with all the benefits of the underlying technology.
+\jaxsim, however, also inherits the limitations of \jax.
+The need to compile code at its first execution could take many minutes, depending on the complexity of the logic and the active hardware acceleration.
+The \ac{GPU} and \ac{TPU} backends of \jax are much more optimised compared to the \ac{CPU} backend, that nonetheless, despite longer compiling time, is able to run code pretty fast compared to plain Python.
+We have not yet optimised our algorithms aggressively to improve compilation time, especially because we expect to see soon caching support of compiled code.
+Regarding scalability, our benchmarks considered two \acp{GPU} with 640 and 4608 CUDA cores.
+The potential of executing code on these types of hardware, when the problem permits parallelization, becomes year after year more appealing considering the technological progress.
+For example, the newest Nvidia \ac{GPU} architecture comes with more than 10 thousand CUDA cores.
+Furthermore, \jax also supports multi-\ac{GPU} configurations, but setting them up is more complicated and requires small changes to the implemented logic.
+To conclude the discussion on the features related to \jax, our algorithms are not yet compatible with its \ac{AD} capability.
+The activities to assess the support and implement \ac{AD} support are ongoing, and we expect they will enable us to start investigating all the new emerging methodologies involving differentiable simulations.
+
+Other activities planned for the near future involve the \ac{RL} stack built over \jaxsim.
+The combination of environment interfacing with \jaxsim and \ac{RL} algorithms implemented in \jax would result in a single application whose data never leaves the hardware accelerator.
+Therefore, beyond the sampling performance of parallel simulations, the complete pipeline would also prevent the data transfer overhead that is always present when some computation has to happen on \acp{CPU}.
+We already implemented a \jax version of \ac{PPO} and tested on the canonical examples of inverted pendulum and cartpole swing-up, but the results are too preliminary and have not been included.
+Future work will continue this activity, extending the investigation to contact-rich locomotion problems.
+Finally, we would like to embed these environments in Gym-Ignition, creating a 	new \jaxsim \scenario \acp{API}, so that all the benefits of future real-time backends could be applicable on \jaxsim experiments.
+Towards this goal, Gym-Ignition should switch to the upcoming functional version of \verb|gym.Env| that has been recently proposed upstream. 
+
+\vfill
+\section*{Conclusions}
+
+In modern times, having access to a large amount of data and massive computational power has become paramount for succeeding in any context related to machine learning and, more generally, artificial intelligence.
+In this thesis, we considered the challenging domain of robotics, focusing on locomotion applications for humanoid robot planning and control.
+Throughout the chapters, we explored how modern technology could help us generate synthetic data considering the domain-specific characteristics and limitations of the targeted application.
+We believe that, particularly in this domain, the infrastructure plays such an essential role to the extent that those possessing a large enough technological advantage would stand out with ease.
+We hope to have helped readers reaching this final paragraph understand the challenges and research directions that are still necessary to obtain the next generation of robots capable of seamlessly operating around us.
+Simulation technology is evolving rapidly.
+We believe that future progress that will inevitably characterise the next decades is going to set aside the real breakthroughs that all robotic practitioners have been waiting for long time.
+We can not wait to keep contributing with all the enthusiasm that characterised the activities carried out for this thesis.

@@ -1,0 +1,135 @@
+\chapter{Center of Pressure}
+\label{appendix:center_of_pressure}
+
+\begin{figure}
+    \centering
+    \resizebox{\textwidth}{!}{
+    \includegraphics{images/appendix/center_of_pressure.tikz}
+    }
+    \caption{Illustration of the setting in which the \ac{CoP} is calculated.}
+    \label{fig:center_of_pressure}
+\end{figure}
+
+In this section, we provide the intuition and equations for computing the \ac{CoP} of a rigid body.
+A practical example is the computation of the \ac{CoP} of a robot foot modelled as a body having the shape of a box, as illustrated in Figure~\ref{fig:center_of_pressure}.
+Let us assume the following properties:
+%
+\begin{itemize}
+    \item We assume a flat terrain with a normal $\hat{n} = (0, 0, 1) \in \realn^3$. Therefore, the normal remains constant over the entire surface supporting the body.
+    \item We consider the existence of $k$ external 6D forces $\forcesix_1,\, \forcesix_2,\, \dots, \, \forcesix_k \in \realn^6$ applied to different points of the body.
+    \item We introduce an unknown frame $C = (\pos[W]_{CoP}, [W])$ corresponding to the \ac{CoP} with $\pos[W]_{CoP}$ belonging to the supporting surface. The flat terrain assumption implies that the $z$ axis of the $C$ frame is normal to the terrain.
+\end{itemize}
+%
+\begin{definition*}[Center of Pressure]
+    The \ac{CoP} is the point $\pos[W]_{CoP} \in \realn^3$ belonging to the rigid body's supporting surface to which a pure linear force $\forcelin[W]_{CoP} \in \realn^3$ can be applied to produce the equivalent effects along the normal direction of all the external 6D forces.
+\end{definition*}
+%
+As first step, we need to combine all the external forces, computing a single \emph{equivalent} 6D force $\forcesix[W]_{eq} \in \realn^6$.
+If the external forces are expressed in $W$, the equivalent force is just the sum of external forces $\forcesix[W]_{eq} = \sum_{i} \forcesix[W]_i$.
+Instead, if they are are expressed in a local frame $F_i = (\pos[W]_i, [W])$, assuming the knowledge of the application point, we can use the transform introduced in Equation~\eqref{eq:sixd_force_transformation}:
+%
+\begin{equation*}
+    \forcesix[W]_{eq} =
+    \begin{bmatrix}
+        \forcelin[W]_{eq} \\ \forceang[W]_{eq}
+    \end{bmatrix}
+    =s
+    \sum_{i} \transfor[W]^{F_i} \forcesix[{F_i}]_i
+    .
+\end{equation*}
+%
+We can project the equivalent 6D force into the normal and tangential components with respect ground:
+%
+\begin{equation*}
+    \forcesix[W]_{eq}
+    =
+    \begin{bmatrix}
+        \forcelin[W]_{eq}^\perp + \forcelin[W]_{eq}^\parallel \\
+        \forceang[W]_{eq}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \forcelin[W]_{eq}^\perp \\
+        \forceang[W]_{eq}
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+        \forcelin[W]_{eq}^\parallel \\
+        \zeros_3
+    \end{bmatrix}
+    =
+    \forcesix[W]_{eq}^\perp + \forcesix[W]_{eq}^\parallel
+    ,
+\end{equation*}
+%
+where we grouped the equivalent angular component $\forceang[W]_{eq}$ with the perpendicular term.
+The linear component of the equivalent perpendicular force can be computed as:
+%
+\begin{equation*}
+    \forcelin[W]_{eq}^\perp = (\forcelin[W]_{eq} \cdot \hat{n}) \, \hat{n} =
+    \begin{bmatrix}
+        0 \\ 0 \\ f_{eq}^{\perp z}
+    \end{bmatrix}
+    .
+\end{equation*}
+%
+The point associated to the \ac{CoP} can now be obtained by solving for $\pos[W]_{CoP}$ the following equation that expresses the equivalent 6D force into the \ac{CoP} and enforces it to be a pure linear force by setting the resulting angular component to zero:
+%
+\begin{align*}
+    \forcesix[C]_{CoP} &= \begin{bmatrix}
+        \forcelin[C]_{CoP} \\ \zeros_3
+    \end{bmatrix} =
+    \transfor[C]^W \forcesix[W]_{eq}^\perp =
+    \begin{pmatrix}
+        \eye_3 & \zeros_3 \\
+        -\pos[W]_{CoP}^\wedge & \eye_3
+    \end{pmatrix}
+    \begin{bmatrix}
+        \forcesix[W]_{eq}^\perp \\ \forceang[W]_{eq}
+    \end{bmatrix} \\
+    &=
+    \begin{bmatrix}
+        \forcesix[W]_{eq}^\perp \\
+        \forcesix[W]_{eq}^\perp \times \pos[W]_{CoP} + \forceang[W]_{eq}
+    \end{bmatrix}
+    .
+\end{align*}
+%
+where we used the relation $\ori[C]_W = -\pos[W]_{CoP}$.
+We can rearrange the second equation as follows:
+%
+\begin{equation*}
+    \forceang[W]_{eq} =
+    \begin{bmatrix}
+        m_{eq}^{x} \\
+        m_{eq}^{y} \\
+        m_{eq}^{z}
+    \end{bmatrix} =
+    \forcelin[W]_{eq}^\perp \times \pos[W]_{CoP} =
+    \begin{pmatrix}
+        0 & - f_{eq}^{\perp z} & 0 \\
+        f_{eq}^{\perp z} & 0 & 0 \\
+        0 & 0 & 0
+    \end{pmatrix}
+    \begin{bmatrix}
+        p_{CoP}^{x} \\
+        p_{CoP}^{y} \\
+        p_{CoP}^{z}
+    \end{bmatrix}
+\end{equation*}
+%
+and finally resolve for $\pos[W]_{CoP}$:
+%
+\begin{equation*}
+    \pos[W]_{CoP} =
+    \begin{bmatrix}
+        m_{eq}^{y} / f_{eq}^{\perp z} \\
+        -m_{eq}^{x} / f_{eq}^{\perp z} \\
+        0
+    \end{bmatrix}
+    .
+\end{equation*}
+%
+This result can be extended to different terrain normals through geometrical transformations.
+The most impacting difference would regard the frame corresponding to the \ac{CoP}, defined as $C = (\pos[W]_{CoM}, [W])$.
+If the terrain has a different normal, the orientation of the frame should still be considered a known value but, this time, obtained by the properties of the surface.

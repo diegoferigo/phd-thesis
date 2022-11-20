@@ -1,0 +1,89 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,503); %set diagram left start at 0, and has height of 503
+
+%Rounded Rect [id:dp7267712025417311] 
+\draw  [fill={rgb, 255:red, 219; green, 207; blue, 176 }  ,fill opacity=1 ] (20,30) .. controls (20,24.48) and (24.48,20) .. (30,20) -- (430,20) .. controls (435.52,20) and (440,24.48) .. (440,30) -- (440,60) .. controls (440,65.52) and (435.52,70) .. (430,70) -- (30,70) .. controls (24.48,70) and (20,65.52) .. (20,60) -- cycle ;
+%Shape: Rectangle [id:dp11649762570639655] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 93; green, 95; blue, 113 }  ,fill opacity=1 ] (20,110) -- (440,110) -- (440,130.5) -- (20,130.5) -- cycle ;
+%Rounded Rect [id:dp9148908922238077] 
+\draw  [fill={rgb, 255:red, 158; green, 188; blue, 158 }  ,fill opacity=1 ] (20,154) .. controls (20,146.27) and (26.27,140) .. (34,140) -- (126,140) .. controls (133.73,140) and (140,146.27) .. (140,154) -- (140,196) .. controls (140,203.73) and (133.73,210) .. (126,210) -- (34,210) .. controls (26.27,210) and (20,203.73) .. (20,196) -- cycle ;
+%Rounded Rect [id:dp15263500721246337] 
+\draw  [fill={rgb, 255:red, 158; green, 188; blue, 158 }  ,fill opacity=1 ] (150,154) .. controls (150,146.27) and (156.27,140) .. (164,140) -- (256,140) .. controls (263.73,140) and (270,146.27) .. (270,154) -- (270,196) .. controls (270,203.73) and (263.73,210) .. (256,210) -- (164,210) .. controls (156.27,210) and (150,203.73) .. (150,196) -- cycle ;
+%Shape: Rectangle [id:dp6129314280758134] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 93; green, 95; blue, 113 }  ,fill opacity=1 ] (20,220.25) -- (440,220.25) -- (440,240.75) -- (20,240.75) -- cycle ;
+%Rounded Rect [id:dp8662507824418344] 
+\draw  [fill={rgb, 255:red, 184; green, 216; blue, 216 }  ,fill opacity=1 ] (20,258.75) .. controls (20,254.33) and (23.58,250.75) .. (28,250.75) -- (72,250.75) .. controls (76.42,250.75) and (80,254.33) .. (80,258.75) -- (80,282.75) .. controls (80,287.17) and (76.42,290.75) .. (72,290.75) -- (28,290.75) .. controls (23.58,290.75) and (20,287.17) .. (20,282.75) -- cycle ;
+%Rounded Rect [id:dp75965787452442] 
+\draw  [fill={rgb, 255:red, 184; green, 216; blue, 216 }  ,fill opacity=1 ] (90,258.75) .. controls (90,254.33) and (93.58,250.75) .. (98,250.75) -- (142,250.75) .. controls (146.42,250.75) and (150,254.33) .. (150,258.75) -- (150,282.75) .. controls (150,287.17) and (146.42,290.75) .. (142,290.75) -- (98,290.75) .. controls (93.58,290.75) and (90,287.17) .. (90,282.75) -- cycle ;
+%Rounded Rect [id:dp1391792115082887] 
+\draw  [fill={rgb, 255:red, 184; green, 216; blue, 216 }  ,fill opacity=1 ] (160,258.75) .. controls (160,254.33) and (163.58,250.75) .. (168,250.75) -- (212,250.75) .. controls (216.42,250.75) and (220,254.33) .. (220,258.75) -- (220,282.75) .. controls (220,287.17) and (216.42,290.75) .. (212,290.75) -- (168,290.75) .. controls (163.58,290.75) and (160,287.17) .. (160,282.75) -- cycle ;
+%Rounded Rect [id:dp0027164724079291602] 
+\draw  [fill={rgb, 255:red, 184; green, 216; blue, 216 }  ,fill opacity=1 ] (230,258.75) .. controls (230,254.33) and (233.58,250.75) .. (238,250.75) -- (262,250.75) .. controls (266.42,250.75) and (270,254.33) .. (270,258.75) -- (270,282.75) .. controls (270,287.17) and (266.42,290.75) .. (262,290.75) -- (238,290.75) .. controls (233.58,290.75) and (230,287.17) .. (230,282.75) -- cycle ;
+%Shape: Rectangle [id:dp36542910155026054] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 93; green, 95; blue, 113 }  ,fill opacity=1 ] (20,300.25) -- (440,300.25) -- (440,320.75) -- (20,320.75) -- cycle ;
+%Rounded Rect [id:dp7895337940281554] 
+\draw  [fill={rgb, 255:red, 204; green, 204; blue, 204 }  ,fill opacity=1 ] (20,348.25) .. controls (20,338.31) and (28.06,330.25) .. (38,330.25) -- (422,330.25) .. controls (431.94,330.25) and (440,338.31) .. (440,348.25) -- (440,402.25) .. controls (440,412.19) and (431.94,420.25) .. (422,420.25) -- (38,420.25) .. controls (28.06,420.25) and (20,412.19) .. (20,402.25) -- cycle ;
+%Rounded Rect [id:dp7794889085842354] 
+\draw  [fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (30,354.25) .. controls (30,346.52) and (36.27,340.25) .. (44,340.25) -- (206,340.25) .. controls (213.73,340.25) and (220,346.52) .. (220,354.25) -- (220,396.25) .. controls (220,403.98) and (213.73,410.25) .. (206,410.25) -- (44,410.25) .. controls (36.27,410.25) and (30,403.98) .. (30,396.25) -- cycle ;
+%Image [id:dp42090911105008244] 
+\draw (156,375.25) node  {\includegraphics[width=75pt,height=52.5pt]{images/contributions/chapter_5/icub_ignition.png}};
+%Rounded Rect [id:dp797716642212215] 
+\draw  [fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (230,354.25) .. controls (230,346.52) and (236.27,340.25) .. (244,340.25) -- (336,340.25) .. controls (343.73,340.25) and (350,346.52) .. (350,354.25) -- (350,396.25) .. controls (350,403.98) and (343.73,410.25) .. (336,410.25) -- (244,410.25) .. controls (236.27,410.25) and (230,403.98) .. (230,396.25) -- cycle ;
+%Image [id:dp837128896640964] 
+\draw (323,375.25) node  {\includegraphics[width=37.5pt,height=37.5pt]{images/contributions/chapter_5/icub.png}};
+%Shape: Rectangle [id:dp22750502528879513] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 93; green, 95; blue, 113 }  ,fill opacity=1 ] (20,80) -- (440,80) -- (440,100) -- (20,100) -- cycle ;
+%Rounded Rect [id:dp8412048780968502] 
+\draw  [fill={rgb, 255:red, 158; green, 188; blue, 158 }  ,fill opacity=1 ] (280,154) .. controls (280,146.27) and (286.27,140) .. (294,140) -- (336,140) .. controls (343.73,140) and (350,146.27) .. (350,154) -- (350,196) .. controls (350,203.73) and (343.73,210) .. (336,210) -- (294,210) .. controls (286.27,210) and (280,203.73) .. (280,196) -- cycle ;
+%Rounded Rect [id:dp30935993117087457] 
+\draw  [fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (360,354.25) .. controls (360,346.52) and (366.27,340.25) .. (374,340.25) -- (416,340.25) .. controls (423.73,340.25) and (430,346.52) .. (430,354.25) -- (430,396.25) .. controls (430,403.98) and (423.73,410.25) .. (416,410.25) -- (374,410.25) .. controls (366.27,410.25) and (360,403.98) .. (360,396.25) -- cycle ;
+
+% Text Node
+\draw (230,45) node   [align=left] {Agent};
+% Text Node
+\draw (230,90) node  [color={rgb, 255:red, 222; green, 222; blue, 222 }  ,opacity=1 ] [align=left] {{\fontfamily{pcr}\selectfont \textbf{gym.Env}}};
+% Text Node
+\draw (80,175) node  [font=\small] [align=left] {GazeboRuntime};
+% Text Node
+\draw (210,175) node  [font=\small] [align=left] {RealTimeRuntime};
+% Text Node
+\draw (230,230.5) node  [font=\normalsize,color={rgb, 255:red, 222; green, 222; blue, 222 }  ,opacity=1 ] [align=left] {{\fontfamily{pcr}\selectfont \textbf{gym\_ignition.base.Task}}};
+% Text Node
+\draw (50,270.75) node   [align=left] {Task \#1};
+% Text Node
+\draw (120,270.75) node   [align=left] {Task \#2};
+% Text Node
+\draw (190,270.75) node   [align=left] {Task \#3};
+% Text Node
+\draw (250,270.75) node   [align=left] {...};
+% Text Node
+\draw (230,310.5) node  [font=\normalsize,color={rgb, 255:red, 222; green, 222; blue, 222 }  ,opacity=1 ] [align=left] {{\fontfamily{pcr}\selectfont \textbf{ScenarIO APIs}}};
+% Text Node
+\draw (70,375.25) node   [align=left] {\begin{minipage}[lt]{45.79pt}\setlength\topsep{0pt}
+\begin{center}
+ScenarIO\\Gazebo
+\end{center}
+
+\end{minipage}};
+% Text Node
+\draw (271,375.25) node   [align=left] {\begin{minipage}[lt]{45.79pt}\setlength\topsep{0pt}
+\begin{center}
+ScenarIO\\YARP
+\end{center}
+
+\end{minipage}};
+% Text Node
+\draw (230,120.25) node  [color={rgb, 255:red, 222; green, 222; blue, 222 }  ,opacity=1 ] [align=left] {{\fontfamily{pcr}\selectfont \textbf{gym\_ignition.base.Runtime}}};
+% Text Node
+\draw (315,175) node   [align=left] {...};
+% Text Node
+\draw (395,375.25) node   [align=left] {\begin{minipage}[lt]{11.22pt}\setlength\topsep{0pt}
+\begin{center}
+...
+\end{center}
+
+\end{minipage}};
+
+\end{tikzpicture}

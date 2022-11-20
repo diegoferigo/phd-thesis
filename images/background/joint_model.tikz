@@ -1,0 +1,60 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+%Shape: Ellipse [id:dp22562326094874752] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (50.49,152.41) .. controls (45.24,142.69) and (70.52,118.85) .. (106.96,99.15) .. controls (143.4,79.46) and (177.2,71.37) .. (182.45,81.08) .. controls (187.7,90.8) and (162.42,114.65) .. (125.98,134.34) .. controls (89.54,154.03) and (55.74,162.12) .. (50.49,152.41) -- cycle ;
+%Shape: Ellipse [id:dp20902465013262028] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (227.82,64.67) .. controls (238.74,63.02) and (252.61,94.88) .. (258.8,135.84) .. controls (264.98,176.8) and (261.15,211.34) .. (250.22,212.99) .. controls (239.3,214.64) and (225.43,182.77) .. (219.25,141.82) .. controls (213.06,100.86) and (216.9,66.32) .. (227.82,64.67) -- cycle ;
+%Straight Lines [id:da9403679336862211] 
+\draw [color={rgb, 255:red, 74; green, 74; blue, 74 }  ,draw opacity=1 ]   (160,90) ;
+\draw [shift={(160,90)}, rotate = 0] [color={rgb, 255:red, 74; green, 74; blue, 74 }  ,draw opacity=1 ][fill={rgb, 255:red, 74; green, 74; blue, 74 }  ,fill opacity=1 ][line width=0.75]      (0, 0) circle [x radius= 3.35, y radius= 3.35]   ;
+%Straight Lines [id:da26099685030831543] 
+\draw [color={rgb, 255:red, 74; green, 74; blue, 74 }  ,draw opacity=1 ]   (230,120) ;
+\draw [shift={(230,120)}, rotate = 0] [color={rgb, 255:red, 74; green, 74; blue, 74 }  ,draw opacity=1 ][fill={rgb, 255:red, 74; green, 74; blue, 74 }  ,fill opacity=1 ][line width=0.75]      (0, 0) circle [x radius= 3.35, y radius= 3.35]   ;
+%Curve Lines [id:da4321072471542581] 
+\draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (160,90) .. controls (171.17,62.64) and (214.4,32.97) .. (229.55,117.41) ;
+\draw [shift={(230,120)}, rotate = 260.46] [fill={rgb, 255:red, 65; green, 117; blue, 5 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (6.25,-3) -- (0,0) -- (6.25,3) -- cycle    ;
+%Straight Lines [id:da5033444960437089] 
+\draw [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,draw opacity=1 ]   (230,120) -- (257,120) ;
+\draw [shift={(260,120)}, rotate = 180] [fill={rgb, 255:red, 208; green, 2; blue, 27 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da9793828369649135] 
+\draw [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,draw opacity=1 ]   (230,120) -- (230,93) ;
+\draw [shift={(230,90)}, rotate = 90] [fill={rgb, 255:red, 208; green, 2; blue, 27 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+%Straight Lines [id:da6257851620612248] 
+\draw [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,draw opacity=1 ]   (85.02,130) -- (107.5,115.05) ;
+\draw [shift={(110,113.39)}, rotate = 146.37] [fill={rgb, 255:red, 208; green, 2; blue, 27 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da48525991827365766] 
+\draw [color={rgb, 255:red, 208; green, 2; blue, 27 }  ,draw opacity=1 ]   (85.02,130) -- (70.07,107.52) ;
+\draw [shift={(68.41,105.02)}, rotate = 56.37] [fill={rgb, 255:red, 208; green, 2; blue, 27 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+%Curve Lines [id:da3853419470018037] 
+\draw [color={rgb, 255:red, 139; green, 87; blue, 42 }  ,draw opacity=1 ]   (85.02,130) .. controls (108.58,129.02) and (154.79,127.85) .. (159.7,92.77) ;
+\draw [shift={(160,90)}, rotate = 94.27] [fill={rgb, 255:red, 139; green, 87; blue, 42 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (6.25,-3) -- (0,0) -- (6.25,3) -- cycle    ;
+%Curve Lines [id:da06046761262706557] 
+\draw [color={rgb, 255:red, 144; green, 19; blue, 254 }  ,draw opacity=1 ]   (85.02,130) .. controls (124.67,144.81) and (173.78,154.09) .. (227.54,121.52) ;
+\draw [shift={(230,120)}, rotate = 147.87] [fill={rgb, 255:red, 144; green, 19; blue, 254 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (6.25,-3) -- (0,0) -- (6.25,3) -- cycle    ;
+%Straight Lines [id:da6664776243348448] 
+\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (158.77,90.68) -- (184.8,97.82) ;
+\draw [shift={(187.7,98.62)}, rotate = 195.35] [fill={rgb, 255:red, 74; green, 144; blue, 226 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da16026129589074856] 
+\draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (158.77,90.68) -- (165.91,64.64) ;
+\draw [shift={(166.71,61.75)}, rotate = 105.35] [fill={rgb, 255:red, 74; green, 144; blue, 226 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+
+% Text Node
+\draw (194,57.6) node [anchor=south] [inner sep=0.75pt]  [font=\small,color={rgb, 255:red, 65; green, 117; blue, 5 }  ,opacity=1 ]  {$^{\operatorname{pre}( i)}\mathbf{H}_{\operatorname{suc}( i)} =^{\operatorname{pre}( i)}\mathbf{H}_{i}$};
+% Text Node
+\draw (85.02,133.4) node [anchor=north] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$\lambda ( i)$};
+% Text Node
+\draw (232,116.6) node [anchor=south west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 208; green, 2; blue, 27 }  ,opacity=1 ]  {$i\ =\ \operatorname{suc}( i)$};
+% Text Node
+\draw (125,107.6) node [anchor=south] [inner sep=0.75pt]  [font=\small,color={rgb, 255:red, 139; green, 87; blue, 42 }  ,opacity=1 ]  {$^{\lambda ( i)}\mathbf{H}_{\operatorname{pre}( i)}$};
+% Text Node
+\draw (161,167.6) node [anchor=south] [inner sep=0.75pt]  [font=\small,color={rgb, 255:red, 144; green, 19; blue, 254 }  ,opacity=1 ]  {$^{\lambda ( i)}\mathbf{H}_{i}$};
+% Text Node
+\draw (184,78.4) node [anchor=north] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\operatorname{pre}( i)$};
+
+\end{tikzpicture}

@@ -1,0 +1,162 @@
+\begin{tikzpicture}
+
+\begin{loglogaxis}[
+    width=14cm,
+    height=16cm,
+    title=\textbf{Parallel simulation $1~ms$ step - iCub 23 DoFs},
+    xmin=1,
+    xmax=16384,
+    enlarge x limits=0.1,
+    log basis x={2},
+    xtick={1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384},
+    xticklabels={1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384},
+    xticklabel style={rotate=-30},
+    xmajorgrids,
+    ymajorgrids,
+    yminorgrids,
+    yminorticks,
+    tick align=outside,
+    minor grid style={gray!8},
+    ytick={0.1, 1, 10, 100, 1000},
+    yticklabels={100 $\mu s$, 1 $ms$, 10 $ms$, 100 $ms$, 1 $s$},
+    legend pos=south east,
+    legend cell align={left},
+]
+
+% GPU laptop
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=blue,
+    mark=square*,
+    every node near coord/.append style={anchor=north west, font=\small},
+]
+coordinates{
+    (1, 9.05) [0.11]
+    (2, 9.69) [0.20]
+    (4, 9.66) [0.41]
+    (8, 9.52) [0.84]
+    (16, 9.75) [1.64]
+    (32, 10.2) [3.13]
+    (64, 11.6) [5.51]
+    (128, 14.0) [9.14]
+    (256, 19.0) [13.47]
+    (512, 30.0) [17.06]
+    (1024, 53.9) [18.99]
+    (2048, 104.0) [19.69]
+    (4096, 210) [19.50]
+};
+\addlegendentry{GPU laptop}
+
+% CPU laptop
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=red,
+    mark=*,
+    every node near coord/.append style={anchor=east, font=\small},
+]
+coordinates{
+    (1, 0.675) [1.48]
+    (2,0.691) []
+    (4,1.12) [3.57]
+    (8,2.08) [3.84]
+    (16,3.25) [4.92]
+    (32,5.99) [5.34]
+    (64,11.7) []
+    (128,22.2) [5.76]
+    (256,47.9) [5.34]
+    (512,94.3) [5.42]
+};
+\addlegendentry{CPU laptop}
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=red,
+    mark=*,
+    every node near coord/.append style={anchor=north, font=\small},
+    forget plot,
+]
+coordinates{
+    (2,0.691) [2.89]
+};
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=red,
+    mark=*,
+    every node near coord/.append style={anchor=south east, font=\small},
+    forget plot,
+]
+coordinates{
+    (64,11.7) [5.47]
+};
+
+% GPU workstation
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=teal,
+    mark=diamond*,
+    every node near coord/.append style={anchor=south, font=\small},
+]
+coordinates{
+    (1, 11.4) [0.08]
+    (2, 12.5) [0.16]
+    (4, 12.2) [0.32]
+    (8, 12.1) [0.66]
+    (16, 11.9) [1.34]
+    (32, 12.1) []
+    (64, 12.2) []
+    (128, 12.3) []
+    (256, 13.0) []
+    (512, 13.3) []
+    (1024, 14.7) []
+    (2048, 17.5) []
+    (4096, 24.9) []
+};
+\addlegendentry{GPU workstation}
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=teal,
+    mark=diamond*,
+    every node near coord/.append style={anchor=south, yshift=7, font=\small},
+    forget plot,
+]
+coordinates{
+    (32, 12.1) [2.64]
+    (64, 12.2) [5.24]
+    (128, 12.3) [10.40]
+};
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=teal,
+    mark=diamond*,
+    every node near coord/.append style={anchor=north, yshift=-5, font=\small},
+    forget plot,
+]
+coordinates{
+    (256, 13.0) [19.00]
+};
+\addplot[
+    nodes near coords,
+    point meta=explicit symbolic,
+    color=teal,
+    mark=diamond*,
+    every node near coord/.append style={anchor=north west, font=\small},
+    forget plot,
+]
+coordinates{
+    (512, 13.3) [38.49]
+    (1024, 14.7) [69.65]
+    (2048, 17.5) [117.02]
+    (4096, 24.9) [164.49]
+    (8192, 41.5) [197.39]
+    (16384, 76.8) [213.33]
+};
+
+\end{loglogaxis}
+
+\end{tikzpicture}

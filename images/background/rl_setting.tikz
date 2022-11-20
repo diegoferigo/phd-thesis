@@ -1,0 +1,69 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,452); %set diagram left start at 0, and has height of 452
+
+%Rounded Rect [id:dp39752562945391556] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 219; green, 207; blue, 176 }  ,fill opacity=1 ] (260,52) .. controls (260,39.85) and (269.85,30) .. (282,30) -- (348,30) .. controls (360.15,30) and (370,39.85) .. (370,52) -- (370,118) .. controls (370,130.15) and (360.15,140) .. (348,140) -- (282,140) .. controls (269.85,140) and (260,130.15) .. (260,118) -- cycle ;
+%Rounded Rect [id:dp9593711561574552] 
+\draw  [draw opacity=0][fill={rgb, 255:red, 231; green, 230; blue, 247 }  ,fill opacity=1 ] (230,190) .. controls (230,178.95) and (238.95,170) .. (250,170) -- (380,170) .. controls (391.05,170) and (400,178.95) .. (400,190) -- (400,250) .. controls (400,261.05) and (391.05,270) .. (380,270) -- (250,270) .. controls (238.95,270) and (230,261.05) .. (230,250) -- cycle ;
+%Straight Lines [id:da8939030663354035] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (180,205) -- (225,205) ;
+%Image [id:dp35223429794566263] 
+\draw (263,215) node  {\includegraphics[width=52.5pt,height=52.5pt]{images/background/icons/robot_1106917.png}};
+%Image [id:dp8610700532311985] 
+\draw (315,95) node  {\includegraphics[width=52.5pt,height=52.5pt]{images/background/icons/artificial_intelligence_1870470.png}};
+%Image [id:dp8470671760563812] 
+\draw (362,215) node  {\includegraphics[width=60pt,height=52.5pt]{images/background/icons/world_2699516.png}};
+%Image [id:dp09727896224900012] 
+\draw (308,214) node  {\includegraphics[width=30pt,height=21pt]{images/background/icons/double_arrow_2271561.png}};
+%Flowchart: Connector [id:dp6966759622974872] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (255,101) .. controls (255,98.24) and (257.24,96) .. (260,96) .. controls (262.76,96) and (265,98.24) .. (265,101) .. controls (265,103.76) and (262.76,106) .. (260,106) .. controls (257.24,106) and (255,103.76) .. (255,101) -- cycle ;
+%Flowchart: Connector [id:dp5520059274265601] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (395,220) .. controls (395,217.24) and (397.24,215) .. (400,215) .. controls (402.76,215) and (405,217.24) .. (405,220) .. controls (405,222.76) and (402.76,225) .. (400,225) .. controls (397.24,225) and (395,222.76) .. (395,220) -- cycle ;
+%Flowchart: Connector [id:dp3021205652086353] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (255,70) .. controls (255,67.24) and (257.24,65) .. (260,65) .. controls (262.76,65) and (265,67.24) .. (265,70) .. controls (265,72.76) and (262.76,75) .. (260,75) .. controls (257.24,75) and (255,72.76) .. (255,70) -- cycle ;
+%Flowchart: Connector [id:dp02686316933791344] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (225,235) .. controls (225,232.24) and (227.24,230) .. (230,230) .. controls (232.76,230) and (235,232.24) .. (235,235) .. controls (235,237.76) and (232.76,240) .. (230,240) .. controls (227.24,240) and (225,237.76) .. (225,235) -- cycle ;
+%Flowchart: Connector [id:dp720547756663287] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (365,85) .. controls (365,82.24) and (367.24,80) .. (370,80) .. controls (372.76,80) and (375,82.24) .. (375,85) .. controls (375,87.76) and (372.76,90) .. (370,90) .. controls (367.24,90) and (365,87.76) .. (365,85) -- cycle ;
+%Flowchart: Connector [id:dp03761476207127212] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 255; green, 255; blue, 255 }  ,fill opacity=1 ] (225,205) .. controls (225,202.24) and (227.24,200) .. (230,200) .. controls (232.76,200) and (235,202.24) .. (235,205) .. controls (235,207.76) and (232.76,210) .. (230,210) .. controls (227.24,210) and (225,207.76) .. (225,205) -- cycle ;
+%Straight Lines [id:da5271077386502879] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (180,101) -- (252,101) ;
+\draw [shift={(255,101)}, rotate = 180] [fill={rgb, 255:red, 63; green, 63; blue, 55 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da983026890618694] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (180,101) -- (180,205) ;
+%Straight Lines [id:da41996120566830697] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (120,235) -- (225,235) ;
+%Straight Lines [id:da19502552272511464] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (120,70) -- (252,70) ;
+\draw [shift={(255,70)}, rotate = 180] [fill={rgb, 255:red, 63; green, 63; blue, 55 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da7016227441664392] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (120,70) -- (120,235) ;
+%Straight Lines [id:da925525209004723] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (408,220) -- (460,220) ;
+\draw [shift={(405,220)}, rotate = 0] [fill={rgb, 255:red, 63; green, 63; blue, 55 }  ,fill opacity=1 ][line width=0.08]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+%Straight Lines [id:da0676252786803011] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (375,85) -- (459,85) ;
+%Straight Lines [id:da2170318754140803] 
+\draw [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ]   (459,85) -- (460,220) ;
+%Shape: Rectangle [id:dp7040862266064005] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 191; green, 139; blue, 133 }  ,fill opacity=1 ] (425,139.75) -- (495,139.75) -- (495,170) -- (425,170) -- cycle ;
+%Shape: Rectangle [id:dp6846946573573129] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 227; green, 231; blue, 211 }  ,fill opacity=1 ] (148,120) -- (210,120) -- (210,150) -- (148,150) -- cycle ;
+%Shape: Rectangle [id:dp25170544613108703] 
+\draw  [color={rgb, 255:red, 63; green, 63; blue, 55 }  ,draw opacity=1 ][fill={rgb, 255:red, 176; green, 181; blue, 179 }  ,fill opacity=1 ] (80,170) -- (160,170) -- (160,200) -- (80,200) -- cycle ;
+
+% Text Node
+\draw (315,260) node   [align=left] {Environment};
+% Text Node
+\draw (315.5,45) node   [align=left] {Agent};
+% Text Node
+\draw (120,185) node    {$\text{Reward} \ R_{t}$};
+% Text Node
+\draw (460,154.88) node    {$\text{Action} \ A_{t}$};
+% Text Node
+\draw (179,135) node    {$\text{State} \ S_{t}$};
+
+\end{tikzpicture}

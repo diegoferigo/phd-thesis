@@ -1,0 +1,1434 @@
+\acresetall
+\chapter{Robot Modelling}
+\label{ch:robot_modelling}
+
+In this chapter, we introduce the mathematical formulation used throughout the thesis to describe a \emph{floating-base multibody system}.
+Robots can be modelled as a set of rigid bodies connected by joints constraining their relative motion.
+After an initial overview of the necessary mathematical background, we introduce the notion of reference frames and how they relate to the kinematics of the bodies belonging to the system.
+We continue by introducing the inertial properties of a rigid body, and derive the Newton-Euler equation that represent the dynamics of its motion.
+Then, we show how the relative motion between rigid bodies can be constrained by providing the joint model considered in this thesis.
+Finally, by combining the properties of bodies and joints, we describe how a multibody system can be modelled and derive its \aclp{EoM}.
+We focus our analysis on floating-base systems, since fixed-base systems could be seen as a particular case in which the base is anchored to the world.
+
+The purpose of the resulting floating-base model is twofold.
+Firstly, assuming we know the kinematics and dynamics properties of a real robot, it allows us to compute many relevant quantities required by control algorithms.
+Secondly, it enables the definition of a dynamic system that can be used to create and perform simulations of real robots operating in an environment.
+We also provide the necessary to develop widely used \ac{RBDA} that efficiently compute relevant quantities and the system's dynamics.
+
+We adopt the unified view of the \acp{EoM} proposed by \textcite{traversaro_unied_2017}, slightly adapted to employ the notation summarised in~\textcite{traversaro_multibody_2019}.
+Minor modifications are introduced to suit the simulation setting better.
+
+\section{Notation}
+
+\begin{itemize}
+
+\item
+The set of real numbers is denoted by $\mathbb{R}$.
+Let $\mathbf{u}$ and $\mathbf{v}$ be two n-dimensional column vectors of real numbers, \ie $\mathbf{u}, \mathbf{v} \in \mathbb{R}^n$, then their inner product is denoted as $\mathbf{u}^\top \mathbf{u}$, with ${(\cdot)}^\top$ the transpose operator.
+
+\item
+The identity matrix of size $n$ is denoted by $\eye_n \in \realn^{n \times n}$; the zero column vector of dimension $n$ is denoted by $\zeros_n \in \realn^n$; the zero matrix of dimension $n \times m$ is denoted by $\zeros_{n \times m} \in \realn^{n \times m}$; the all-ones matrix of dimension $n \times m$ is denoted by $\ones_{n \times m} \in \realn^{n \times m}$.
+
+\item
+The set $\SO(3)$ is the set of $\mathbb{R}^{3\times3}$ orthogonal matrices with determinant equal to one, namely:
+%
+\begin{equation*}
+    \SO(3) = \{ \rot \in \realn^{3 \times 3} \given \rot^\top \rot = \eye_3, \operatorname{det}(\rot) = 1 \}
+    .
+\end{equation*}
+
+\item
+The set $\so(3)$ is the set of $3\times3$ skew-symmetric matrices
+%
+\begin{equation*}
+    \so(3) = \{ S \in \realn^{3\times3} \given S^\top = -S \}
+    .
+\end{equation*}
+
+\item
+The set $\SE(3)$ is defined as
+%
+\begin{equation*}
+    \SE(3) = \left\{ \begin{bmatrix} \rot & \pos \\ \zeros_{1 \times 3} & 1 \end{bmatrix}  \in \realn^{4 \times 4} \given \rot \in \SO(3), \pos \in \realn^3 \right\}
+    .
+\end{equation*}
+
+\item
+The set $\se(3)$ is defined as
+\begin{equation*}
+    \se(3) = \left\{ \begin{bmatrix} \boldsymbol{\Omega} & \vellin \\ \zeros_{1\times3} & 0 \end{bmatrix} \in \realn^{4\times4} \given \boldsymbol{\Omega} \in \so(3), \vellin \in \realn^3 \right\}
+    .
+\end{equation*}
+
+\item
+Given a vector $\mathbf{w} = (x, y, z) \in \realn^3$, we define $\mathbf{w}^\wedge \in \so(3)$ (read $\mathbf{w}$ \emph{hat}) as the $3 \times 3$ \emph{skew-symmetric} matrix
+%
+\begin{equation*}
+    \mathbf{w}^\wedge = \begin{bmatrix} x \\ y \\ z \end{bmatrix}^\wedge = \begin{bmatrix} 0 & -z & y \\ z & 0 & -x \\ -y & x & 0 \end{bmatrix}
+    .
+\end{equation*}
+%
+Given the \emph{skew-symmetric} matrix $\mathbf{W} = \mathbf{w}^\wedge$, we define $\mathbf{W}^\vee$ (read $\mathbf{W}$ \emph{vee}) as
+%
+\begin{equation*}
+    \mathbf{W}^\vee = \begin{bmatrix} 0 & -z & y \\ z & 0 & -x \\ -y & x & 0 \end{bmatrix}^\vee = \begin{bmatrix} x \\ y \\ z \end{bmatrix}.
+\end{equation*}
+%
+The vee operator is the inverse of the hat operator.
+
+\item
+Given a vector $\velsix = (\vellin, \velang) \in \realn^6$ with $\vellin, \velang \in \realn^3$, we define
+%
+\begin{equation*}
+    \velsix^\wedge 
+    = \begin{bmatrix} \vellin \\ \velang \end{bmatrix}^\wedge
+    = \begin{bmatrix} \velang^\wedge & \vellin \\ \zeros_{1\times3} & 0 \end{bmatrix}
+    \in \se(3)
+    ,
+\end{equation*}
+%
+and its inverse
+%
+\begin{equation*}
+    \begin{bmatrix} \velang^\wedge & \vellin \\ \zeros_{1\times3} & 0 \end{bmatrix}^\vee
+    = \begin{bmatrix} \vellin \\ \velang \end{bmatrix}
+    = \velsix \in \realn^6
+    .
+\end{equation*}
+%
+\end{itemize}
+
+\section{Points, Frames, Rotations, Transformations}
+
+Let's consider a \emph{point} $\pos$.
+Its existence is absolute, meaning it occupies a given position in space.
+For practical reasons, describing its location in space with a tuple of real numbers is convenient.
+Therefore, we introduce a \emph{reference frame} $A$, defined as the combination of a point $\ori_A$, called origin, and an orthogonal 3D orientation frame $[A]$, defined by the unit vectors $(\vec{\mathbf{x}}_A, \vec{\mathbf{y}}_A, \vec{\mathbf{z}}_A)$.
+More compactly, we write $A = (\ori_A, [A])$.
+If $\vec{\mathbf{r}}_{\ori_A, \pos}$ is the geometric 3D vector that connects the origin of frame $A$ with the point $\pos$, having direction from $\ori_A$ to $\pos$, we can obtain the \emph{coordinate vector} $\pos[A] \in \realn^3$ of point $\pos$ expressed in the orientation frame $[A]$ as follows:
+%
+\begin{equation*}
+    \pos[A] =
+    \begin{bmatrix}
+        \vec{\mathbf{r}}_{\ori_A, \pos} \cdot \vec{\mathbf{x}}_A \\
+        \vec{\mathbf{r}}_{\ori_A, \pos} \cdot \vec{\mathbf{y}}_A \\
+        \vec{\mathbf{r}}_{\ori_A, \pos} \cdot \vec{\mathbf{z}}_A
+    \end{bmatrix}
+    ,
+\end{equation*}
+%
+where $(\cdot)$ denotes the scalar product between vectors.
+The same notation applies to denote the coordinates of a frame's origin \wrt a different frame.
+If $B = (\ori_B, [B])$, the coordinates of its origin \wrtl frame $A$ are denoted as $\ori[A]_B$.
+
+\begin{definition*}[World frame]
+%
+Newton's mechanics requires the existence of an \emph{inertial frame}.
+We denote this special frame as $W$, and call it \emph{world} frame.
+As a common practice, we ignore the non-inertial effects caused by the Earth's motion, and assume the world frame to be fixed on the surface.
+%
+\end{definition*}
+
+Given two frames $A$ and $B$, we can introduce the \emph{coordinate transformation} from frame $B$ to $A$ as $\rot[A]_B \in \SO(3)$, also referred as \emph{rotation matrix}.
+This transformation depends only on the orientation of the frames, $[A]$ and $[B]$, and not on their origins.
+Given a point $\pos$ and assuming $\ori_A = \ori_B$, it follows that $\pos[A] = \rot[A]_B \pos[B]$.
+
+Similarly, if we want to describe in compact form both the position and the orientation of frame $B$ \wrt frame $A$, we can use the $4 \times 4$ \emph{homogeneous transformation matrix}, also referred to more concisely as \emph{transform}:
+%
+\begin{equation*}
+    \homo[A]_B = \begin{bmatrix} \rot[A]_B & \ori[A]_B \\ \zeros_{1 \times 3} & 1 \end{bmatrix} \in \SE(3)
+    .
+\end{equation*}
+%
+If we introduce the \emph{homogeneous representation} of two coordinate vectors $\pos[A]$ and $\pos[B]$ as ${}^A\Tilde{\mathbf{p}} = (\pos[A]; 1) \in \realn^4$ and ${}^B\Tilde{\mathbf{p}} = (\pos[B]; 1) \in \realn^4$, the transform can also be used as a map between their coordinates ${}^A\Tilde{\mathbf{p}} = \homo[A]_B {}^B\Tilde{\mathbf{p}}$, allowing a compact representation of the roto-translation $\pos[A] = \ori[A]_B + \rot[A]_B \pos[B]$.
+
+It can be shown that, given a transform $\homo[A]_B$, we can express its inverse as follows:
+%
+\begin{equation}
+    \label{eq:transform_inverse}
+    \homo[B]_A = \homo[A]_B^{-1} =
+    \begin{bmatrix}
+        \rot[B]_A & \ori[B]_A \\
+        \zeros_{1\times3} & 1
+    \end{bmatrix} =
+    \begin{bmatrix}
+        \rot[A]_B^\top & -\rot[B]_A \ori[A]_B \\
+        \zeros_{1\times3} & 1
+    \end{bmatrix}
+    .
+\end{equation}
+
+\section{Frame Velocity}
+\label{sec:frame_velocities}
+
+The velocity of a frame $B$ relative to another frame $A$ can be obtained by taking the time derivative of the transform that defines its pose \wrt A:
+%
+\begin{equation}
+    \label{equation:H_dot}
+    \homod[A]_B
+    = \dv{}{t}\left(\homo[A]_B\right)
+    =
+    \begin{bmatrix}
+        \rotd[A]_B & \orid[A]_B \\ \zeros_{1\times3} & 0
+    \end{bmatrix}
+    .
+\end{equation}
+%
+In this section, we show how we can obtain the 6D velocity $\velsix_{A,B} \in \realn^6$ of a frame composed of vertically stacked linear and angular parts by manipulating Equation~\eqref{equation:H_dot}.
+We will see that, through the process of \emph{trivialization}, we can obtain different types of 6D velocities called \emph{velocity representations} depending on the considered reference frame.
+Finally, we show how to change the reference frame of the 6D velocity, obtaining an equation comparable to the one used to roto-translate the coordinates of points for the velocities.
+
+Before proceeding, we need to show how the term $\rotd[A]_B$ can be formulated in terms of an angular velocity $\velang_{A,B}$, that can be expressed either in $A$ or $B$ coordinates.
+
+\begin{definition}[Time derivative of the rotation matrix]
+\label{definition:R_dot}
+%
+A commonly used formula to express the time derivative of a rotation matrix is the following:
+\begin{equation*}
+    \rotd[A]_B = \velang[A]^\wedge_{A,B} \rot[A]_B = \rot[A]_B \velang[B]^\wedge_{A,B}
+    ,
+\end{equation*}
+where $\velang_{A,B} \in \realn^3$ is the angular velocity of frame $B$ relative to frame $A$, that could be expressed either in $A$ coordinates ($\velang[A]_{A, B}$) or in $B$ coordinates ($\velang[B]_{A,B}$).
+%
+\end{definition}
+%
+\begin{proof}
+%
+The time derivative of the orthogonality properties $\rot^\top \rot = \eye_3$ and $\rot \rot^\top = \eye_3$ of rotation matrices leads to:
+%
+\begin{equation*}
+    \begin{cases}
+        \rotd^\top \rot + \rot^\top \rotd = \zeros_{3\times3} \\
+        \rotd \rot^\top + \rot \rotd^\top = \zeros_{3\times3}
+    \end{cases}
+    \rightarrow
+    \begin{cases}
+        S_l^\top + S_l = \zeros_{3\times3} \\
+        S_r + S_r^\top = \zeros_{3\times3}
+    \end{cases}
+    ,
+\end{equation*}
+%
+where we have introduced the left $S_l = \rot^\top \rotd \in \so(3)$ and the right $S_r = \rotd \rot^\top \in \so(3)$.
+Since both matrices are skew-symmetric, they can be parameterized by a vector $S^\vee = \velang_{A,B} \in \realn^3$.
+The matrix product is not commutative, therefore the vectors for the left and right cases must be different:
+%
+\begin{align*}
+    \rotd &= \rot S_l = \rot \velang[B]_{A,B}^\wedge ,\\
+    \rotd &= S_r \rot = \velang[A]_{A,B}^\wedge \rot
+    ,
+\end{align*}
+%
+where we have introduced the angular velocity $\velang_{A,B}$ between frames $A$ and $B$, expressed either in $A$ or $B$ coordinates.
+%
+\end{proof}
+
+\subsection{Left-trivialized velocity}
+
+The terms forming the left-trivialized velocity $\velsix[B]_{A,B}$ of frame $B$ relative to frame $A$ can be obtained by left multiplying Equation~\eqref{equation:H_dot} with $\homo[B]_A$:
+%
+\begin{align*}
+    \homo[B]_A \homod[A]_B
+    &= \begin{bmatrix}
+        \rot[A]_B^\top & -\rot[A]_B^\top \ori[A]_B \\
+        \zeros_{1\times3} & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+        \rotd[A]_B & \orid[A]_B \\ \zeros_{1\times 3} & 0
+    \end{bmatrix} =\\
+    &= \begin{bmatrix}
+        \rot[A]_B^\top \rotd[A]_B & \rot[A]_B^\top \orid[A]_B \\
+        \zeros_{1\times 3} & 0
+    \end{bmatrix} =\\
+    &=
+    \begin{bmatrix}
+        \velang[B]_{A,B}^\wedge& \vellin[B]_{A,B} \\
+        \zeros_{1\times 3} & 0
+    \end{bmatrix}
+    \in \se(3)
+    ,
+\end{align*}
+%
+where we exploited the form of the inverse transform introduced in Equation~\eqref{eq:transform_inverse}.
+%
+The left-trivialized 6D velocity is obtained by stacking the linear and angular components of the left trivialization process:
+%
+\begin{equation*}
+    \velsix[B]_{A,B} =
+    \begin{bmatrix}
+        \vellin[B]_{A,B} \\ \velang[B]_{A,B}
+    \end{bmatrix} =
+    \begin{bmatrix}
+        \rot[A]_B^\top \orid[A]_B \\
+        \rot[A]_B^\top \rotd[A]_B
+    \end{bmatrix}
+    \in \realn^6
+    ,
+\end{equation*}
+%
+from which, by construction, it also follows:
+%
+\begin{equation}
+    \label{eq:sixd_velocity_body_fixed}
+    \velsix[B]_{A,B}^\wedge = \homo[B]_A \homod[A]_B \in \se(3)
+    .
+\end{equation}
+%
+From this relation, we can start considering $\velsix_{A,B}$ as the 6D representation of an element of $\se(3)$.
+The left-trivialized velocity is also called \emph{body-fixed representation} of $\velsix_{A,B}$.
+
+\subsection{Right-trivialized velocity}
+\label{sec:right_trivialized_velocity}
+
+The terms forming the right-trivialized velocity $\velsix[A]_{A,B}$ of frame $B$ relative to frame $A$, can be obtained by right multiplying Equation~\eqref{equation:H_dot} with $\homo[B]_A$:
+%
+\begin{align*}
+    \homod[A]_B \homo[B]_A
+    &= \begin{bmatrix}
+        \rotd[A]_B & \orid[A]_B \\ \zeros_{1\times 3} & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+        \rot[A]_B^\top & -\rot[A]_B^\top \ori[A]_B \\
+        \zeros_{1\times3} & 1
+    \end{bmatrix}
+    =\\
+    &= \begin{bmatrix}
+        \rotd[A]_B \rot[A]_B^\top & \orid[A]_B - \rotd[A]_B \rot[A]_B^\top \ori[A]_B \\
+        \zeros_{1\times 3} & 0
+    \end{bmatrix} = \\
+    &=
+    \begin{bmatrix}
+        \velang[A]_{A,B}^\wedge & \vellin[A]_{A,B} \\
+        \zeros_{1\times 3} & 0
+    \end{bmatrix}
+    \in \se(3)
+    .
+\end{align*}
+%
+The right-trivialized 6D velocity is obtained by stacking the linear and angular components of the right trivialization process:
+%
+\begin{equation*}
+    \velsix[A]_{A,B} =
+    \begin{bmatrix}
+        \vellin[A]_{A,B} \\ \velang[A]_{A,B}
+    \end{bmatrix} =
+    \begin{bmatrix}
+        \orid[A]_B - \rotd[A]_B \rot[A]_B^\top \ori[A]_B \\
+        \rotd[A]_B \rot[A]_B^\top
+    \end{bmatrix}
+    \in \realn^6
+    ,
+\end{equation*}
+%
+from which, by construction, it also follows:
+%
+\begin{equation*}
+    \velsix[A]_{A,B}^\wedge = \homod[A]_B \homo[B]_A \in \se(3)
+    .
+\end{equation*}
+%
+The right-trivialized velocity is also called \emph{inertial-fixed representation} of $\velsix_{A,B}$.
+
+The linear component of the right-trivialized velocity can also be written in the following alternative form:
+%
+\begin{equation}
+    \label{eq:vel_lin_inertial_fixed}
+    \vellin[A]_{A,B} = \orid[A]_B + \ori[A]_B^\wedge \velang[A]_{A,B}
+    ,
+\end{equation}
+%
+showing explicitly that, in this representation, the linear velocity is the sum of the linear velocity of the frame $B$ origin and the external product between the angular velocity and the distance between frame origins.
+This result is compatible with the setting of a rotating non-inertial reference $B$ frame relative to an inertial frame $A$.
+
+\subsection{Expressing 6D velocities in different frames}
+
+Let us consider a generic 6D velocity $\velsix[B]_{C, D}$ between frames $C$ and $D$, expressed in coordinates of frame $B$.
+It can be shown that it is possible to express the velocity in a new frame $A$ as follows:
+%
+\begin{equation*}
+    \velsix[A]_{C, D} = \veladj[A]_B \velsix[B]_{C, D}
+    ,
+\end{equation*}
+%
+where we introduced the following linear transformation between frames $A$ and $B$:
+%
+\begin{equation}
+    \label{equation:velocity_adjoint}
+    \veladj[A]_B =
+    \begin{bmatrix}
+        \rot[A]_B & \ori[A]_B^\wedge \rot[A]_B \\
+        \zeros_{3\times3} & \rot[A]_B
+    \end{bmatrix}
+    \in \realn^{6\times6}
+    .
+\end{equation}
+%
+Recalling that $\ori[A]_B = -\rot[A]_B \ori[B]_A$, it can be shown that the inverse velocity transformation is simply $\veladj[B]_A = \veladj[A]_B^{-1}$.
+
+\subsection{Mixed velocity representation}
+
+We have seen that the angular component of the left- and right-trivialized velocities correspond to the classic concept of angular velocity, as introduced in Definition~\ref{definition:R_dot}.
+The different representations only relate the angular velocity $\velang_{A,B}$ to reference frames, which could either be $A$ or $B$.
+
+The linear velocity, instead, is less intuitive.
+While it corresponds to the time derivative of $\ori_B$ in the left-trivialized representation, the expression in the right-trivialization includes an additional term as reported in Equation~\eqref{eq:vel_lin_inertial_fixed}.
+
+There are situations in which we desire to express the 6D velocity of a frame with just the time derivatives $\orid[A]_B$ and $\velang[A]_{A,B}$.
+We can obtain such special 6D velocity by introducing a new frame $B[A] = (\ori_B, [A])$, that is a frame whose origin coincides with the origin of frame $B$, with the orientation frame of $A$.
+In this frame, we can define:
+%
+\begin{equation}
+    \label{eq:mixed_velocity}
+    \velsix[{B[A]}]_{A,B} =
+    \transvel[{B[A]}]_B \velsix[B]_{A,B} =
+    \begin{bmatrix}
+        \rot[A]_B & 0 \\ 0 & \rot[A]_B
+    \end{bmatrix}
+    \begin{bmatrix}
+        \rot[B]_A \orid[A]_B \\ \velang[B]_{A,B}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \orid[A]_B \\ \velang[A]_{A,B}
+    \end{bmatrix}
+    .
+\end{equation}
+%
+that will be referred as \emph{mixed} velocity.
+
+\subsection{Cross product on $\realn^6$}
+
+From the definition of the left-trivialized velocity of Equation~\eqref{eq:sixd_velocity_body_fixed}, we can obtain the relation:
+%
+\begin{equation*}
+    \homod[A]_B = \homo[A]_B \velsix[B]_{A,B}^\wedge
+    .
+\end{equation*}
+%
+We want to formulate a comparable expression also for the velocity transformation $\transvel[A]_B$.
+Differentiating \wrtl time its definition from Equation~\eqref{equation:velocity_adjoint}, it can be shown that the following expression can be obtained:
+%
+\begin{equation}
+    \label{eq:X_dot}
+    {}^A \dot{\mathbf{X}}_B = \transvel[A]_B \crossvelsix[{\velsix[B]_{A,B}}]
+    ,
+\end{equation}
+%
+where the last term is the matrix representation of the cross-product on $\realn^6$, defined as:
+%
+\begin{equation*}
+    \velsix[B]_{A,B} =
+    \begin{bmatrix}
+        \velang[B]_{A,B} & \vellin[B]_{A,B}^\wedge \\
+        \zeros_{3\times 3} & \velang[B]_{A,B}
+    \end{bmatrix}
+    .
+\end{equation*}
+
+\section{Accelerations and Forces}
+
+\subsection{Accelerations}
+
+The acceleration of a frame $B$ relative to another frame $A$ and expressed in a generic frame $C$ can be obtained by taking the time-derivative of the corresponding velocity:
+%
+\begin{equation*}
+    \velsixd[C]_{A,B} = \dv{t}(\velsix[C]_{A,B})
+    .
+\end{equation*}
+%
+Extracting the left-trivialized velocity and using Equation~\eqref{eq:X_dot}, we can obtain:
+%
+\begin{equation}
+    \label{eq:sixd_apparent_acceleration}
+    \begin{aligned}
+        \velsixd[C]_{A,B}
+        &= \dv{t}(\transvel[C]_B \velsix[B]_{A,B})
+        = \transvel[C]_B \velsixd[B]_{A,B} + {}^C \dot{\mathbf{X}}_B \velsix[B]_{A,B} \\
+        &= \transvel[C]_B \left( \velsixd[B]_{A,B} + \crossvelsix[{\velsix[B]_{C,B}}] \velsix[B]_{A,B} \right)
+    \end{aligned}
+    ,
+\end{equation}
+%
+where it can be noticed that in this case $\velsixd[C]_{A,B} \neq \transvel[C]_B \velsixd[B]_{A,B}$.
+However, either if $C=A$ or $C=B$, the cross-product term is zero, and the equality holds.
+Under these conditions, we can define the following acceleration:
+%
+\begin{equation*}
+    \label{eq:sixd_intrinsic_acceleration}
+    \accsix[C]_{A,B} = \transvel[C]_A \velsixd[A]_{A,B} = \transvel[C]_B \velsixd[B]_{A,B}
+    .
+\end{equation*}
+%
+We refer to $\velsixd[C]_{A,B}$ as \emph{apparent acceleration}, and to $\accsix[C]_{A,B}$ as \emph{intrinsic acceleration}.
+We can see that intrinsic accelerations are always built from either inertial-fixed or body-fixed apparent accelerations.
+Their usage is convenient because the relation $\accsix[C]_{A,B} = \transvel[C]_B \accsix[B]_{A,B}$ always holds regardless to $A$, $B$, and $C$.
+
+For some computation, there is another helpful formulation of the frame acceleration, that we will call \emph{proper acceleration}.
+It consists of the intrinsic acceleration minus the gravitational effects, and it can be defined as follows:
+%
+\begin{equation}
+    \label{eq:sixd_proper_acceleration}
+    {}^C \bar{\mathbf{a}}_{A,B} = \accsix[C]_{A,B} - \transvel[C]_A
+    \begin{bmatrix}
+        \rot[A]_W {}^W \mathbf{g} \\ \zeros_3
+    \end{bmatrix}
+    .
+\end{equation}
+%
+The bar notation can be thought mnemonically as minus gravity, whose definition is ${}^W \mathbf{g} = (0, 0, -g) \in \realn^3$ with $g \in \realn^+$.
+
+\subsection{Forces}
+
+Let's consider a 6D force $\forcesix$ composed by stacking a linear a linear force $\forcelin \in \realn^3$ and an angular force $\forceang \in \realn^3$.
+Its coordinates \wrtl a frame $B$ are denoted as:
+%
+\begin{equation*}
+    \forcesix[B] =
+    \begin{bmatrix}
+        \forcelin \\ \forceang
+    \end{bmatrix}
+    \in \realn^6
+    .
+\end{equation*}
+%
+Compared to 6D velocities, this notation only needs the specification of the frame where the force is \emph{expressed}.
+Note that this does not mean that the force is applied to the origin of the frame where it is expressed.
+In fact, we can take a force $\forcesix[B]$ applied to the origin of frame $B$ and expressed in the same frame, and change its coordinates to frame $A$ with the following transformation:
+%
+\begin{equation}
+    \label{eq:sixd_force_transformation}
+    \forcesix[A] = \transfor[A]^B \forcesix[B]
+    .
+\end{equation}
+%
+The coordinate transformation of 6D forces, strictly related to the transformation of 6D velocities between the same frames, can be defined as:
+%
+\begin{equation*}
+    \transfor[A]^B = \transvel[B]_A^\top =
+    \begin{bmatrix}
+        \rot[A]_B & \zeros_{3\time3} \\
+        \ori[A]_B^\wedge \rot[A]_B & \rot[A]_B
+    \end{bmatrix}
+    \in \realn^{6\times6}
+    .
+\end{equation*}
+%
+From this relation, also $\transfor[A]^B = \transvel[A]_B^{-\top}$ follows.
+
+\begin{remark*}
+%
+The coordinate transformation of a 6D force can be expanded as follows:
+%
+\begin{equation*}
+    \forcesix[A]
+    = \begin{bmatrix}
+        \forcelin[A] \\ \forceang[A]
+    \end{bmatrix}
+    = \transfor[A]^B \forcesix[B]
+    = \begin{bmatrix}
+        \rot[A]_B \forcelin[B] \\
+        \ori[A]_B^\wedge \left( \rot[A]_B \forcelin[B] \right) + \rot[A]_B \forceang[B]
+    \end{bmatrix}
+    .
+\end{equation*}
+%
+It can be noted that the application of $\forcesix[B]$ in a different frame $A$, beyond rotating its components $(\forcelin[B], \forceang[B])$ with $\rot[A]_B$, requires the introduction of an additional angular term proportional to $\forcelin[B]$.
+This behaviour can be explained considering a simplified case of applying a pure linear force $\forcesix[B] = (\forcelin[B], \zeros_3)$ to the origin of frame $A$.
+Changing the application point would produce a torque due to the moment arm between the origins of frames $A$ and $B$.
+Since the transformation should not alter the physical effect, $\transfor[A]^B$ introduces the additional term $\ori[A]_B^\wedge \left( \rot[A]_B \forcelin[B] \right)$ that compensates the moment arm.
+%
+\end{remark*}
+
+The cross product on $\realn^6$ for 6D forces can be obtained from the relation between the coordinate transformation of forces and velocities:
+%
+\begin{equation*}
+    {}_A \dot{\mathbf{X}}^B = \transfor[A]^B \crossforsix[{\velsix[B]_{A,B}}]
+    ,
+\end{equation*}
+%
+where the last term is the matrix representation of the cross-product of $\realn^6$, defined as:
+%
+\begin{equation*}
+    \crossforsix[{\velsix[B]_{A,B}}] =
+    \begin{bmatrix}
+        \velang[B]_{A,B}^\wedge & \zeros_{3\times3} \\
+        \vellin[B]_{A, B}^\wedge & \velang[B]_{A,B}^\wedge
+    \end{bmatrix}
+    .
+\end{equation*}
+%
+Note that the relation $(\crossvelsix[{\velsix[B]_{A,B}}])^{-\top} = \crossforsix[{\velsix[B]_{A,B}}]$ holds.
+The combination of the overline with the star marks mnemonically the $(\cdot)^{-\top}$ operator.
+
+\section{Rigid-body Kinematics}
+
+This section provides a mathematical description of the kinematics of a \emph{rigid body}.
+We first provide the definition of a rigid body, and then define its position and velocity.
+
+\begin{definition*}[Rigid Body]
+%
+A \emph{Rigid Body} is a mathematical abstraction describing an arbitrary distribution of mass in the 3D space fixed with respect to a given frame B, called \emph{body frame}.
+It is assumed not being subject to any internal deformation when external forces are applied.
+%
+\end{definition*}
+
+\begin{definition*}[Rigid Body Pose]
+%
+The \emph{pose} of a rigid body associated with a frame $B$ \wrt a generic frame $A$ is defined by the transform $\homo[A]_B \in \SE(3)$.
+%
+\end{definition*}
+
+\begin{definition*}[Rigid Body Velocity]
+%
+The \emph{velocity} of a rigid body associated with a frame $B$ \wrt a generic frame $A$ is denoted as $\velsix_{A,B} \in \realn^6$.
+%
+\end{definition*}
+
+\begin{remark*}[Velocity Representations of a Rigid Body]
+%
+The velocity of a rigid body can be expressed in different representations, depending on the used trivialization as explained in Section~\ref{sec:frame_velocities}.
+The terminology used for the velocity representations becomes straightforward when we consider $A=W$.
+In this case, the left-trivialized velocity would be $\velsix[W]_{W,B}$, where it can be noticed that it is expressed in world (inertial) coordinates, from what the alternative \emph{inertial-fixed} name derives.
+The right-trivialized velocity $\velsix[B]_{W,B}$ follows a similar reasoning, with its alternative \emph{body-fixed} name.
+Finally, the \emph{mixed} velocity $\velsix[{B[W]}]_{W, B}$ can be seen as related to the inertial-fixed representation for its linear part, and to the body-fixed representation for its angular part.
+%
+\end{remark*}
+
+\begin{remark*}[Terminology]
+%
+In this thesis, we also use the term \emph{link} to refer to a rigid body, particularly when it is part of a multibody system.
+Furthermore, we often name the body with the letter of its corresponding frame, \ie when we say body $B$ we mean the body whose pose corresponds to frame $B$.
+%
+\end{remark*}
+
+\section{Rigid-body Dynamics}
+
+\subsection{Inertial parameters}
+
+In this section, we introduce all the inertial parameters necessary to describe the dynamics of a rigid body.
+Given a body $B$, in order to simplify the notation, we denote the coordinates of a point $\pos_i$ belonging to the body and expressed in $B$ as $\mathbf{r} = \pos[B]_i$.
+
+The \emph{total mass} of the rigid body can be calculated by introducing the function $\rho(\cdot): \realn^3 \mapsto \realn^+$ that maps each point of the body to its density, and integrating over the volume occupied by the body:
+%
+\begin{equation*}
+    m = \iiint_{\realn^3} \rho(\mathbf{r}) \dd{\mathbf{r}}
+    \in \realn
+    .
+\end{equation*}
+
+The \ac{CoM} of the body can be calculated as the average point of its density:
+%
+\begin{equation}
+    \label{eq:com_definition}
+    \mathbf{c} = \pos[B]_{CoM} =
+    \frac{\iiint_{\realn^3} \mathbf{r} \rho(\mathbf{r}) \dd{\mathbf{r}}}{\iiint_{\realn^3} \rho(\mathbf{r}) \dd{\mathbf{r}}}
+    = \frac{1}{m} \iiint_{\realn^3} \mathbf{r} \rho(\mathbf{r}) \dd{\mathbf{r}}
+    \in \realn^3
+    .
+\end{equation}
+
+The \emph{inertia tensor} of the body, describing all moments of inertia of a body rotating around a specific axis, can be computed as:
+%
+\begin{equation*}
+   I = -\iiint_{\realn^3} \rho(\mathbf{r}) (\mathbf{r}^\wedge)^2 \dd{\mathbf{r}}
+   \in \realn^{3\times3}
+   .
+\end{equation*}
+
+Finally, the \emph{6D inertia matrix} of the body that unifies all the previous inertial properties can be defined as follows:
+%
+\begin{equation*}
+   \masssix =
+   \begin{bmatrix}
+       m \eye_3 & -(m\mathbf{c})^\wedge \\
+       (m\mathbf{c})^\wedge & I
+   \end{bmatrix}
+   \in \realn^{6\times6}
+   .
+\end{equation*}
+
+\begin{remark*}
+    When we need to denote multiple inertia matrices, we use a subscript $\masssix_{B1}, \masssix_{B2},$ \etc
+    Note that the 6D inertia matrix definition is valid only in body frame, and we should have specified it with an additional prescript $\masssix[B]_B$.
+    In this thesis, we only need 6D inertia matrices expressed in body frames, therefore we will always omit the prescript.
+\end{remark*}
+
+\subsection{Equations of Motion}
+\label{sec:eom_rigid_body}
+
+We have seen that the kinematics of a rigid body can be described with the position and velocity of its corresponding frame: $\homo[W]_B$ and $\homod[W]_B$, respectively.
+The dynamics of the rigid body can be derived from the basic principles of Lagrangian mechanics.
+
+\begin{definition*}[Lagrangian mechanics]
+%
+Lagrangian mechanics defines a \emph{mechanical system} with a pair $(\mathbb{Q}, L)$ of a \emph{configuration space} $\mathbb{Q}$ and a smooth function $L(\Qu, \Qud) = K - U$ called \emph{Lagrangian}.
+The Lagrangian takes as input the system configuration and the system velocity $(\Qu, \Qud) \in \mathbb{Q} \times \mathbb{V}$,
+where $\mathbb{V}$ is the \emph{algebra} of $\mathbb{Q}$, and computes the difference between the kinetic energy $K$ and potential energy $U$ of the system.
+%
+\end{definition*}
+
+\begin{definition*}[Principle of Least Action]
+%
+The Principle of Least Action states that the trajectory $\Qu(t)$ of the system in the interval $t \in [0, T]$ is the stationary point that minimises the system's \emph{action functional}:
+\begin{equation*}
+    \mathcal{S}[\Qu] = \int_{0}^{T} L(\Qu(t), \Qud(t)) \dd{t}
+    .
+\end{equation*}
+The variational principle, when applied to the action of a mechanical system, yields the system's \aclp{EoM}.
+%
+\end{definition*}
+
+\begin{definition*}[Euler-Lagrange equation]
+\label{definition:euler_lagrange}
+%
+The trajectory $\Qu(t)$ is the stationary point of the action functional $\mathcal{S}$ if and only if it satisfies the Euler-Lagrange equation:
+\begin{equation*}
+    \dv{t} \pdv{L}{\Qud} - \pdv{L}{\Qu} = 0
+    .
+\end{equation*}
+%
+This equation holds in Euclidean space, when $\mathbb{Q} = \mathbb{V} = \realn^n$.
+%
+\end{definition*}
+
+Depending on the system to be described, there may be many possible choices of the \emph{generalised position} $\Qu \in \mathbb{Q}$ and its derivative $\Qud \in \mathbb{V}$, that we will refer as \emph{generalised velocity}.
+In the case of a rigid body, we can describe the system configuration with the kinematic quantities of its corresponding frame, \ie using $\Qu = \homo[W]_B \in \SE(3)$ and $\Qud = \homod[W]_B$.
+With this choice of variables, the Lagrangian of the system is the following:
+%
+\begin{equation*}
+    L(\homo[W]_B, \homod[W]_B) = K(\homo[W]_B, \homod[W]_B) - U(\homo[W]_B).
+\end{equation*}
+
+\begin{remark*}[Extension to non-Euclidean spaces]
+%
+It can be noted that the choice of $(\Qu, \Qud) = (\homo[W]_B, \homod[W]_B)$ implies that the configuration space is no longer Euclidean.
+In these circumstances, the Euler-Lagrange equation does not hold.
+It can be shown that, introducing Lie theory, the Lagrangian formulation can be generalised to any smooth manifold, and the \acp{EoM} of the system can be obtained by applying the Euler-Poincaré equation~\parencite{marsden_jerrold_e_introduction_2010, maruskin_dynamical_2018}.
+In this background chapter, in order to help focus only on the most important theoretical results required to understand the topic discussed in this thesis, we will omit the mathematical details of differential geometry.
+The interested readers are recommended to refer to specific textbooks~\parencite{warner_foundations_1983, selig_geometric_2005} for a rigorous derivation of the theory of Lie groups and differential manifolds.
+%
+\end{remark*}
+%
+\textcite{traversaro_modelling_2017} shows that transforming the system's velocity helps reduce the complexity of the equations, and introduces the \emph{left-trivialized Lagrangian}, that takes as inputs $(\homo[W]_B, \velsix[B]_{W,B})$, where the velocity is now trivialized in body coordinates with Equation~\eqref{eq:sixd_velocity_body_fixed}.
+In the following sections, we will always assume quantities expressed in body-fixed representation, and refer to the rigid body pose and body-fixed velocity with $\homo$ and $\velsix$, respectively.
+With this notation, the \emph{left-trivialized Lagrangian} is defined as:
+%
+\begin{equation}
+    \label{eq:left_trivialized_lagrangian}
+    l(\homo, \velsix) = L(\homo, \homo \velsix^\wedge) = k(\velsix) - U(\homo)
+    ,
+\end{equation}
+%
+where we used the relation $\homod = \homo \velsix^\wedge$ of Equation~\eqref{eq:sixd_velocity_body_fixed}, and introduced the \emph{trivialized kinetic energy} $k$ that can be shown to only depend on $\velsix$.
+The trivialized kinetic energy and the potential energy can be computed as:
+%
+\begin{align}
+    \label{eq:kinetic_and_potential_energies}
+    k(\velsix) &= \frac{1}{2} \velsix^T \masssix \velsix , \\
+    U(\homo) &=
+    \begin{bmatrix}\gravity^\top & \zeros_{1\times3}\end{bmatrix}
+    m \homo
+    \begin{bmatrix}\mathbf{c} \\ 1 \end{bmatrix}
+    ,
+\end{align}
+%
+where $\gravity = \gravity[W] \in \realn^3$ is the gravitational acceleration vector, and $\mathbf{c}$ the displacement between of the \ac{CoM} of the body and its frame, as defined in Equation~\eqref{eq:com_definition}.
+
+We now note that the sets of the system's positions and velocities are connected by a relationship between $\homo[W]_B \in \SE(3)$ and $\velsix^\wedge \in \se(3)$.
+This relation enables the application of the Euler-Poincaré equation to obtain the system's dynamics.
+As shown by \textcite[Section~2.6.2]{traversaro_modelling_2017}, the resulting \acp{EoM} of the rigid body are the following:
+%
+\begin{subequations}
+	\begin{empheq}[left=\empheqlbrace]{align}
+		&\homod = \homo \velsix^\wedge \\
+        &\masssix \velsixd + \velsix \bar{\times}^* \masssix \velsix = \masssix
+        \begin{bmatrix}
+            \rot^\top \gravity \\ \zeros_{3\times1}
+        \end{bmatrix}
+        + \forcesix[B]^{ext} \label{eq:newton_euler}
+	\end{empheq}
+\end{subequations}
+%
+which includes the influence of additional non-gravitational external 6D forces $\forcesix[B]^{ext}$ acting on the body~\parencite{bullo_geometric_2004}.
+Equation~\eqref{eq:newton_euler} is the Newton-Euler equation of the rigid body.
+
+\begin{remark}
+%
+Equation~\eqref{eq:newton_euler}, in its form with full notation, is expressed as follows:
+%
+\begin{equation*}
+    \masssix_B \velsixd[B]_{W,B} + \velsix[B]_{W,B} \bar{\times}^* \masssix_B \velsix[B]_{W,B} = \masssix_B
+    \begin{bmatrix}
+        \rot[B]_W {}^W \gravity \\ \zeros_{3\times1}
+    \end{bmatrix}
+    + \forcesix[B]^{ext}
+    .
+\end{equation*}
+%
+If we bring the gravitational effect to the left hand side:
+%
+\begin{equation*}
+    \masssix_B \left( \velsixd[B]_{W,B} -
+    \begin{bmatrix}
+        \rot[B]_W {}^W \gravity \\ \zeros_{3\times1}
+    \end{bmatrix}
+    \right) + \velsix[B]_{W,B} \bar{\times}^* \masssix_B \velsix[B]_{W,B} = \forcesix[B]^{ext}
+    ,
+\end{equation*}
+%
+we can simplify this equation using the proper acceleration:
+%
+\begin{equation*}
+    \masssix_B {}^B \bar{\mathbf{a}}_{W,B} + \velsix[B]_{W,B} \bar{\times}^* \masssix_B \velsix[B]_{W,B} = \forcesix[B]^{ext}
+    .
+\end{equation*}
+%
+This equation will be useful in the definition of recursive algorithms for rigid body dynamics.
+%
+\end{remark}
+
+\section{Joint Model}
+\label{section:joint_model}
+
+\begin{figure}
+    \centering
+    \resizebox{0.6\textwidth}{!}{
+    \includegraphics{images/background/joint_model.tikz}
+    }
+    \caption{Illustration of the joint model. The frame of the parent link $P$ is shown as $\lambda(i)$, and the frame of the child link $C$ is shown as $i$. The $i$-th joint connects together the two links, enforcing a motion constraint. The operators $\operatorname{pre}(\cdot)$ and $\operatorname{suc}(\cdot)$ accept a joint number and return, respectively, its predecessor and successor frames. The successor frame of a joint matches with the frame $i$ of the child link. The joint model aims to obtain the transform $\homo[\lambda(i)]_i(\shape)$ as a function of the joint position $\shape$.}
+    \label{fig:joint_model}
+\end{figure}
+
+The second fundamental element for modelling a multibody system is the \emph{joint}.
+All links part of the system are characterised by 6~\ac{DoF} that, ignoring for the moment possible collisions that could occur, are free to evolve in space independently of each other.
+Joints can be used to connect links together and act as constraints that limit their relative motion.
+Each joint is characterised by its number of \aclp{DoF}, which can range from 0 to 6 and, considering the relative position between two links as a local topological space, describes its dimension.
+
+\begin{assumption*}
+%
+This thesis only considers multibody systems modelled with 1~\ac{DoF} joints.
+All the theories and algorithms proposed in the following chapters can be extended with minor modifications to other less common joint types~\parencite{featherstone_rigid_2008}.
+%
+\end{assumption*}
+
+The most common 1-\ac{DoF} joints used in robotics are called \emph{revolute} and \emph{prismatic}.
+They impose motion constraints on 5 dimensions of the local space, therefore their configuration $s$ is an element of $\realn$.
+We model a joint as a time-varying transformation between the frames $P$ and $C$ of its \emph{parent} and \emph{child} links:
+%
+\begin{equation*}
+    \homo[P]_C(\shape) : \realn \mapsto \SE(3)
+    .
+\end{equation*}
+%
+As illustrated in Figure~\ref{fig:joint_model}, we break down this parent-to-child transform in two different components: a constant transform $\homo[P]_{\operatorname{pre}(i)}$ that locates the \emph{predecessor} joint frame from the parent link, and the time-varying joint transform $\homo[\operatorname{pre}(i)]_{\operatorname{suc}(i)}(\shape)$ that locates the \emph{successor} frame of the joint depending on the joint configuration $\emph{s}$.
+The entire parent-to-child transform is defined by positioning the frame of the child link $C$ over the successor frame $\homo[\operatorname{suc}(i)]_C = \eye_3$:
+%
+\begin{align}
+    \label{equation:joint_model_parent_to_child_transform}
+    \homo[P]_C(\shape) &= \homo[P]_{\operatorname{pre}(i)} \homo[\operatorname{pre}(i)]_{\operatorname{suc}(i)}(\shape) \homo[\operatorname{suc}(i)]_C \nonumber \\
+    &= \homo[P]_{\operatorname{pre}(i)} \homo[\operatorname{pre}(i)]_C(\shape)
+    .
+\end{align}
+%
+In this thesis, we will refer to $\homo[P]_{\operatorname{pre}(i)}$ as \emph{tree transform} of joint $i$, $\homo[\operatorname{pre}(i)]_C(\shape)$ as \emph{joint transform}, and $\shape$ as \emph{joint generalised position} or just \emph{joint position}.
+
+\begin{definition*}[Joint axis of revolute and prismatic joints]
+    Revolute and prismatic joints can be defined by introducing a \emph{joint axis} $\mathbf{a} \in \realn^3$, whose coordinates are expressed in the predecessor frame.
+    The joint position $\shape \in \realn$ induces a transform corresponding to an angle-axis decomposition around $\mathbf{a}$ for revolute joints, and a translation along $\mathbf{a}$ for prismatic joints.
+\end{definition*}
+
+The relative velocities between links $P$ and $C$ can be obtained by differentiating over time Equation~\ref{equation:joint_model_parent_to_child_transform}:
+%
+\begin{equation*}
+    \dv{\homo[P]_C(\shape)}{t} = \dv{\homo[P]_C(\shape)}{\shape} \dv{\shape}{t} = \dv{\homo[P]_C(\shape)}{\shape} \dot{\shape}
+    ,
+\end{equation*}
+%
+where $\dot{\shape} \in \realn$ is the \emph{joint velocity}.
+Also in this case, it will be convenient to express the relative velocity as a 6D velocity.
+If $X$ is a placeholder that selects any of the velocity representations introduced in the previous sections, we express the relative velocity between links $P$ and $C$ as follows:
+%
+\begin{equation}
+    \label{eq:joint_model_velocity_propagation}
+    \velsix[X]_{P,C} = \subspacee[X]_{P,C}(\shape) \dot{\shape}
+    ,
+\end{equation}
+%
+where we introduced the \emph{joint motion subspace vector} $\subspacee[X]_{P,C}(\shape) \in \realn^6$.
+In different velocity representations, it is defined as:
+%
+\begin{equation}
+    \label{eq:motion_subspaces_representations}
+    \begin{aligned}
+    \subspacee[C]_{P,C}(\shape) &= \left[ \homo[C]_P(\shape) \dv{\homo[P]_C(\shape)}{\shape} \right]^\vee ,\\
+    \subspacee[P]_{P,C}(\shape) &= \left[ \dv{\homo[P]_C(\shape)}{\shape} \homo[C]_P(\shape) \right]^\vee ,\\
+    \subspacee[{C[P]}]_{P,C}(\shape) &= \begin{bmatrix}
+        \dv{\ori[P]_C(\shape)}{\shape} \\
+        \left( \dv{\rot[P]_{C(\shape)}}{\shape} \rot[C]_P(\shape) \right)^\vee
+    \end{bmatrix}^\vee
+    .
+\end{aligned}
+\end{equation}
+
+\begin{assumption*}
+%
+\label{assumption:subspace_independent_configuration}
+In this thesis, we assume that motion subspaces are independent from the joint configuration, \ie $\dv{\subspacee[X]_{P,C}}{\shape} = \zeros_6$, from what $\subspacee[X]_{P,C}(\shape) = \subspacee[X]_{P,C}$ follows.
+%
+\end{assumption*}
+
+\begin{remark}
+\label{remark:subspaces_independent_representation}
+%
+From the Equations~\eqref{eq:motion_subspaces_representations}, it can be shown that the motion subspaces of revolute and prismatic joints, reported in Table~\ref{tab:motion_subspaces}, are independent of the velocity representation.
+For this reason, in the continuation of this thesis, we drop all its superscripts and subscripts, and denote the motion subspace as just $\subspace$.
+%
+\end{remark}
+
+The relative acceleration between links $P$ and $C$ can be obtained by differentiating Equation~\eqref{eq:joint_model_velocity_propagation}.
+Considering Assumption~\ref{assumption:subspace_independent_configuration} and Remark~\ref{remark:subspaces_independent_representation}, it can be shown the following resulting relation:
+%
+\begin{equation}
+    \label{eq:joint_model_acceleration_propagation}
+    \velsixd[X]_{P,C} 
+    = \dv{\subspace}{t} \dot{\shape} + \subspace \ddot{\shape}
+    = \subspace \ddot{\shape}
+    ,
+\end{equation}
+%
+where $\ddot{s} \in \realn$ is the joint acceleration.
+
+\begin{table}
+    \centering
+    \begin{tabular}{lc}
+        Joint type & Motion subspace \\
+        \hline\hline
+        \addlinespace[1mm]
+        Revolute & $\subspace = \begin{bmatrix}\zeros_3 \\ \mathbf{a}\end{bmatrix}$ \\
+        \addlinespace[1mm]
+        Prismatic & $\subspace = \begin{bmatrix}\mathbf{a} \\ \zeros_3 \end{bmatrix}$
+    \end{tabular}
+    \caption{List of motion subspaces for the supported 1 \ac{DoF} joints.}
+    \label{tab:motion_subspaces}
+\end{table}
+
+\subsubsection{Kinematics and dynamics propagation}
+\label{sec:joint_kin_dyn_propagation}
+
+Many common \acp{RBDA} need to propagate quantities in both directions of a kinematic tree representing a multibody system: child-to-parent and parent-to-child.
+
+Let's consider a pair of links $(P, C)$, connected together with a 1-\ac{DoF} joint characterised by a position, velocity, and acceleration $\shape, \dot{\shape}, \ddot{\shape} \in \realn$.
+If link $P$ is the joint's parent, and link $C$ its child, we can compute their relative pose $\homo[C]_P$ with Equation~\eqref{equation:joint_model_parent_to_child_transform}.
+From Equation~\eqref{equation:velocity_adjoint}, we can also compute the related coordinate transformation $\transvel[C]_P$ for 6D velocities.
+
+\begin{definition*}[Propagation of 6D Velocities]
+%
+Given the 6D velocity of the parent link $P$, and the joint velocity, we want to calculate the velocity of the child link $C$.
+In $C$ coordinates, if $\velsix[P]_{W,C}$ is the body-fixed velocity of the parent link, and $\velsix[C]_{P,C}$ is the 6D velocity induced by the joint motion, we can write the following relation:
+%
+\begin{equation*}
+    \velsix[C]_{W,C}
+    = \velsix[C]_{W,P} + \velsix[C]_{P,C}
+    = \transvel[C]_P \velsix[P]_{W,P} + \subspace \dot{\shape}
+    ,
+\end{equation*}
+%
+where we used Equation~\eqref{eq:joint_model_velocity_propagation} and Remark~\ref{remark:subspaces_independent_representation} to express the joint component using its velocity.
+%
+\end{definition*}
+
+\begin{definition*}[Propagation of 6D Accelerations]
+\label{definition:propagation_accelerations}
+%
+Given the 6D acceleration of the parent link $P$, and the joint acceleration, we want to calculate the acceleration of the child link $C$.
+In $C$ coordinates, if $\velsixd[P]_{W,C}$ is the body-fixed apparent velocity of the parent link, and $\velsixd[C]_{P,C}$ is the 6D apparent velocity induced by the joint motion, we can write the following relation for the intrinsic acceleration:
+%
+\begin{equation*}
+    \accsix[C]_{W,C} = \velsixd[C]_{W,C}
+    = \velsixd[C]_{W,P} + \velsixd[C]_{P,C} = \velsixd[C]_{W,P} + \subspace \ddot{\shape}
+    ,
+\end{equation*}
+%
+where we used Equation~\eqref{eq:joint_model_acceleration_propagation} to express the joint component using its acceleration.
+In this case, we also want to expand the right-hand side to have $\accsix[P]_{W,P}$, so that the propagation of the accelerations can be performed iteratively.
+Expanding $\velsixd[C]_{W,P}$ using Equation~\eqref{eq:sixd_apparent_acceleration}, and exploiting properties of the cross-product in $\realn^6$, we obtain the following expression:
+%
+\begin{align*}
+    \accsix[C]_{W,C}
+    &= \velsixd[C]_{W,P} + \subspace \ddot{\shape} \\
+    &= \transvel[C]_P \left( \velsixd[P]_{W,P} + \crossvelsix[{\velsix[P]_{C,P}}] \velsix[P]_{W,P} \right) + \subspace \ddot{\shape} \\
+    &= \transvel[C]_P \velsixd[P]_{W,P} + \transvel[C]_P \crossvelsix[{\velsix[P]_{C,P}}] \velsix[P]_{W,P} + \subspace \ddot{\shape} \\
+    &= \transvel[C]_P \accsix[P]_{W,P} + \transvel[C]_P \crossvelsix[{\velsix[P]_{W,P}}] \velsix[P]_{P,C} + \subspace \ddot{\shape} \\
+    &= \transvel[C]_P \accsix[P]_{W,P} + \transvel[C]_P \crossvelsix[{\velsix[P]_{W,P}}] \subspace \dot{s} + \subspace \ddot{\shape}
+    ,
+\end{align*}
+%
+where we used the relation $\velsixd[P]_{W,P} = \accsix[P]_{W,P}$, and Equation~\eqref{eq:joint_model_acceleration_propagation} to express $\velsix[P]_{P,C} = \subspace \dot{\shape}$.
+In this form, we can propagate the acceleration from parent to child having only the knowledge of the parent 6D velocity and acceleration expressed in its own frame, and the joint quantities.
+%
+\end{definition*}
+
+\begin{figure}
+    \centering
+    \resizebox{0.8\textwidth}{!}{
+    \includegraphics{images/background/force_propagation.tikz}
+    }
+    \caption{Illustration of 6D force propagation through a set of links connected by joints. The link $L$ receives a force $\forcesix_{J_P}$ from its parent $P$ transmitted through the joint $J_P$, and an external force $\forcesix_E$. The link $L$ transmits to each children $C_i$ a force $\forcesix_{J_{C_i}}$ through their connecting joint $J_{C_i}$.}
+    \label{fig:force_propagation}
+\end{figure}
+
+\begin{definition*}[Propagation of 6D forces]
+%
+As illustrated in Figure~\ref{fig:force_propagation}, given a link $L$, we want to compute the effects of the propagation of exchanged 6D forces on its dynamics.
+In this case, we consider a single parent link $P$, and multiple child links $C_1, C_2, \dots$.
+The parent link $P$ applies a 6D force $\forcesix_{J_P}$ to $L$ through the joint connecting them.
+Similarly, each joint connecting $L$ to its child links $C_j$ receives a 6D force $\forcesix_{J_{C_j}}$ from link $L$.
+Furthermore, to model the most generic setting, we assume that an external force $\forcesix_{E}$ coming from the environment is applied to link $L$.
+\newline
+In this setting, the dynamics of the link $L$ expressed with the Newton-Euler equation~\eqref{eq:newton_euler} in its own frame, and ignoring the gravitational effects, is the following:
+%
+\begin{equation*}
+    \begin{cases}
+        \forcesix[L]^{ext} = \forcesix[L]_{J_P} + \forcesix[L]_{E} - \sum_{C_j} \forcesix[L]_{J_{C_j}} \\
+        \forcesix[L]_{J_P} = \masssix_L \velsixd[L]_{W,L} + \velsix[L]_{W,L} \bar{\times}^* \masssix_L \velsix[L]_{W,L} + \sum_{C_j} \forcesix[L]_{J_{C_J}} - \forcesix[L]_{E}
+    \end{cases}
+    .
+\end{equation*}
+%
+In contrast to the propagation of velocity and accelerations, in this case we will use this relation to propagate forces from the children (and the environment) to the parent.
+As we will see, gravitational effects can be considered by propagating through the kinematic tree of a multibody system an equivalent acceleration applied on the base link.
+%
+\end{definition*}
+
+\section{Free-floating Mechanical Systems}
+\label{section:free-floating_mechanical_systems}
+
+In the previous sections, we introduced how individual links and joints can be described, and presented their properties.
+In this section, we present the mathematical description of a free-floating mechanical system composed of a set of links connected by a set of joints.
+The free-floating terminology means that no link of the system is rigidly attached to the world frame.
+Also in this case, we present the system modelling based on the free-floating equations that originate from the Lagrangian formalism as proposed by~\textcite[Chapter~3]{traversaro_modelling_2017}.
+
+\subsection{Topology}
+\label{sec:multibody_topology}
+
+\begin{definition*}[Multibody System]
+%
+A \emph{multibody system} composed of $n_L$ rigid bodies (also called links) interconnected with $n_J$ joints, can be represented by a \emph{undirected graph}.
+The links, grouped in the set $\mathcal{L}$, form the graph nodes, while the joints, grouped in the set $\mathcal{J}$, form its edges.
+%
+\end{definition*}
+
+\begin{definition*}[Kinematic graph]
+%
+The undirected graph with $n_L$ nodes and $n_J$ edges representing a multibody system will also be referred to as \emph{kinematic graph}.
+%
+\end{definition*}
+
+\begin{definition*}[Path]
+%
+The path $\pi_B(E) = \{B, \dots, E\}$ between link $B$ and link $E$ is the ordered sequence of links part of the kinematic graph that connects $B$ to $E$.
+%
+\end{definition*}
+
+\begin{definition*}[Base link]
+%
+We select one of the links part of $\mathcal{L}$ and call it \emph{base link} $B$.
+The base link is the root of the kinematic graph.
+%
+\end{definition*}
+
+\begin{assumption*}[Link frames]
+%
+Each link belonging to $\mathcal{L}$ is associated with a frame rigidly attached to it, called \emph{link frame}.
+%
+\end{assumption*}
+
+\begin{assumption*}[Acyclic graph]
+%
+We assume the kinematic graph to be acyclic, \ie considering any pair of links $C, D \in \mathcal{L}$, their connecting path $\pi_C(D)$ is unique.
+%
+\end{assumption*}
+
+\begin{definition*}[Parent Link]
+%
+For each link $L \in \mathcal{L}$, if $B$ is the base link, the parent function $\lambda_B: \{\mathcal{L} / B\} \mapsto \mathcal{L}$ maps each link to its parent, with the exclusion of the base link since it is the graph's root.
+In contexts where $B$ is clearly specified, we omit the subscript.
+%
+\end{definition*}
+
+\begin{definition*}[Link index]
+%
+For each $L \in \mathcal{L}$, the index function $\operatorname{idx}: \mathcal{L} \mapsto 0 \cup \mathbb{N}$ returns its index.
+If $B$ is the base link, we assign indices such that $\operatorname{idx}(B) = 0$ and, for the remaining $L \in \{\mathcal{L} / B\}$, we enforce $\operatorname{idx}(L) > \operatorname{idx}(\lambda(L))$.
+Therefore, links are numbered from $0$ to $n_L - 1$.
+%
+\end{definition*}
+
+\begin{definition*}[Joint index]
+%
+For each $L \in \{\mathcal{L} / B\}$, we assign to the joint $J \in \mathcal{J}$ connecting the link pair $(\lambda(L), L)$ the index $\operatorname{idx}(L)$, that is the index of its child link.
+Therefore, joints are numbered starting from 1 to $n_J$.
+%
+\end{definition*}
+
+\subsection{Generalised position and velocity}
+
+The configuration of a free-floating mechanical system can be modelled as the set formed by the poses of all links.
+However, the existence of the joints that induce motion constraints enables to determine the system configuration as a pair composed of the pose of a \emph{base link} and the generalised joints positions.
+These two modelling choices are known, respectively, as \emph{maximal coordinates} and \emph{reduced coordinates}.
+In this thesis, we focus on the case of	reduced coordinates, since it enables the application of efficient algorithms~\parencite{featherstone_rigid_2008} to operate on the system's kinematics and dynamics.
+Furthermore, interesting properties of the mathematical model that can be computed in reduced coordinates can be exploited for designing control systems.
+
+In reduced coordinates, we can formalise the generalised position and the generalised velocity of the floating-base multibody system as follows:
+%
+\begin{equation*}
+    \begin{cases}
+        \Qu = \left(\homo[W]_B, \Shape\right) \in \mathbb{Q} = \SE(3) \times \realn^n \\
+        \Qud = \left(\homod[W]_B, \Shaped\right) \in \mathbb{V}
+    \end{cases}
+\end{equation*}
+%
+where we introduced the \emph{joint positions} $\Shape \in \realn^n$, also called \emph{shape}.
+Under the assumption of having only 1-\ac{DoF} joints, $n$ is the overall number of internal \aclp{DoF} of the system, matching the number of joints $n_J$.
+Note that this limitation can be removed, and a more general formulation can be found in \parencite{featherstone_rigid_2008}.
+
+Similarly to what we observed for a single rigid body, it can be more convenient to represent the system's velocity as a column vector:
+%
+\begin{equation*}
+    \Nu[X] =
+    \begin{bmatrix}
+        \velsix[X]_{W,B} \\ \Shaped
+    \end{bmatrix}
+    \in \realn^{6+n}
+    ,
+\end{equation*}
+%
+where $\velsix[X]_{A,B}$ is the velocity of the base link, $\Shaped \in \realn^n$ are the \emph{joint velocities}, and the generic frame $X$ is a placeholder to select one among the \emph{body-fixed} $X=B$, \emph{inertial-fixed} $X=W$, or \emph{mixed} $X=B[W]$ representations.
+
+\subsection{Kinematics}
+
+In this section, we describe how we can relate the pose $\homo[W]_E$ and the velocity $\velsix_{W,E}$ between the world frame and a generic link $E$ of the multibody mechanical structure, commonly called also \emph{kinematic chain}, with the generalised position $\Qu$ and generalised velocity $\Nu$ of the system.
+The link $E$ can be thought of as the \emph{end-effector} frame, even if it applies to any generic link $L$ of the model and, more generally, any frame rigidly attached to one of the links.
+
+\subsubsection{Link pose}
+
+The pose of a link $E$ \wrtl the world frame uniquely depends on the generalised position $\Qu$.
+We can denote the pose as a function $\homo[W]_E(\Qu): \mathbb{Q} \mapsto \SE(3)$, defined as follows:
+%
+\begin{equation}
+    \label{eq:multibody_kinematics_pose}
+    \homo[W]_E(\Qu) = \homo[W]_B \homo[B]_E(\Shape) =
+    \begin{bmatrix}
+        \rot[W]_B & \ori[W]_B \\
+        \zeros_{1\times 3} & 1
+    \end{bmatrix}
+    \homo[B]_E(\Shape)
+    .
+\end{equation}
+%
+The transform $\homo[B]_E(\Shape)$ defines the \emph{relative forward kinematics} between link $B$ and link $E$, and it depends on the sequence of parent-to-child transforms $\homo[\lambda(i)]_{i}$ of all the adjacent links belonging to the path $\pi_B(E)$:
+%
+\begin{align*}
+    \homo[B]_E(\Shape) &= \homo[B]_{\lambda(\lambda\cdots(E))} \cdots \homo[\lambda(\lambda(E))]_{\lambda(E)} \homo[\lambda(E)]_E \\
+    &= \prod_{L_i \in \{\pi_B(E)/B\}} \homo[\lambda(L_i)]_{L_i}(s_i)
+    .
+\end{align*}
+%
+Each entry $\homo[\lambda(L)]_L = \homo[\lambda(L)]_L(\shape)$ of the product is given by the joint model of Equation~\eqref{equation:joint_model_parent_to_child_transform} that defines the transform between two links connected by a joint.
+
+\subsubsection{Link velocity}
+
+For what concerns the velocity between the world frame $W$ and link $E$, we want to find an expression in the following generic form:
+%
+\begin{equation*}
+    \velsix[Y]_{W,E} = \jac[Y]_{W,E/X}(\Qu) \Nu[X]
+    ,
+\end{equation*}
+%
+where we introduced $\jac_{W,E} \in \realn^{6\times(6+n)}$ as the \emph{floating-base Jacobian} of link $E$.
+We can notice that two different velocity representations characterie this relation, denoted by the $X$ and $Y$ placeholder frames: $X$ related to the input system velocity $\Nu[X]$, and $Y$ related to the output link velocity $\velsix[Y]_{W,E}$.
+We will show the derivation of the \emph{left-trivialized Jacobian} $\jac[Y]_{W,Y/X}$, and then introduce the appropriate transformations to change the two representations.
+
+The velocity of link $E$ \wrt the world frame can be computed differentiating Equation~\eqref{eq:multibody_kinematics_pose}.
+Instead of proceeding with this calculation, we follow the equivalent approach of decomposing the velocity $\velsix_{W, E}$ as the sum of the base velocity and the velocity between the base and the link $E$:
+%
+\begin{equation*}
+    \velsix[E]_{W,E} = \velsix[E]_{W,B} + \velsix[E]_{B,E}
+    .
+\end{equation*}
+%
+We can express $\velsix_{B, E}$ as the sum of the velocities between adjacent links in the link path $\pi_B(E)$ between link $B$ and $E$:
+%
+\begin{align*}
+    \velsix[E]_{W,E}
+    &= \velsix[E]_{W,B} + \sum_{L_i\in \{\pi_B(E) / B\}} \velsix[E]_{\lambda(L_i), L_i} \\
+    &= \velsix[E]_{W,B} + \sum_{L_i\in \{\pi_B(E) / B\}} \transvel[E]_{L_i} \velsix[L_i]_{\lambda(L_i), L_i} \\
+    &= \velsix[E]_{W,B} + \sum_{L_i\in \{\pi_B(E) / B\}} \transvel[E]_{L_i} \subspacee[L_i]_{\lambda(L_i), L_i}(\shape_i) \dot{\shape}_i
+    ,
+\end{align*}
+%
+where we used the expression of the relative velocity between two adjacent links $\velsix[L]_{\lambda(L),L}$ introduced in Equation~\eqref{eq:joint_model_velocity_propagation}.
+Expressing the obtained relation in matrix form, we reach the expression of the desired left-trivialized Jacobian, where $X$ is a placeholder that depends on the representation of the system's velocity:
+%
+\begin{equation}
+    \label{eq:jacobian_left_trivialized}
+    \velsix[E]_{W,E} =
+    \begin{bmatrix}
+        \transvel[E]_X & {}^E S_{B,E}(\Shape)
+    \end{bmatrix}
+    \begin{bmatrix}
+        \velsix[X]_{W,B} \\ \Shaped
+    \end{bmatrix} =
+    \jac[E]_{W,E/X} \Nu[X]
+    .
+\end{equation}
+%
+We introduced the matrix $S_{B,E}(\Shape) \in \realn^{6\times n}$ for the joint part, where its $i$-th column is defined as:
+%
+\begin{equation*}
+    {}^E S_{B,E}^{(:,i)}(s) =
+    \begin{cases}
+        \transvel[E]_L \subspacee[L]_{\lambda(L), L}(\shape) &\text{if $L \in \{\pi_B(E) / B\}$,}\\
+        \zeros_{6} &\text{otherwise.}
+    \end{cases}
+\end{equation*}
+
+\begin{definition*}[Link Jacobian]
+\label{definition:link_jacobian}
+%
+The generic form of the floating-base Jacobian of link $E$ is, therefore:
+\begin{equation}
+    \label{eq:relative_jacobian}
+    \jac[Y]_{W,E/X}(\Qu) =
+    \begin{bmatrix}
+        \transvel[Y]_X & {}^Y S_{B,E}(\Shape)
+    \end{bmatrix}
+.
+\end{equation}
+%
+\end{definition*}
+
+Finally, the input and output representations can be changed from the pair $(X, Y)$ to the pair $(D, F)$ by either left or right multiplication:
+%
+\begin{equation}
+    \label{eq:jacobian_change_of_representation}
+    \jac[D]_{W,E/F}(\Qu) = \transvel[D]_Y \jac[Y]_{W,E/X}(\Qu) \operatorname{diag}\left(\transvel[X]_F, \eye_n \right)
+    .
+\end{equation}
+
+\begin{remark}[Floating-base Jacobian and 6D forces]
+\label{remark:jacobian_and_6d_forces}
+%
+The duality between 6D velocities and 6D forces also propagates to the definition of the floating-base Jacobian.
+If we consider a 6D force $\forcesix[C_i]_i$, that could be for example the force applied to the frame $C_i$ associated to the contact point $i$ of link $L$ which pose is defined by a transform $\homo[L]_{C_i}$, we can use Equation~\eqref{eq:relative_jacobian} to compute its projection to the floating-base configuration space $\jac[C_i]_{W,L/X}^\top(\Qu) \forcesix[C_i]_i = (\transvel[C_i]_L \jac[L]_{W,L/X}(\Qu))^\top \forcesix[C_i]_i \in \realn^{6+n}$.
+This verbose notation results particularly useful in this case, because in the example of a rolling contact, the frame $C_i$ is time-varying, and the most appropriate contact Jacobian is $\jac[C_i]_{W,L}$ instead of $\jac[C_i]_{W, C_i}$, regardless of the system's velocity representation $X$.
+%
+\end{remark}
+
+\subsection{Dynamics}
+\label{sec:multibody_dynamics}
+
+The \acp{EoM} of the free-floating mechanical system, similar to what we showed for a single rigid body in Section~\ref{sec:eom_rigid_body}, can be derived from Lagrangian mechanics.
+Also in this case, we utilise the left-trivialized Lagrangian taking as input the pair $(\homo[W]_B, \Nu[B])$, and drop the $B$ superscript by assuming that all quantities are derived in body-fixed representation.
+In the simplified setting of maximal coordinates, the Lagrangian of the overall system can be obtained as the combination of the left-trivialized Lagrangian of all its links:
+%
+\begin{align*}
+    l(\Qu, \Nu) &= k(\Qu, \Nu) - U(\Qu), \\
+    k(\Qu, \Nu) &= \frac{1}{2} \sum_{L \in \mathcal{L}} \velsix[L]_{W,L}^\top \masssix_L \velsix[L]_{W,L}, \\
+    U(\Qu) &= - \sum_{L \in \mathcal{L}} \begin{bmatrix}\gravity[W]^\top & \zeros_{1\times3}\end{bmatrix}
+    \homo[W]_L
+    \begin{bmatrix}m_L {}^L\mathbf{c} \\ m_L \end{bmatrix}
+    .
+\end{align*}
+%
+In reduced coordinates, we can obtain an alternative and more compact expression of the energies:
+%
+\begin{align*}
+    k(\Qu, \Nu) &= \frac{1}{2} \Nu^\top M(\Qu) \Nu, \\
+    U(\Qu) &= -\begin{bmatrix}\gravity^\top & \zeros_{1\times3}\end{bmatrix}
+    m \homo[W]_B
+    \begin{bmatrix}{}^B\mathbf{c}(\Shape) \\ 1 \end{bmatrix}
+    ,
+\end{align*}
+%
+where $M(\Qu) \in \realn^{(6+n)\times(6+n)}$ is the system's \emph{mass matrix}, defined as:
+%
+\begin{equation}
+    \label{eq:mass_matrix}
+    M(\Qu) = \sum_{L\in\mathcal{L}} J_L^\top(\Qu) \masssix_L J_L(\Qu),
+\end{equation}
+%
+$m \in \realn$ is the total mass of the mechanical system:
+%
+\begin{equation*}
+    m = \sum_{L\in\mathcal{L}} m_L
+    ,
+\end{equation*}
+%
+and ${}^B\mathbf{c}(\Shape) \in \realn^3$ is the \ac{CoM} of the mechanical system:
+%
+\begin{equation*}
+    \begin{bmatrix}{}^B\mathbf{c}(\Shape) \\ 1\end{bmatrix} =
+    \frac{1}{m} \sum_{L\in\mathcal{L}} m_L \homo[B]_L \begin{bmatrix}{}^L\mathbf{c}_L\\1\end{bmatrix}
+    .
+\end{equation*}
+%
+We introduced $\jac_L(\Qu) = \jac[L]_{W,L/B}$ as the floating-base left-trivialized Jacobian of link $L$ for left-trivialized velocities $\Nu[B]$, as defined in Equation~\eqref{eq:jacobian_left_trivialized}.
+
+The \aclp{EoM} of the multibody system, considering that its configuration is an element of $\SE(3)\times\realn^n$, can be obtained by applying the Hamel equations~\parencite{marsden_jerrold_e_introduction_2010, maruskin_dynamical_2018}, that can be seen as the combination of the Euler-Poincarè equation for the base variables in $\SE(3)$ and the classical Euler-Lagrange equation for the joint variables in $\realn^n$.
+The left-trivialized Lagrangian plugged into the Hamel equations gives the \acp{EoM} of the multibody system:
+%
+\begin{equation}
+    \label{eq:equation_of_motion_multibody}
+    \begin{cases}
+        \Qud = \left( \homod[W]_B, \Shaped \right)  \\
+        M(\Qu) \Nud + C(\Qu, \Nu) \Nu + g(\Qu) = B \Torques + \sum_{\mathcal{L}} J_{L}^\top(\Qu) \forcesix_L^{ext}
+    \end{cases}
+\end{equation}
+%
+where we used the mass matrix $M(\Qu)$ defined in Equation~\eqref{eq:mass_matrix}, the actuation selector $B = (\zeros_{6\times n}; \eye_n) \in \realn^{(6+n)\times n}$, and:
+%
+\begin{align*}
+    C(\Qu, \Nu) &= \sum_{L\in\mathcal{L}} J_L^\top \left[ (\crossforsix[\velsix_L] \masssix_L + \masssix_L \crossvelsix[\velsix_L]) J_L + \masssix_L \dot{J}_L \right] ,\\
+    g(\Qu) &= -M(\Qu) \begin{bmatrix}\rot[W]_B^\top \gravity[W] \\ \zeros_{3\times1} \\ \zeros_{n\times1}\end{bmatrix}
+    .
+\end{align*}
+
+\begin{remark*}
+%
+We introduced for each link an \emph{external force} $\forcesix_L^{ext}$ expressed in link frame $L$.
+If multiple forces are applied to different locations of the link where a local frame $C_i$ is positioned, they can either be projected individually to the configuration space as described in Remark~\ref{remark:jacobian_and_6d_forces}, or summed all together to a single 6D force $\forcesix_L^{ext} = \sum_i \transfor[L]^{C_i} \forcesix[C_i]_i$ expressed in $L$ and projected as done in Equation~\eqref{eq:equation_of_motion_multibody}.
+%
+\end{remark*}
+
+\begin{remark*}[Structure of the mass matrix]
+\label{remark:mass_matrix_structure}
+%
+The mass matrix of Equation~\eqref{eq:equation_of_motion_multibody}, considering the usage of the body-fixed representation for velocities and inertias, should be denoted as $M(\Qu) = M_B(\Shape)$.
+In fact, this is the only representation in which the mass matrix depends only on the shape and not on the base pose.
+In this representation, the mass matrix can be factorised as follows:
+%
+\begin{equation*}
+    M_B(\Shape) =
+    \begin{bmatrix}
+        \masssix[B](\Shape) & F(\Shape) \\
+        F^\top(\Shape) & H(\Shape)
+    \end{bmatrix}
+    ,
+\end{equation*}
+%
+where $F(\Shape) \in \realn^{6\times n}$, $H(\Shape) \in \realn^{n\times n}$ is the \emph{joint mass matrix}, and $\masssix[B](\Shape) \in \realn^{6\times 6}$ is the \emph{locked 6D rigid body inertia} of the multibody system.
+%
+\end{remark*}
+
+\subsection{Change of base variables}
+\label{sec:change_of_base_variables}
+
+In the previous section, we derived the \acp{EoM} of a multibody system assuming the base link $B$ being the root of the kinematic graph, and using the body-fixed representation for all velocities and forces.
+As shown by \textcite[Section~3.6]{traversaro_modelling_2017}, it's possible to apply a change of variables to the \acp{EoM} of Equation~\eqref{eq:equation_of_motion_multibody} and express the dynamics either in a different velocity representation or with a different base link.
+
+Starting from a multibody system having the pair $(\Qu, \Nu)$ as generalised position and velocity, we want to find a change of variables such that the new pair is $(\tilde{\Qu}, \tilde{\Nu})$, defined as follows: 
+%
+\begin{align*}
+    \tilde{\Qu} &= (\Tilde{\homo}, \Shape) ,\\
+    \tilde{\homo} &= \homo_T(\Shape) \homo \in \SE(3) ,\\
+    \tilde{\Nu} &= T(\Qu) \Nu ,\\
+    T(\Qu) &=
+    \begin{bmatrix}
+        T_{bb}(\Qu) & T_{bs}(\Qu) \\
+        \zeros_{n\times6} & \ones_{n}
+    \end{bmatrix} \in \realn^{(6+n)\times(6+n)}
+    .
+\end{align*}
+%
+We introduced the linear transformation $T: \SE(3)\times\realn^n \mapsto \realn^{(6+n)\times(6+n)}$ assuming that it is a smooth function and $\forall \Qu \in \SE(3)\times\realn^n$, $\det[T(\Qu)] \neq 0$.
+Note that $T$ does not alter the joint equations of the dynamics.
+
+It can be shown that the \acp{EoM}~\eqref{eq:equation_of_motion_multibody} are transformed as follows:
+%
+\begin{equation*}
+    \begin{cases}
+        \dot{\tilde{\Qu}} = \left( \homod(\Qu, \Nu) \homo_T(\Shape) + \homo(\Qu) \dot{\homo}_T(\Shape, \Shaped), \Shaped \right) \\
+        \tilde{M}(\tilde{\Qu})\dot{\tilde{\Nu}} + \tilde{C}(\tilde{\Qu}, \tilde{\Nu}) \tilde{\Nu} + \tilde{g}(\tilde{\Qu}) = B \Torques + \sum_{\mathcal{L}} \tilde{J}_L(\Qu) \forcesix[L]_L^{ext}
+    \end{cases}
+    ,
+\end{equation*}
+%
+where we have introduced the transformed quantities:
+%
+\begin{equation}
+    \label{eq:eom_change_of_variables}
+    \begin{aligned}
+        \tilde{M} &= T^{-\top} M T^{-1} ,\\
+        \tilde{C} &= T^{-\top} \left( M \dv{t}(T^{-1}) + CT^{-1} \right) ,\\
+        \tilde{g} &= T^{-\top} G ,\\
+        \tilde{J}_L &= J_L T.
+    \end{aligned}  
+\end{equation}
+
+\begin{remark}
+%
+For what regards the link Jacobian $\jac_L(\Qu) = \jac[L]_{W,L/B}(\Qu)$, beyond depending on the transformation $T(\Qu)$ related to the change of variables, it also depends on the reference frame in which the 6D forces $\forcesix^{ext}_L$ are expressed.
+Until now, we always expressed the link forces in the link frame, \ie $\forcesix[L]^{ext}_L$.
+However, if link forces are expressed in a different frame, we can use Equation~\eqref{eq:jacobian_change_of_representation} to modify the output representation of the Jacobian.
+%
+\end{remark}
+
+In this thesis, we only need the definition of the \acp{EoM} in different velocity representations.
+It can be shown that the transform $\homo_T$ is used only if the base link changes from $B$ to any other frame belonging to the multibody system.
+For this reason, starting from the obtained left-trivialized \acp{EoM}, we will present the following change of variables assuming the base link always being $B$, and therefore $\homo_T = \eye_4$.
+The interested reader could refer to \parencite{traversaro_modelling_2017} for the transform necessary to change the base link.
+
+\subsubsection{Left-trivialized}
+
+The left-trivialized \acp{EoM}~\eqref{eq:equation_of_motion_multibody} of the multibody system considering $B$ as base link, using a complete and non-ambiguous notation, are the following:
+%
+\begin{equation*}
+    M_B(\Shape) \Nud[B] + C_B(\Qu, \Nu[B]) \Nu[B] + g_B(\Qu) = B \Torques + \sum_{L \in \mathcal{L}} \jac[L]_{W,L/B}^\top(\Qu) \forcesix[L]_L^{ext} 
+\end{equation*}
+%
+where:
+%
+\begin{align*}
+    M_B(\Shape) &= \sum_{L\in\mathcal{L}} \jac[L]_{W,L/B}^\top \masssix[L]_L \jac[L]_{W,L/B} ,\\
+    C_B(\Qu, \Nu[B]) &= \sum_{L\in\mathcal{L}} \jac[L]_{W,L/B}^\top \Big[ (\crossforsix[{\velsix[L]_{W,L}}] \masssix[L]_L + \masssix[L]_L \crossvelsix[{\velsix[L]_{W,L}}]) \jac[L]_{W,L/B} + \\
+    &\phantom{\sum_{L\in\mathcal{L}} \jac[L]_{W,L/B}^\top \Big[} + \masssix[L]_L {}^L\dot{J}_{W,L/B} \Big] ,\\
+    g(\Qu) &= -M_B(\Qu) \begin{bmatrix}\rot[W]_B^\top \gravity[W] \\ \zeros_{3\times1} \\ \zeros_{n\times1}\end{bmatrix} ,\\
+    \jac[L]_{W,L/B}(\Qu) &= 
+    \begin{bmatrix}
+        \transvel[L]_B & \subspacee[L]_{B,L}(\Shape)
+    \end{bmatrix}
+    .
+\end{align*}
+
+\subsubsection{Right-trivialized}
+
+If we change the velocity representation of the base to inertial-fixed, we can apply the change of variables~\eqref{eq:eom_change_of_variables} using the following transformation matrix:
+%
+\begin{align*}
+    \transrepr[W]_B &=
+    \begin{bmatrix}
+        \transvel[W]_B & \zeros_{6\times n} \\
+        \zeros_{n\times6} & \eye_n
+    \end{bmatrix}
+\end{align*}
+
+Furthermore, if we also want to use external 6D forces expressed in the world frame $\forcesix[W]_L^{ext}$, we can obtain the right-trivialized Jacobian by applying $\transrepr$, and then update its output representation as follows:
+%
+\begin{align*}
+    \jac[W]_{W,L/W} = \transvel[W]_L \jac[L]_{W,L/B} \transrepr[B]_W
+    .
+\end{align*}
+
+\subsubsection{Mixed}
+
+Similarly, the transformation to obtain the \acp{EoM} in mixed representation is the following:
+%
+\begin{align*}
+    \transrepr[{B[W]}]_B &=
+    \begin{bmatrix}
+        \transvel[{B[W]}]_B & \zeros_{6\times n} \\
+        \zeros_{n\times6} & \eye_n
+    \end{bmatrix}
+    .
+\end{align*}

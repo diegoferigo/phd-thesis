@@ -1,37 +1,13 @@
-% **************************************************************************************************************
-% A Classic Thesis Style
-% An Homage to The Elements of Typographic Style
-%
-% Copyright (C) 2018 André Miede and Ivo Pletikosić
-%
-% If you like the style then I would appreciate a postcard. My address
-% can be found in the file ClassicThesis.pdf. A collection of the
-% postcards I received so far is available online at
-% http://postcards.miede.de
-%
-% License:
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with this program; see the file COPYING.  If not, write to
-% the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-% Boston, MA 02111-1307, USA.
-%
-% PLEASE SEE ALSO THE AUTHORS' NOTE REGARDING THIS LICENSE
-% IN THE DOCUMENTATION (ClassicThesis.pdf --> Chapter 1 / Chapter01.tex)
-% **************************************************************************************************************
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_GB
+% !BIB program = biber
+
 \RequirePackage{silence} % :-\
-    \WarningFilter{scrreprt}{Usage of package `titlesec'}
-    %\WarningFilter{scrreprt}{Activating an ugly workaround}
-    \WarningFilter{titlesec}{Non standard sectioning command detected}
+% \WarningFilter{scrreprt}{Usage of package `titlesec'}
+% \WarningFilter{scrreprt}{Activating an ugly workaround}
+\WarningFilter{titlesec}{Non standard sectioning command}
+
 \documentclass[
     oneside,
     %twoside,
@@ -48,6 +24,16 @@
     fontsize=11pt
     ]{scrreprt}
 
+% Fix TOC font in TeX Live 2022
+% https://tex.stackexchange.com/a/654221
+\PassOptionsToPackage{nopatch}{microtype}
+
+% Importing here pgfplots as early as possible
+\usepackage[dvipsnames]{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+
 %********************************************************************
 % Note: Make all your adjustments in here
 %*******************************************************
@@ -56,8 +42,7 @@
 %********************************************************************
 % Bibliographies
 %*******************************************************
-\addbibresource{Bibliography.bib}
-\addbibresource[label=ownpubs]{AMiede_Publications.bib}
+\addbibresource{zotero.bib}
 
 %********************************************************************
 % Hyphenation
@@ -70,7 +55,7 @@
 \begin{document}
 \frenchspacing
 \raggedbottom
-\selectlanguage{american} % american ngerman
+\selectlanguage{british} % american ngerman
 %\renewcommand*{\bibname}{new name}
 %\setbibpreamble{}
 %\pagenumbering{roman}
@@ -81,17 +66,17 @@
 % Frontmatter
 %*******************************************************
 
-%\include{FrontBackmatter/DirtyTitlepage}
-\include{FrontBackmatter/Titlepage}
-%\include{FrontBackmatter/Titleback}
-\cleardoublepage\include{FrontBackmatter/Contents}
-%\cleardoublepage\include{FrontBackmatter/Dedication}
-\cleardoublepage\include{FrontBackmatter/Abstract}
-%\cleardoublepage\include{FrontBackmatter/Publications}
-%\cleardoublepage\include{FrontBackmatter/Foreword}
-\clearpage\include{FrontBackmatter/Declaration}
-\clearpage\include{FrontBackmatter/Copyright}
-\cleardoublepage\include{FrontBackmatter/Acknowledgments}
+%\include{FrontBackmatter/dirty_titlepage}
+\include{FrontBackmatter/titlepage}
+%\include{FrontBackmatter/titleback}
+\cleardoublepage\include{FrontBackmatter/contents}
+%\cleardoublepage\include{FrontBackmatter/dedication}
+\cleardoublepage\include{FrontBackmatter/abstract}
+%\cleardoublepage\include{FrontBackmatter/publications}
+%\cleardoublepage\include{FrontBackmatter/foreword}
+\clearpage\include{FrontBackmatter/declaration}
+\clearpage\include{FrontBackmatter/copyright}
+% \cleardoublepage\include{FrontBackmatter/acknowledgments}
 
 %********************************************************************
 % Mainmatter
@@ -103,34 +88,33 @@
 %\setcounter{page}{90}
 % use \cleardoublepage here to avoid problems with pdfbookmark
 \cleardoublepage
-\part{Some Kind of Manual}\label{pt:manual}
-\include{Chapters/Chapter01}
-\cleardoublepage
-\ctparttext{You can put some informational part preamble text here.
-Illo principalmente su nos. Non message \emph{occidental} angloromanic
-da. Debitas effortio simplificate sia se, auxiliar summarios da que,
-se avantiate publicationes via. Pan in terra summarios, capital
-interlingua se que. Al via multo esser specimen, campo responder que
-da. Le usate medical addresses pro, europa origine sanctificate nos se.}
-\part{The Showcase}\label{pt:showcase}
-\include{Chapters/Chapter02}
-%\addtocontents{toc}{\protect\clearpage} % <--- just debug stuff, ignore
-\include{Chapters/Chapter03}
-%\include{multiToC} % <--- just debug stuff, ignore for your documents
+
+\include{Chapters/prologue}
+\include{Chapters/covid_impact_statement.tex}
+\part{Background and Fundamentals}\label{part:foundations}
+\include{Chapters/Part_1/chapter_1}
+\include{Chapters/Part_1/chapter_2}
+\include{Chapters/Part_1/chapter_3}
+\include{Chapters/Part_1/chapter_4}
+\part{Contribution}\label{part:contribution}
+\include{Chapters/Part_2/chapter_5}
+\include{Chapters/Part_2/chapter_6}
+\include{Chapters/Part_2/chapter_7}
+\include{Chapters/Part_2/chapter_8}
 
 % ********************************************************************
 % Backmatter
 %*******************************************************
 
-\cleardoublepage\include{FrontBackmatter/Conclusions}
-\cleardoublepage\include{FrontBackmatter/Bibliography}
-% \cleardoublepage\include{FrontBackmatter/Colophon}
+\cleardoublepage\include{Chapters/epilogue}
+\cleardoublepage\include{FrontBackmatter/bibliography}
+% \cleardoublepage\include{FrontBackmatter/colophon}
 
 \appendix
 \renewcommand{\thechapter}{\Alph{chapter}}
 \cleardoublepage
 \part{Appendix}
-\include{Chapters/Chapter0A}
+\include{Chapters/appendix}
 
 % ********************************************************************
 % Game Over: Restore, Restart, or Quit?
