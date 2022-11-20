@@ -1,0 +1,66 @@
+%*******************************************************
+% Abstract
+%*******************************************************
+
+\phantomsection
+\addcontentsline{toc}{chapter}{\tocEntry{Abstract}}
+
+\begingroup
+\let\clearpage\relax
+\let\cleardoublepage\relax
+\let\cleardoublepage\relax
+
+\thispagestyle{plain}
+\vspace*{-2.2cm}
+
+\begin{center}
+    \spacedlowsmallcaps{The University of Manchester}
+
+    \vspace*{0.2cm}
+
+    {\color{CTtitle}\spacedallcaps{\myTitle}}
+
+    {
+    \color{darkgray}
+    \vspace*{0.2cm}
+
+    \spacedlowsmallcaps{\myName}
+    \vspace*{-3mm}
+
+    \spacedlowsmallcaps{Doctor of Philosophy}
+    \vspace*{-3mm}
+
+    \spacedlowsmallcaps{\myTime}
+    }
+
+    \vspace*{0.3cm}
+\end{center}
+
+\setstretch{1.0}
+
+\noindent
+There is no doubt that we are living in the age of data.
+In the last two decades, the scientific community has been able to produce systems with superhuman capabilities through the combination of modern hardware advancements, novel learning algorithms and architectures, and advances in software frameworks.
+Such progress revolutionised domains like computer vision and language processing, showing performance previously out of reach.
+One may think that results could transfer straightforwardly to other fields like robotics until realising the existence of domain-specific characteristics and limitations hindering the potential of these learning methods.
+Generating enough data from real-world robots is often too expensive or not even possible to the desired scale.
+Data sampled from robots have a sequential nature, and not all families of learning algorithms are effective in this context.
+Furthermore, most algorithms that excel in this sequential setting, such as those belonging to the \ac{RL} family, learn by a trial-and-error process, which could lead to trajectories that damage either the robots or their surroundings.
+
+In this thesis, we attempt to answer the question,
+\textit{"How can modern technology help us generate synthetic data for humanoid robot planning and control?"}.\linebreak
+Motivated by the advancements in hardware accelerators that are revolutionising scientific computing, we limit our analysis to the simulation realm.
+In this context, we first introduce a software architecture allowing to structure learning environments for robotics that can be adopted to train and run \ac{RL} policies regardless of the simulated or real-world setting.
+With its underlying simulation technology and exploiting a scheme based on reward shaping, we validate the architecture by
+training with \ac{RL} a push-recovery controller capable of synthesising whole-body references for the humanoid robot iCub.
+Then, motivated by overcoming the bottlenecks related to the poor sampling performance of traditional rigid-body simulators, we present a new physics engine in reduced coordinates that can simulate robots interacting with a ground surface on hardware accelerators like \acp{GPU} and \acp{TPU}.
+To this end, we present a contact-aware continuous state-space representation describing the dynamical evolution of floating-base robots that can be numerically integrated for simulation purposes.
+We adopt the new general-purpose Gazebo Sim simulator as our first solution to sample synthetic data, and exploit \jax and its hardware support to scale the sampling performance for highly parallel problems.
+Furthermore, we implement and benchmark common \acp{RBDA} part of the proposed physics engine on hardware accelerators and assess their scalability properties on different \acp{GPU}.
+These pieces of technology help to lower the computational barriers that nowadays are still among the main bottlenecks for obtaining intelligent agents, democratising the applicability of this family of learning-based methods.
+
+\vfill
+
+\endgroup
+
+\vfill

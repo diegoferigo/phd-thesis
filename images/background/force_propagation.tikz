@@ -1,0 +1,53 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,342); %set diagram left start at 0, and has height of 342
+
+%Shape: Ellipse [id:dp9997231636182009] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (218.91,168.46) .. controls (216.84,157.61) and (248.15,142.52) .. (288.83,134.76) .. controls (329.52,127) and (364.18,129.5) .. (366.25,140.35) .. controls (368.32,151.2) and (337.02,166.29) .. (296.33,174.05) .. controls (255.64,181.82) and (220.98,179.31) .. (218.91,168.46) -- cycle ;
+%Shape: Ellipse [id:dp16274169350743606] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (358.32,126.32) .. controls (351.98,124.01) and (355.85,97.41) .. (366.96,66.9) .. controls (378.06,36.39) and (392.2,13.52) .. (398.53,15.83) .. controls (404.87,18.13) and (401,44.73) .. (389.89,75.24) .. controls (378.79,105.76) and (364.65,128.62) .. (358.32,126.32) -- cycle ;
+%Shape: Ellipse [id:dp1362667508172345] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (372.07,138.22) .. controls (368.7,132.38) and (388.76,114.49) .. (416.88,98.26) .. controls (445,82.02) and (470.53,73.59) .. (473.9,79.43) .. controls (477.27,85.27) and (457.21,103.16) .. (429.09,119.4) .. controls (400.97,135.63) and (375.44,144.06) .. (372.07,138.22) -- cycle ;
+%Shape: Ellipse [id:dp41149685089238064] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (372.09,151.6) .. controls (373.26,144.96) and (400.13,144.15) .. (432.1,149.79) .. controls (464.08,155.43) and (489.05,165.38) .. (487.88,172.02) .. controls (486.71,178.66) and (459.84,179.47) .. (427.86,173.83) .. controls (395.89,168.19) and (370.92,158.24) .. (372.09,151.6) -- cycle ;
+%Shape: Ellipse [id:dp895998033670113] 
+\draw  [color={rgb, 255:red, 255; green, 255; blue, 255 }  ,draw opacity=1 ][fill={rgb, 255:red, 209; green, 209; blue, 209 }  ,fill opacity=1 ] (105.06,123.39) .. controls (107.37,117.06) and (133.97,120.93) .. (164.48,132.03) .. controls (194.99,143.14) and (217.86,157.28) .. (215.55,163.61) .. controls (213.25,169.94) and (186.65,166.07) .. (156.13,154.97) .. controls (125.62,143.86) and (102.76,129.73) .. (105.06,123.39) -- cycle ;
+%Straight Lines [id:da09732017287597006] 
+\draw [line width=1.5]    (195,155) -- (233.15,165.9) ;
+\draw [shift={(237,167)}, rotate = 195.95] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.08]  [draw opacity=0] (9.29,-4.46) -- (0,0) -- (9.29,4.46) -- cycle    ;
+%Straight Lines [id:da22192746716105982] 
+\draw [line width=1.5]    (270,100) -- (279.22,146.08) ;
+\draw [shift={(280,150)}, rotate = 258.69] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.08]  [draw opacity=0] (9.29,-4.46) -- (0,0) -- (9.29,4.46) -- cycle    ;
+%Straight Lines [id:da15367952987801048] 
+\draw [line width=1.5]    (355,137) -- (368.78,93.81) ;
+\draw [shift={(370,90)}, rotate = 107.7] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.08]  [draw opacity=0] (9.29,-4.46) -- (0,0) -- (9.29,4.46) -- cycle    ;
+%Straight Lines [id:da7335292943323789] 
+\draw [line width=1.5]    (360,142) -- (399.41,122.76) ;
+\draw [shift={(403,121)}, rotate = 153.97] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.08]  [draw opacity=0] (9.29,-4.46) -- (0,0) -- (9.29,4.46) -- cycle    ;
+%Straight Lines [id:da4658100958221] 
+\draw [line width=1.5]    (356,148) -- (403.07,157.23) ;
+\draw [shift={(407,158)}, rotate = 191.09] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.08]  [draw opacity=0] (9.29,-4.46) -- (0,0) -- (9.29,4.46) -- cycle    ;
+
+% Text Node
+\draw (197,151.6) node [anchor=south west] [inner sep=0.75pt]  [font=\small]  {$\mathbf{f}_{J_{P}}$};
+% Text Node
+\draw (294.44,153.92) node    {$L$};
+% Text Node
+\draw (160.31,143.5) node    {$P$};
+% Text Node
+\draw (378.42,71.07) node    {$C_{1}$};
+% Text Node
+\draw (422.98,108.83) node    {$C_{2}$};
+% Text Node
+\draw (429.98,161.81) node    {$C_{3}$};
+% Text Node
+\draw (358,118.1) node [anchor=south east] [inner sep=0.75pt]  [font=\small]  {$\mathbf{f}_{J_{C_{1}}}$};
+% Text Node
+\draw (405,124.4) node [anchor=north west][inner sep=0.75pt]  [font=\small]  {$\mathbf{f}_{J_{C_{2}}}$};
+% Text Node
+\draw (405,161.4) node [anchor=north east] [inner sep=0.75pt]  [font=\small]  {$\mathbf{f}_{J_{C_{3}}}$};
+% Text Node
+\draw (272,96.6) node [anchor=south west] [inner sep=0.75pt]  [font=\small]  {$\mathbf{f}_{E}$};
+
+\end{tikzpicture}

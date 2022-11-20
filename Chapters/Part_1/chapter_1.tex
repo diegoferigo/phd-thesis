@@ -1,0 +1,176 @@
+\acresetall
+\chapter{Simulators and Enabling Technologies}
+\label{ch:introduction}
+
+\section{Simulators for robotics}
+
+Real robots, in all their existing variety, consist of a complex, interconnected, and diverse set of systems communicating with each other.
+In order to get a robotic platform running, its mechanics, electronics, actuation, sensing, control system, and data transport have to be carefully designed, prototyped, assembled, calibrated, individually and collectively tested.
+Due to the tight interconnection of all the components part of a robotic platform, robot development requires multidisciplinary teams to work closely with each other throughout the entire process, from design to field deployment.
+In the past decades, all modern engineering fields operating in similar interconnected settings started employing mathematical models to describe their target systems.
+
+In the robotics domain, rigid-body simulators became a standard component included in any practitioner's toolbox.
+Simulators allow studying the properties of robotics systems starting from their early design stage, anticipating possible errors that could lead to delays and failures, together with their corresponding cost.
+Limiting the domain to robot control, simulations became an important technology enabler thanks to the possibility of designing and prototyping algorithms on a model that captures the principal dynamics of the real system.
+Other important benefits include the execution in a controlled and repeatable environment, not subject to tear and wear, and not being vulnerable to costly damage in case of design failures.
+
+This section describes the high-level software architecture of a robot simulator.
+We introduce and describe the main components existing simulators typically implement, and then identify a list of properties that could be used as a means of comparison.
+
+\subsection{Components}
+
+A \emph{robotics simulator} is a collection of different independent components that, when combined, expose to the user a virtual environment where simulated robots can move and interact.
+Below we list and describe the main components that form a simulator.
+
+\paragraph{Description Parser}
+
+Accordingly to the robot modelling provided in the previous chapter, a robot can be described as a set of \emph{links} (or bodies) interconnected by a set of \emph{joints}, that apply motion constraints and can provide actuation.
+Simulating a robot requires knowledge of its \emph{kinematics}, encoding the topology and geometry of the links and joints, and its \emph{dynamics}, encoding their physical properties.
+This information is usually provided in textual form by a structured \emph{robot description}.
+Examples of common descriptions are the \ac{URDF}, \ac{SDF}, and \ac{MJCF}.
+These descriptions also typically include additional information about the robot, for example, how its visual appearance is rendered, how it collides with either itself or other simulated robots, the type and location of the on-board sensors, the joint actuation type and limits, \etc
+Simulators typically support one or more of these description formats, allowing them to import robots and create scenes where they can operate.
+The \emph{description parser} is the component that reads the supported textual descriptions and imports the robot properties into the simulation.
+
+\paragraph{Physics Engine}
+
+The central component of a simulator is its \emph{physics engine}, responsible for implementing the behaviours governed by the physics laws of motion.
+It uses the information parsed from the robot description to predict how the dynamics evolve over time.
+Depending on how the joint constraints are simulated, we can categorise physics engines in \emph{maximal coordinates} and \emph{reduced coordinates}.
+Using maximal coordinates, each simulated body is treated separately in the Cartesian space, and the overall robot's dynamics is computed by solving an optimisation problem that applies explicit constraints to enforce the effects of the joints.
+Instead, using reduced coordinates, the system dynamics considers the mechanical structure as a whole and it implicitly enforces motion constraints induced by the joints.
+The physics engine usually also includes routines of \emph{collision detection} that, exploiting geometrical properties of the robot's collisions shapes, allow to assess if bodies are in contact, and \emph{contact models}, that compute interaction forces between colliding bodies.
+A general-purpose simulator either implements or interfaces with at least one physics engine, and it is not uncommon to find simulators exposing multiple physics engines.
+
+\paragraph{Public APIs}
+
+Simulators allow users to interface with their physics engine through a set of public \acp{API}.
+They typically expose the relevant quantities computed by the physics engine at any simulated time instant.
+Depending on the architecture, they could either allow to step forward the simulation manually and interact with it programmatically, or trigger an asynchronous starting signal and interact through a network transport layer.
+Simulators also typically expose relevant model\footnote{Simulated robots are often referred to as \emph{models} in this thesis.} kinematics and dynamics properties computed by the physics engine.
+
+\paragraph{Sensors}
+
+The most advanced simulators include the possibility to generate data from virtual sensors that mimic the behaviour of those mounted on the real robot, like \acp{IMU}, cameras, force-torque sensors, \etc
+Often, in order to reduce differences with the actual setup, they also allow adding noise to sensor readings.
+
+\paragraph{Rendering}
+
+The simulation of sensors like cameras requires the inclusion of a \emph{rendering engine} to draw the environment where the simulated robot operates and captures its information.
+Many simulators implement rendering either by integrating external rendering engines or exposing new custom functionalities.
+Depending on the selected engine, rendering could be more or less realistic, with the cost of becoming the overall bottleneck of the simulation in case of too detailed rendering.
+
+\paragraph{Graphical User Interface}
+
+Simulators with rendering capabilities usually also implement a \ac{GUI} to simplify the visualisation and, possibly, also the interaction with the simulated scene.
+
+\subsection{Properties}
+\label{sec:simulator_properties}
+
+In this section, we provide a set of simulator properties that will be used in the following chapters as comparison metrics.
+We distill the properties introduced by \textcite{ferigo_gym-ignition_2020}, maintaining only those related to generic simulators.
+In the next chapters, we will further specialise the analysis to simulators for robot learning .
+
+\paragraph{Multiple Physics Engines}
+
+Simulators could interface with either one or multiple physics engines, that can be selected by the user before launching the simulation.
+Having multiple choices is often beneficial because there are multiple methodologies to perform similar computations, and some of them could be more optimized for the target simulated context.
+Furthermore, it is common to have physics engines that outperform their alternatives in a narrow range of problems.
+
+\paragraph{Reproducibility}
+
+A simulator is reproducible if different executions of a scene starting from the same initial state and applying the same inputs yield exactly the same final state.
+The main component that typically undermines reproducibility is a subtle consequence of the client-server architecture widely used by many simulators.
+Often, the physics engine and the user code that reads and writes values reside on different threads or processes.
+The communication between them relies on sockets
+whose processes, depending on the system's load and  the operating system's scheduler, can be preempted.
+Without complex synchronisation protocols, the user code might think to have stepped the simulator and read the most recent measurement even if the data might have been buffered.
+Therefore, even if the underlying physics engines, when called programmatically, would provide reproducible trajectories, simulators using socket-based protocols could lose their reproducibility.
+
+\paragraph{Parallel Simulation}
+
+Most traditional robotic simulators have been designed to be executed in a single instance.
+Some of them, however, allow executing multiple parallel simulations, allowing user code to interface with any of them.
+This property is typically implemented in those simulators that can be stepped programmatically, primarily because of limitations or challenges of network segmentation for those that rely on network transport as a mean for interfacing with the simulation.
+
+\paragraph{Accelerated Simulation}
+
+The ratio between real and simulated time is known as \ac{RTF}.
+A \ac{RTF} of 1 means that one simulated second is executed in $1$ real-world second, and a \ac{RTF} of 2 means that the same simulated second is executed in $0.5$ real-world seconds.
+Considering the typical usage for traditional robotic applications, many simulators aim to achieve a \ac{RTF} of 1 then executed with all their features, rendering included.
+Usually, the \ac{RTF} value defaults to 1 even when the simulation could run faster, and it is a configurable simulation parameter.
+
+\paragraph{Headless Simulation}
+
+A simulation is defined as headless if it can be executed on machines without any display, like a server or a data center.
+Usually, there is no significant difference between a normal and a headless simulation.
+The physics can be executed in both settings regardless.
+However, not all simulators can render the scene on a headless setup when rendering is involved.
+
+\section{Enabling technologies}
+
+In this section, we describe the technology enablers that made developing the experiments presented in this thesis possible.
+
+\subsection{Gazebo Sim}
+
+Gazebo~\parencite{koenig_design_2004}, developed by Open Robotics, is among the most used and widely adopted simulators by the robotics community.
+It interfaces with multiple physics engines like ODE\footnote{\url{https://www.ode.org}}, bullet~\parencite{coumans_pybullet_2016}, and DART~\parencite{lee_dart_2018}.
+It supports loading descriptions of robots defined either with the \ac{URDF} or the \ac{SDF}.
+It also supports the simulation of a wide range of commonly used sensors like \acp{IMU}, cameras, Force/Torque sensors, \etc
+
+In the Artificial Mechanical laboratory, we always based our simulation stack on Gazebo.
+Over the years, we developed the model description of our robots and built an entire infrastructure for this simulator.
+However, while previous attempts\footnote{\url{http://wiki.ros.org/openai_ros}}~\parencite{zamora_extending_2017,lopez_gym-gazebo2_2019} tried to integrate Gazebo into a \ac{RL} training pipeline, the performance that could be obtained together with the need to execute it in a separated process, always prevented its wide adoption by the robot learning community.
+
+After more than 15 years of development, Open Robotics started the development of a new simulator, representing the next generation of Gazebo, that from now we will call \emph{Gazebo Classic} for the sake of clarity.
+The new simulator, initially known as Ignition Gazebo and later rebranded as \emph{Gazebo Sim}, is a modular suite of libraries partially extracted from the monolithic architecture of its predecessor.
+Gazebo Sim, contrarily to its old generation, offers programmatic \acp{API} to instantiate and step the simulator, enabling users to obtain a finer control of the simulation cycle.
+
+One of the simulation architectures presented in this thesis is based on Gazebo Sim.
+A more detailed overview of the features that motivated the adoption of the simulator and why they represent a valid choice for the contributed architecture will be discussed in more detail in Section~\ref{sec:scenario_gazebo}.
+
+\subsection{The iCub humanoid robot}
+
+The iCub humanoid robot~\parencite{natale_icub_2017} is an open-source robot platform developed and produced by iCub Tech at the Italian Institute of Technology.
+It was first developed as part of the RobotCup project~\parencite{metta_open_2005}, and nowadays more than 40 replicas have been built and distributed worldwide.
+
+iCub v2.5 is 104~cm tall and weighs approximately 33~kg.
+Its mechanical structure is characterised by 53 \acp{DoF}, including those belonging to the hands and the eyes.
+For motion control applications, and particularly whole-body locomotion, typically only 23~\acp{DoF} of its body are considered: 6 in each leg, 4 in each arm, and 3 in the torso.
+
+For the work presented in this thesis, only details about its description for simulation purposes are necessary to be specified.
+The kinematics, the inertial parameters, and the visual meshes of the robot are automatically generated\footnote{\url{https://github.com/robotology/icub-models-generator}} from its CAD design.
+Their accuracy has always been sufficient for developing highly-dynamic balancing controllers~\parencite{pucci_highly_2016} and walking algorithms~\parencite{dafarra_control_2018}.
+The official \ac{URDF} models\footnote{\url{https://github.com/robotology/icub-models/}} have been slighlty updated\footnote{\url{https://github.com/ami-iit/gym-ignition-models}} to be imported in Gazebo Sim.
+
+\subsection{JAX}
+
+\jax~\parencite{frostig_compiling_2018, bradbury_james_jax_2018} is a software framework for high-performance numerical computing and machine learning research.
+Combining the features of Autograd~\parencite{maclaurin_autograd_2015} and \ac{XLA}~\parencite{sabne_xla_2020}, \jax enables the development of fast algorithms with native support of \ac{AD}~\parencite{baydin_automatic_2018} with the Python programming language.
+These features are exposed when operating on \jax arrays, having an interface compatible with NumPy~\parencite{harris_array_2020}.
+
+Libraries and functions developed with \jax benefit from the following key features of the framework:
+%
+\begin{itemize}
+%
+\item
+Function calls developed in Python are compiled in \ac{JIT} at their first execution by \ac{XLA}.
+\jax inherits all the hardware supported by \ac{XLA}, therefore the same Python code can be compiled and executed transparently on \acp{CPU}, \acp{GPU}, and \acp{TPU}
+Being a domain-specific linear algebra compiler, \ac{XLA} can generate high-performance kernels for scientific computing.
+Advanced branching is also supported, including loops, ifs, recursions, and closures.
+
+\item
+Any logic operating on \jax arrays can be parallelized on the target hardware accelerator thanks to the native support of \emph{auto-vectorization}.
+This feature enables the development of algorithms that can be seamlessly scaled horizontally by just providing inputs with an additional dimension representing the batch axis.
+To maximize performance, vectorized code can also be combined with \ac{JIT} compilation.
+
+\item
+Any logic operating on \jax arrays can be automatically differentiated using either forward or reverse mode~\parencite{blondel_efficient_2022}.
+\jax allows differentiating all the code that can be \ac{JIT}-compiled, including logic that uses advanced branching.
+The \ac{AD} implementation also allows the computation of higher-order derivatives.
+%
+\end{itemize}
+
+\noindent
+At the time of writing, the most advanced \ac{XLA} backends are those targeting \acp{TPU} and \acp{GPU}.
+The \ac{JIT} compilation of code for \acp{CPU}, depending on the complexity of the logic, could take a long time.

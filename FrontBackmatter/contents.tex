@@ -1,0 +1,128 @@
+%*******************************************************
+% Table of Contents
+%*******************************************************
+
+\phantomsection
+\pdfbookmark[1]{\contentsname}{tableofcontents}
+
+\setcounter{tocdepth}{1} % <-- 2 includes up to subsections in the ToC
+\setcounter{secnumdepth}{2} % <-- 3 numbers up to subsubsections
+\manualmark
+\markboth{\spacedlowsmallcaps{\contentsname}}{\spacedlowsmallcaps{\contentsname}}
+
+\tableofcontents
+
+\vfill
+\begin{center}
+    \textbf{Word Count: 53500}
+\end{center}
+
+\automark[section]{chapter}
+\renewcommand{\chaptermark}[1]{\markboth{\spacedlowsmallcaps{#1}}{\spacedlowsmallcaps{#1}}}
+\renewcommand{\sectionmark}[1]{\markright{\textsc{\thesection}\enspace\spacedlowsmallcaps{#1}}}
+
+%*******************************************************
+% List of Figures and of the Tables
+%*******************************************************
+\clearpage
+% \pagestyle{empty} % Uncomment this line if your lists should not have any headlines with section name and page number
+\begingroup
+    \let\clearpage\relax
+    \let\cleardoublepage\relax
+
+    %*******************************************************
+    % List of Figures
+    %*******************************************************
+
+    \phantomsection
+    %\addcontentsline{toc}{chapter}{\listfigurename}
+    \pdfbookmark[1]{\listfigurename}{lof}
+    \listoffigures
+
+    \vspace{8ex}
+
+    %*******************************************************
+    % List of Tables
+    %*******************************************************
+
+    \phantomsection
+    %\addcontentsline{toc}{chapter}{\listtablename}
+    \pdfbookmark[1]{\listtablename}{lot}
+    \listoftables
+
+    \vspace{8ex}
+    % \newpage
+
+    %*******************************************************
+    % List of Listings
+    %*******************************************************
+
+    % \phantomsection
+    % %\addcontentsline{toc}{chapter}{\lstlistlistingname}
+    % \pdfbookmark[1]{\lstlistlistingname}{lol}
+    % \lstlistoflistings
+
+    % \vspace{8ex}
+
+    %*******************************************************
+    % Acronyms
+    %*******************************************************
+
+    \phantomsection
+    \pdfbookmark[1]{Acronyms}{acronyms}
+    %\markboth{\spacedlowsmallcaps{Acronyms}}{\spacedlowsmallcaps{Acronyms}}
+    \chapter*{Acronyms}
+    \begin{acronym}[UMLX]
+        \acro{ABA}{Articulated Body Algorithm}
+        \acro{AD}{Automatic Differentiation}
+        \acro{AI}{Artificial Intelligence}
+        \acro{API}{Application Programming Interface}
+        \acro{CH}{Convex Hull}
+        \acro{CoM}{Center of Mass}
+        \acro{CoP}{Center of Pressure}
+        \acro{CDF}{Cumulative Density Function}
+        \acro{CP}{Capture Point}
+        \acro{CPU}{Central Processing Unit}
+        \acro{CRBA}{Composite Rigid Body Algorithm}
+        \acro{DCM}{Divergent Component of Motion}
+        \acro{DL}{Deep Learning}
+        \acro{DoF}{Degree of Freedom}
+        \acrodefplural{DoF}[DoFs]{Degrees of Freedom}
+        \acro{DRL}{Deep Reinforcement Learning}
+        \acro{DS}{Double Support}
+        \acro{EoM}{Equation of Motion}
+        \acrodefplural{EoM}[EoMs]{Equations of Motion}
+        \acro{GAE}{Generalized Advantage Estimator}
+        \acro{GPU}{Graphics Processing Unit}
+        \acro{GUI}{Graphical User Interface}
+        \acro{IMU}{Inertial Measurement Unit}
+        \acro{JIT}{Just-in-time}
+        \acro{KL}{Kullback–Leibler}
+        \acro{LIP}{Linear Inverted Pendulum}
+        \acro{MDP}{Markov Decision Process}
+        \acrodefplural{MDP}[MDPs]{Markov Decision Processes}
+        \acro{MJCF}{Mujoco XML Format}
+        \acro{ML}{Machine Learning}
+        \acro{NN}{Neural Network}
+        \acro{ODE}{Ordinary Differential Equation}
+        \acro{PDF}{Probability Density Function}
+        \acro{PG}{Policy Gradient}
+        \acro{PPO}{Proximal Policy Optimization}
+        \acro{RK4}{Runge-Kutta 4}
+        \acro{RNG}{Random Number Generator}
+        \acro{RBDA}{Rigid Body Dynamics Algorithm}
+        \acro{RBF}{Radial Basis Function}
+        \acro{RTF}{Real-Time Factor}
+        \acro{RL}{Reinforcement Learning}
+        \acro{RNEA}{Recursive Newton-Euler Algorithm}
+        \acro{SAC}{Soft Actor-Critic}
+        \acro{SDF}{Simulation Description Format}
+        \acro{SP}{Support Polygon}
+        \acro{TPU}{Tensor Processing Unit}
+        \acro{TRPO}{Trust Region Policy Optimization}
+        \acro{URDF}{Unified Robot Description Format}
+        \acro{XLA}{Accelerated Linear Algebra}
+        \acro{ZMP}{Zero Moment Point}
+    \end{acronym}
+
+\endgroup

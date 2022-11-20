@@ -1,0 +1,122 @@
+\newcommand{\ie}{i.e.\@\xspace}
+\newcommand{\eg}{e.g.\@\xspace}
+\newcommand{\wrt}{w.r.t.\@\xspace}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\wrtl}{with respect to\@\xspace}
+
+% prescript
+\usepackage{mathtools}
+
+% https://tex.stackexchange.com/questions/4302/prettiest-way-to-typeset-c-cplusplus
+\newcommand{\cpp}{C\texttt{++}\xspace}
+
+% https://tex.stackexchange.com/a/56769
+\DeclareMathOperator*{\E}{\mathbb{E}}
+
+% https://jblevins.org/log/latex-tips
+\DeclareMathOperator{\given}{\mid}
+\DeclareMathOperator{\giventall}{\,\middle\vert\,}
+
+\newcommand{\pos}[1][]{\prescript{#1}{}{\mathbf{p}}}
+\newcommand{\posd}[1][]{\prescript{#1}{}{\dot{\mathbf{p}}}}
+\newcommand{\ori}[1][]{\prescript{#1}{}{\mathbf{o}}}
+\newcommand{\orid}[1][]{\prescript{#1}{}{\dot{\mathbf{o}}}}
+\newcommand{\rot}[1][]{\prescript{#1}{}{\mathbf{R}}}
+\newcommand{\rotd}[1][]{\prescript{#1}{}{\dot{\mathbf{R}}}}
+\newcommand{\homo}[1][]{\prescript{#1}{}{\mathbf{H}}}
+\newcommand{\homod}[1][]{\prescript{#1}{}{\dot{\mathbf{H}}}}
+\newcommand{\veladj}[1][]{\prescript{#1}{}{\mathbf{X}}}
+\newcommand{\quat}[1][]{\prescript{#1}{}{\mathtt{Q}}}
+\newcommand{\trans}[1][]{\prescript{#1}{}{\mathbf{H}}}
+\newcommand{\transvel}[1][]{\prescript{#1}{}{\mathbf{X}}}
+\newcommand{\transfor}[1][]{\prescript{}{#1}{\mathbf{X}}}
+\newcommand{\velsix}[1][]{\prescript{#1}{}{\mathbf{v}}}
+\newcommand{\velsixd}[1][]{\prescript{#1}{}{\dot{\mathbf{v}}}}
+\newcommand{\vellin}[1][]{\prescript{#1}{}{\boldsymbol{v}}}
+\newcommand{\velang}[1][]{\prescript{#1}{}{\boldsymbol{\omega}}}
+\newcommand{\accsix}[1][]{\prescript{#1}{}{\mathbf{a}}}
+\newcommand{\acclin}[1][]{\prescript{#1}{}{\boldsymbol{a}}}
+\newcommand{\accang}[1][]{\prescript{#1}{}{\boldsymbol{\alpha}}}
+\newcommand{\accsixproper}[1][]{\prescript{#1}{}{\mathbf{\bar{a}}}}
+\newcommand{\forcesix}[1][]{\prescript{}{#1}{\mathbf{f}}}
+\newcommand{\forcelin}[1][]{\prescript{}{#1}{\boldsymbol{f}}}
+\newcommand{\forceang}[1][]{\prescript{}{#1}{\boldsymbol{m}}}
+
+\newcommand{\crossvelsix}[1][]{#1\!{\times}}
+\newcommand{\crossforsix}[1][]{#1\!\bar{\times}^{*}}
+
+\newcommand{\transrepr}[1][]{\prescript{#1}{}{T}}
+
+\newcommand{\masssix}[1][]{\prescript{}{#1}{\mathbb{M}}}
+\newcommand{\gravity}[1][]{\prescript{#1}{}{\mathbf{g}}}
+
+\newcommand{\realn}{\mathbb{R}}
+\newcommand{\eye}{\mathbf{I}}
+\newcommand{\ones}{\boldsymbol{1}}
+\newcommand{\zeros}{\boldsymbol{0}}
+
+\newcommand{\Qu}{\mathbf{q}}
+\newcommand{\Qud}{\dot{\mathbf{q}}}
+\newcommand{\Shape}{\mathbf{s}}
+\newcommand{\shape}{s}
+\newcommand{\Shaped}{\dot{\mathbf{s}}}
+\newcommand{\Shapedd}{\ddot{\mathbf{s}}}
+\newcommand{\Nu}[1][]{\prescript{#1}{}{\boldsymbol{\nu}}}
+\newcommand{\Nud}[1][]{\prescript{#1}{}{\dot{\boldsymbol{\nu}}}}
+\newcommand{\Torques}{\boldsymbol{\tau}}
+
+\newcommand{\jac}[1][]{\prescript{#1}{}{J}}
+
+\newcommand{\subspace}{\mathbf{S}}
+\newcommand{\subspacee}[1][]{\prescript{#1}{}{\subspace}}
+
+\newcommand{\jax}{\spacedlowsmallcaps{JAX}\xspace}
+\newcommand{\jaxsim}{\spacedlowsmallcaps{JAX}sim\xspace}
+\newcommand{\scenario}{Scenar\spacedlowsmallcaps{IO}\xspace}
+
+\newcommand{\SO}{\text{SO}}
+\newcommand{\so}{\mathfrak{so}}
+\newcommand{\SE}{\text{SE}}
+\newcommand{\se}{\mathfrak{se}}
+
+\newcommand{\pid}{\spacedlowsmallcaps{PID}\xspace}
+
+% https://tex.stackexchange.com/questions/5223/command-for-argmin-or-argmax
+% \DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
+\DeclareMathOperator*{\argmin}{argmin} % no space, limits underneath in displays
+% \DeclareMathOperator{\argmin}{arg\,min} % thin space, limits on side in displays
+% \DeclareMathOperator{\argmin}{argmin} % no space, limits on side in displays
+% \DeclareMathOperator*{\argmax}{arg\,max} % thin space, limits underneath in displays
+\DeclareMathOperator*{\argmax}{argmax} % no space, limits underneath in displays
+% \DeclareMathOperator{\argmax}{arg\,max} % thin space, limits on side in displays
+% \DeclareMathOperator{\argmax}{argmax} % no space, limits on side in displays
+
+% https://www.overleaf.com/learn/latex/Theorems_and_proofs
+% https://tex.stackexchange.com/a/327085
+\usepackage{amsthm}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newenvironment{definition*}
+  {\pushQED{\qed}\definition}
+  {\popQED\enddefinition}
+
+\newtheorem{example}{Example}[section]
+\newenvironment{example*}
+  {\pushQED{\qed}\example}
+  {\popQED\endexample}
+
+\newtheorem{remark}{Remark}[section]
+\newenvironment{remark*}
+  {\pushQED{\qed}\remark}
+  {\popQED\endremark}
+
+\newtheorem{theorem}{Theorem}[section]
+\newenvironment{theorem*}
+  {\pushQED{\qed}\theorem}
+  {\popQED\endtheorem}
+
+\newtheorem{assumption}{Assumption}[section]
+\newenvironment{assumption*}
+  {\pushQED{\qed}\assumption}
+  {\popQED\endassumption}

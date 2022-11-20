@@ -1,0 +1,686 @@
+% This file was created by tikzplotlib v0.9.8.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0,0.501960784313725,0.501960784313725}
+\definecolor{color1}{rgb}{0.705882352941177,0.784313725490196,0.658823529411765}
+\definecolor{color2}{rgb}{0.964705882352941,0.929411764705882,0.741176470588235}
+\definecolor{color3}{rgb}{0.929411764705882,0.733333333333333,0.541176470588235}
+\definecolor{color4}{rgb}{0.792156862745098,0.337254901960784,0.172549019607843}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+title={\textbf{Number of consecutive counterbalanced forces applied to the chest link}},
+x grid style={white!69.0196078431373!black},
+xmin=0.5, xmax=23.5,
+xtick style={color=black},
+xtick={3,9,15,21},
+xticklabels={},
+y grid style={white!90!black},
+ymajorgrids,
+ymin=-1.55, ymax=32.55,
+ytick style={color=black}
+]
+\addplot [color0, fill=color0, fill=color0]
+table {%
+0.75 14
+1.25 14
+1.25 20
+0.75 20
+0.75 14
+};
+\addplot [black, dashed]
+table {%
+1 14
+1 9
+};
+\addplot [black, dashed]
+table {%
+1 20
+1 27
+};
+\addplot [black]
+table {%
+0.875 9
+1.125 9
+};
+\addplot [black]
+table {%
+0.875 27
+1.125 27
+};
+\addplot [color1, fill=color1]
+table {%
+1.75 14
+2.25 14
+2.25 20
+1.75 20
+1.75 14
+};
+\addplot [black, dashed]
+table {%
+2 14
+2 9
+};
+\addplot [black, dashed]
+table {%
+2 20
+2 27
+};
+\addplot [black]
+table {%
+1.875 9
+2.125 9
+};
+\addplot [black]
+table {%
+1.875 27
+2.125 27
+};
+\addplot [color2, fill=color2]
+table {%
+2.75 14
+3.25 14
+3.25 20
+2.75 20
+2.75 14
+};
+\addplot [black, dashed]
+table {%
+3 14
+3 9
+};
+\addplot [black, dashed]
+table {%
+3 20
+3 27
+};
+\addplot [black]
+table {%
+2.875 9
+3.125 9
+};
+\addplot [black]
+table {%
+2.875 27
+3.125 27
+};
+\addplot [color3, fill=color3]
+table {%
+3.75 12
+4.25 12
+4.25 19.75
+3.75 19.75
+3.75 12
+};
+\addplot [black, dashed]
+table {%
+4 12
+4 2
+};
+\addplot [black, dashed]
+table {%
+4 19.75
+4 31
+};
+\addplot [black]
+table {%
+3.875 2
+4.125 2
+};
+\addplot [black]
+table {%
+3.875 31
+4.125 31
+};
+\addplot [color4, fill=color4]
+table {%
+4.75 7
+5.25 7
+5.25 17
+4.75 17
+4.75 7
+};
+\addplot [black, dashed]
+table {%
+5 7
+5 1
+};
+\addplot [black, dashed]
+table {%
+5 17
+5 24
+};
+\addplot [black]
+table {%
+4.875 1
+5.125 1
+};
+\addplot [black]
+table {%
+4.875 24
+5.125 24
+};
+\addplot [color0, fill=color0]
+table {%
+6.75 12.25
+7.25 12.25
+7.25 20
+6.75 20
+6.75 12.25
+};
+\addplot [black, dashed]
+table {%
+7 12.25
+7 9
+};
+\addplot [black, dashed]
+table {%
+7 20
+7 31
+};
+\addplot [black]
+table {%
+6.875 9
+7.125 9
+};
+\addplot [black]
+table {%
+6.875 31
+7.125 31
+};
+\addplot [color1, fill=color1]
+table {%
+7.75 11
+8.25 11
+8.25 19
+7.75 19
+7.75 11
+};
+\addplot [black, dashed]
+table {%
+8 11
+8 2
+};
+\addplot [black, dashed]
+table {%
+8 19
+8 31
+};
+\addplot [black]
+table {%
+7.875 2
+8.125 2
+};
+\addplot [black]
+table {%
+7.875 31
+8.125 31
+};
+\addplot [color2, fill=color2]
+table {%
+8.75 3
+9.25 3
+9.25 11.75
+8.75 11.75
+8.75 3
+};
+\addplot [black, dashed]
+table {%
+9 3
+9 0
+};
+\addplot [black, dashed]
+table {%
+9 11.75
+9 24
+};
+\addplot [black]
+table {%
+8.875 0
+9.125 0
+};
+\addplot [black]
+table {%
+8.875 24
+9.125 24
+};
+\addplot [color3, fill=color3]
+table {%
+9.75 1
+10.25 1
+10.25 3
+9.75 3
+9.75 1
+};
+\addplot [black, dashed]
+table {%
+10 1
+10 0
+};
+\addplot [black, dashed]
+table {%
+10 3
+10 6
+};
+\addplot [black]
+table {%
+9.875 0
+10.125 0
+};
+\addplot [black]
+table {%
+9.875 6
+10.125 6
+};
+\addplot [color4, fill=color4]
+table {%
+10.75 0
+11.25 0
+11.25 1.75
+10.75 1.75
+10.75 0
+};
+\addplot [black, dashed]
+table {%
+11 0
+11 0
+};
+\addplot [black, dashed]
+table {%
+11 1.75
+11 4
+};
+\addplot [black]
+table {%
+10.875 0
+11.125 0
+};
+\addplot [black]
+table {%
+10.875 4
+11.125 4
+};
+\addplot [color0, fill=color0]
+table {%
+12.75 11.25
+13.25 11.25
+13.25 19.75
+12.75 19.75
+12.75 11.25
+};
+\addplot [black, dashed]
+table {%
+13 11.25
+13 2
+};
+\addplot [black, dashed]
+table {%
+13 19.75
+13 31
+};
+\addplot [black]
+table {%
+12.875 2
+13.125 2
+};
+\addplot [black]
+table {%
+12.875 31
+13.125 31
+};
+\addplot [color1, fill=color1]
+table {%
+13.75 3
+14.25 3
+14.25 9
+13.75 9
+13.75 3
+};
+\addplot [black, dashed]
+table {%
+14 3
+14 0
+};
+\addplot [black, dashed]
+table {%
+14 9
+14 17
+};
+\addplot [black]
+table {%
+13.875 0
+14.125 0
+};
+\addplot [black]
+table {%
+13.875 17
+14.125 17
+};
+\addplot [color2, fill=color2]
+table {%
+14.75 0.25
+15.25 0.25
+15.25 3
+14.75 3
+14.75 0.25
+};
+\addplot [black, dashed]
+table {%
+15 0.25
+15 0
+};
+\addplot [black, dashed]
+table {%
+15 3
+15 7
+};
+\addplot [black]
+table {%
+14.875 0
+15.125 0
+};
+\addplot [black]
+table {%
+14.875 7
+15.125 7
+};
+\addplot [color3, fill=color3]
+table {%
+15.75 0
+16.25 0
+16.25 1
+15.75 1
+15.75 0
+};
+\addplot [black, dashed]
+table {%
+16 0
+16 0
+};
+\addplot [black, dashed]
+table {%
+16 1
+16 2
+};
+\addplot [black]
+table {%
+15.875 0
+16.125 0
+};
+\addplot [black]
+table {%
+15.875 2
+16.125 2
+};
+\addplot [color4, fill=color4]
+table {%
+16.75 0
+17.25 0
+17.25 0
+16.75 0
+16.75 0
+};
+\addplot [black, dashed]
+table {%
+17 0
+17 0
+};
+\addplot [black, dashed]
+table {%
+17 0
+17 0
+};
+\addplot [black]
+table {%
+16.875 0
+17.125 0
+};
+\addplot [black]
+table {%
+16.875 0
+17.125 0
+};
+\addplot [color0, fill=color0]
+table {%
+18.75 6
+19.25 6
+19.25 12
+18.75 12
+18.75 6
+};
+\addplot [black, dashed]
+table {%
+19 6
+19 0
+};
+\addplot [black, dashed]
+table {%
+19 12
+19 20
+};
+\addplot [black]
+table {%
+18.875 0
+19.125 0
+};
+\addplot [black]
+table {%
+18.875 20
+19.125 20
+};
+\addplot [color1, fill=color1]
+table {%
+19.75 1
+20.25 1
+20.25 3
+19.75 3
+19.75 1
+};
+\addplot [black, dashed]
+table {%
+20 1
+20 0
+};
+\addplot [black, dashed]
+table {%
+20 3
+20 6
+};
+\addplot [black]
+table {%
+19.875 0
+20.125 0
+};
+\addplot [black]
+table {%
+19.875 6
+20.125 6
+};
+\addplot [color2, fill=color2]
+table {%
+20.75 0
+21.25 0
+21.25 1.75
+20.75 1.75
+20.75 0
+};
+\addplot [black, dashed]
+table {%
+21 0
+21 0
+};
+\addplot [black, dashed]
+table {%
+21 1.75
+21 4
+};
+\addplot [black]
+table {%
+20.875 0
+21.125 0
+};
+\addplot [black]
+table {%
+20.875 4
+21.125 4
+};
+\addplot [color3, fill=color3]
+table {%
+21.75 0
+22.25 0
+22.25 0
+21.75 0
+21.75 0
+};
+\addplot [black, dashed]
+table {%
+22 0
+22 0
+};
+\addplot [black, dashed]
+table {%
+22 0
+22 0
+};
+\addplot [black]
+table {%
+21.875 0
+22.125 0
+};
+\addplot [black]
+table {%
+21.875 0
+22.125 0
+};
+\addplot [color4, fill=color4]
+table {%
+22.75 0
+23.25 0
+23.25 0
+22.75 0
+22.75 0
+};
+\addplot [black, dashed]
+table {%
+23 0
+23 0
+};
+\addplot [black, dashed]
+table {%
+23 0
+23 0
+};
+\addplot [black]
+table {%
+22.875 0
+23.125 0
+};
+\addplot [black]
+table {%
+22.875 0
+23.125 0
+};
+\addplot [thick, black]
+table {%
+0.75 17
+1.25 17
+};
+\addplot [thick, black]
+table {%
+1.75 17
+2.25 17
+};
+\addplot [thick, black]
+table {%
+2.75 17
+3.25 17
+};
+\addplot [thick, black]
+table {%
+3.75 17
+4.25 17
+};
+\addplot [thick, black]
+table {%
+4.75 12
+5.25 12
+};
+\addplot [thick, black]
+table {%
+6.75 17
+7.25 17
+};
+\addplot [thick, black]
+table {%
+7.75 16.5
+8.25 16.5
+};
+\addplot [thick, black]
+table {%
+8.75 6
+9.25 6
+};
+\addplot [thick, black]
+table {%
+9.75 2
+10.25 2
+};
+\addplot [thick, black]
+table {%
+10.75 1
+11.25 1
+};
+\addplot [thick, black]
+table {%
+12.75 16
+13.25 16
+};
+\addplot [thick, black]
+table {%
+13.75 5.5
+14.25 5.5
+};
+\addplot [thick, black]
+table {%
+14.75 1
+15.25 1
+};
+\addplot [thick, black]
+table {%
+15.75 1
+16.25 1
+};
+\addplot [thick, black]
+table {%
+16.75 0
+17.25 0
+};
+\addplot [thick, black]
+table {%
+18.75 10.5
+19.25 10.5
+};
+\addplot [thick, black]
+table {%
+19.75 2
+20.25 2
+};
+\addplot [thick, black]
+table {%
+20.75 0
+21.25 0
+};
+\addplot [thick, black]
+table {%
+21.75 0
+22.25 0
+};
+\addplot [thick, black]
+table {%
+22.75 0
+23.25 0
+};
+\end{axis}
+
+\end{tikzpicture}

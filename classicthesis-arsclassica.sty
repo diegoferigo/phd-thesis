@@ -45,7 +45,7 @@
 \rohead{\mbox{\hfil{\color{CTsemi}\headmark\hspace{0.5em}}\rlap{\small{\color{CTsemi}\vline}\kern1em\thepage}}}
 \renewcommand{\headfont}{\normalfont\sffamily}
 \renewcommand{\pnumfont}{\small\sffamily}
-\clearscrplain
+\clearplainofpairofpagestyles
 \rofoot[\mbox{\makebox[0pt][l]{\kern1em\thepage}}]{}
 
 %************************************************************
@@ -53,7 +53,7 @@
 % subsubsection-, paragraph and description-headings
 %************************************************************
 % chapters
-\renewcommand\formatchapter[1]{%
+\newcommand\formatchapter[1]{%
   \vbox to \ht\strutbox{%
   \setbox0=\hbox{\chapterNumber\thechapter\hspace{10pt}\vline\ }%
   \advance\hsize-\wd0 \advance\hsize-10pt\raggedright%

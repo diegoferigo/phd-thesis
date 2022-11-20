@@ -1,0 +1,38 @@
+\begin{tikzpicture}
+
+\begin{semilogyaxis}[
+    title=\textbf{Anymal C - 12 DoFs},
+    axis lines*=left,
+    yminorticks,
+    ytick={1, 10, 100, 1000, 10000},
+    yticklabels={1 $\mu s$,10 $\mu s$,100 $\mu s$, 1 $ms$, 10 $ms$},
+    ymin=1,
+    ymax=6000,
+    width=10cm,
+    height=6cm,
+    ybar,
+    ylabel={Time},
+    xtick=data,
+    enlarge x limits=0.2,
+    symbolic x coords={CRBA,RNEA,ABA},
+    ymajorgrids,
+    yminorgrids,
+    minor grid style={gray!10},
+    legend cell align={left},
+    legend style={at={(1.00,0.5)},anchor=north west},
+]
+
+\pgfplotstableread{
+Algo Mean_Pinocchio Mean_Jaxsim_CPU Mean_Jaxsim_GPU
+CRBA 2.49           57.8            609
+RNEA 3.08           87              1050
+ABA  11.2           111             1640
+}\dataicub
+
+\addplot table [x=Algo, y=Mean_Pinocchio] {\dataicub}; \addlegendentry{Pinocchio}
+\addplot table [x=Algo, y=Mean_Jaxsim_CPU] {\dataicub}; \addlegendentry{JaxSim CPU}
+\addplot table [x=Algo, y=Mean_Jaxsim_GPU] {\dataicub}; \addlegendentry{JaxSim GPU}
+
+\end{semilogyaxis}
+
+\end{tikzpicture}

@@ -1,0 +1,702 @@
+% This file was created by tikzplotlib v0.9.8.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0,0.501960784313725,0.501960784313725}
+\definecolor{color1}{rgb}{0.705882352941177,0.784313725490196,0.658823529411765}
+\definecolor{color2}{rgb}{0.964705882352941,0.929411764705882,0.741176470588235}
+\definecolor{color3}{rgb}{0.929411764705882,0.733333333333333,0.541176470588235}
+\definecolor{color4}{rgb}{0.792156862745098,0.337254901960784,0.172549019607843}
+
+\begin{axis}[
+legend cell align={left},
+legend columns=5,
+legend style={
+  fill opacity=0.8,
+  draw opacity=1,
+  text opacity=1,
+  at={(0.5,-0.64)},
+  anchor=south,
+  draw=white!80!black
+},
+legend image post style={only marks, mark=square*},
+tick align=outside,
+tick pos=left,
+title={\textbf{Number of consecutive counterbalanced forces applied to the elbow link}},
+x grid style={white!69.0196078431373!black},
+xmin=0.5, xmax=23.5,
+xtick style={color=black},
+xtick={3,9,15,21},
+xticklabels={0.1 s,0.2 s,0.3 s,0.4 s},
+y grid style={white!90!black},
+ymajorgrids,
+ymin=-1.55, ymax=32.55,
+ytick style={color=black}
+]
+\addplot [color0, fill=color0]
+table {%
+0.75 14
+1.25 14
+1.25 20
+0.75 20
+0.75 14
+};
+\addlegendentry{100N}
+\addplot [black, dashed, forget plot]
+table {%
+1 14
+1 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+1 20
+1 27
+};
+\addplot [black, forget plot]
+table {%
+0.875 9
+1.125 9
+};
+\addplot [black, forget plot]
+table {%
+0.875 27
+1.125 27
+};
+\addplot [color1, fill=color1]
+table {%
+1.75 14
+2.25 14
+2.25 20
+1.75 20
+1.75 14
+};
+\addlegendentry{150N}
+\addplot [black, dashed, forget plot]
+table {%
+2 14
+2 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+2 20
+2 27
+};
+\addplot [black, forget plot]
+table {%
+1.875 9
+2.125 9
+};
+\addplot [black, forget plot]
+table {%
+1.875 27
+2.125 27
+};
+\addplot [color2, fill=color2]
+table {%
+2.75 14
+3.25 14
+3.25 20
+2.75 20
+2.75 14
+};
+\addlegendentry{200N}
+\addplot [black, dashed, forget plot]
+table {%
+3 14
+3 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+3 20
+3 27
+};
+\addplot [black, forget plot]
+table {%
+2.875 9
+3.125 9
+};
+\addplot [black, forget plot]
+table {%
+2.875 27
+3.125 27
+};
+\addplot [color3, fill=color3]
+table {%
+3.75 13.25
+4.25 13.25
+4.25 20
+3.75 20
+3.75 13.25
+};
+\addlegendentry{250N}
+\addplot [black, dashed, forget plot]
+table {%
+4 13.25
+4 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+4 20
+4 27
+};
+\addplot [black, forget plot]
+table {%
+3.875 9
+4.125 9
+};
+\addplot [black, forget plot]
+table {%
+3.875 27
+4.125 27
+};
+\addplot [color4, fill=color4]
+table {%
+4.75 11.25
+5.25 11.25
+5.25 19.75
+4.75 19.75
+4.75 11.25
+};
+\addlegendentry{300N}
+\addplot [black, dashed, forget plot]
+table {%
+5 11.25
+5 3
+};
+\addplot [black, dashed, forget plot]
+table {%
+5 19.75
+5 31
+};
+\addplot [black, forget plot]
+table {%
+4.875 3
+5.125 3
+};
+\addplot [black, forget plot]
+table {%
+4.875 31
+5.125 31
+};
+\addplot [color0, fill=color0, forget plot]
+table {%
+6.75 13.25
+7.25 13.25
+7.25 20
+6.75 20
+6.75 13.25
+};
+\addplot [black, dashed, forget plot]
+table {%
+7 13.25
+7 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+7 20
+7 27
+};
+\addplot [black, forget plot]
+table {%
+6.875 9
+7.125 9
+};
+\addplot [black, forget plot]
+table {%
+6.875 27
+7.125 27
+};
+\addplot [color1, fill=color1, forget plot]
+table {%
+7.75 13.25
+8.25 13.25
+8.25 20
+7.75 20
+7.75 13.25
+};
+\addplot [black, dashed, forget plot]
+table {%
+8 13.25
+8 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+8 20
+8 27
+};
+\addplot [black, forget plot]
+table {%
+7.875 9
+8.125 9
+};
+\addplot [black, forget plot]
+table {%
+7.875 27
+8.125 27
+};
+\addplot [color2, fill=color2, forget plot]
+table {%
+8.75 5.25
+9.25 5.25
+9.25 17
+8.75 17
+8.75 5.25
+};
+\addplot [black, dashed, forget plot]
+table {%
+9 5.25
+9 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+9 17
+9 23
+};
+\addplot [black, forget plot]
+table {%
+8.875 0
+9.125 0
+};
+\addplot [black, forget plot]
+table {%
+8.875 23
+9.125 23
+};
+\addplot [color3, fill=color3, forget plot]
+table {%
+9.75 2
+10.25 2
+10.25 7.5
+9.75 7.5
+9.75 2
+};
+\addplot [black, dashed, forget plot]
+table {%
+10 2
+10 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+10 7.5
+10 15
+};
+\addplot [black, forget plot]
+table {%
+9.875 0
+10.125 0
+};
+\addplot [black, forget plot]
+table {%
+9.875 15
+10.125 15
+};
+\addplot [color4, fill=color4, forget plot]
+table {%
+10.75 1
+11.25 1
+11.25 4
+10.75 4
+10.75 1
+};
+\addplot [black, dashed, forget plot]
+table {%
+11 1
+11 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+11 4
+11 8
+};
+\addplot [black, forget plot]
+table {%
+10.875 0
+11.125 0
+};
+\addplot [black, forget plot]
+table {%
+10.875 8
+11.125 8
+};
+\addplot [color0, fill=color0, forget plot]
+table {%
+12.75 14
+13.25 14
+13.25 20
+12.75 20
+12.75 14
+};
+\addplot [black, dashed, forget plot]
+table {%
+13 14
+13 9
+};
+\addplot [black, dashed, forget plot]
+table {%
+13 20
+13 27
+};
+\addplot [black, forget plot]
+table {%
+12.875 9
+13.125 9
+};
+\addplot [black, forget plot]
+table {%
+12.875 27
+13.125 27
+};
+\addplot [color1, fill=color1, forget plot]
+table {%
+13.75 7
+14.25 7
+14.25 16
+13.75 16
+13.75 7
+};
+\addplot [black, dashed, forget plot]
+table {%
+14 7
+14 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+14 16
+14 23
+};
+\addplot [black, forget plot]
+table {%
+13.875 0
+14.125 0
+};
+\addplot [black, forget plot]
+table {%
+13.875 23
+14.125 23
+};
+\addplot [color2, fill=color2, forget plot]
+table {%
+14.75 2
+15.25 2
+15.25 5
+14.75 5
+14.75 2
+};
+\addplot [black, dashed, forget plot]
+table {%
+15 2
+15 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+15 5
+15 9
+};
+\addplot [black, forget plot]
+table {%
+14.875 0
+15.125 0
+};
+\addplot [black, forget plot]
+table {%
+14.875 9
+15.125 9
+};
+\addplot [color3, fill=color3, forget plot]
+table {%
+15.75 0
+16.25 0
+16.25 3
+15.75 3
+15.75 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+16 0
+16 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+16 3
+16 7
+};
+\addplot [black, forget plot]
+table {%
+15.875 0
+16.125 0
+};
+\addplot [black, forget plot]
+table {%
+15.875 7
+16.125 7
+};
+\addplot [color4, fill=color4, forget plot]
+table {%
+16.75 0
+17.25 0
+17.25 1
+16.75 1
+16.75 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+17 0
+17 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+17 1
+17 2
+};
+\addplot [black, forget plot]
+table {%
+16.875 0
+17.125 0
+};
+\addplot [black, forget plot]
+table {%
+16.875 2
+17.125 2
+};
+\addplot [color0, fill=color0, forget plot]
+table {%
+18.75 11
+19.25 11
+19.25 18
+18.75 18
+18.75 11
+};
+\addplot [black, dashed, forget plot]
+table {%
+19 11
+19 1
+};
+\addplot [black, dashed, forget plot]
+table {%
+19 18
+19 27
+};
+\addplot [black, forget plot]
+table {%
+18.875 1
+19.125 1
+};
+\addplot [black, forget plot]
+table {%
+18.875 27
+19.125 27
+};
+\addplot [color1, fill=color1, forget plot]
+table {%
+19.75 2
+20.25 2
+20.25 6
+19.75 6
+19.75 2
+};
+\addplot [black, dashed, forget plot]
+table {%
+20 2
+20 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+20 6
+20 12
+};
+\addplot [black, forget plot]
+table {%
+19.875 0
+20.125 0
+};
+\addplot [black, forget plot]
+table {%
+19.875 12
+20.125 12
+};
+\addplot [color2, fill=color2, forget plot]
+table {%
+20.75 0
+21.25 0
+21.25 2
+20.75 2
+20.75 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+21 0
+21 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+21 2
+21 3
+};
+\addplot [black, forget plot]
+table {%
+20.875 0
+21.125 0
+};
+\addplot [black, forget plot]
+table {%
+20.875 3
+21.125 3
+};
+\addplot [color3, fill=color3, forget plot]
+table {%
+21.75 0
+22.25 0
+22.25 1
+21.75 1
+21.75 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+22 0
+22 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+22 1
+22 2
+};
+\addplot [black, forget plot]
+table {%
+21.875 0
+22.125 0
+};
+\addplot [black, forget plot]
+table {%
+21.875 2
+22.125 2
+};
+\addplot [color4, fill=color4, forget plot]
+table {%
+22.75 0
+23.25 0
+23.25 1
+22.75 1
+22.75 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+23 0
+23 0
+};
+\addplot [black, dashed, forget plot]
+table {%
+23 1
+23 2
+};
+\addplot [black, forget plot]
+table {%
+22.875 0
+23.125 0
+};
+\addplot [black, forget plot]
+table {%
+22.875 2
+23.125 2
+};
+\addplot [thick, black, forget plot]
+table {%
+0.75 17
+1.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+1.75 17
+2.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+2.75 17
+3.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+3.75 17
+4.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+4.75 16
+5.25 16
+};
+\addplot [thick, black, forget plot]
+table {%
+6.75 17
+7.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+7.75 17
+8.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+8.75 11.5
+9.25 11.5
+};
+\addplot [thick, black, forget plot]
+table {%
+9.75 4.5
+10.25 4.5
+};
+\addplot [thick, black, forget plot]
+table {%
+10.75 2
+11.25 2
+};
+\addplot [thick, black, forget plot]
+table {%
+12.75 17
+13.25 17
+};
+\addplot [thick, black, forget plot]
+table {%
+13.75 12
+14.25 12
+};
+\addplot [thick, black, forget plot]
+table {%
+14.75 4
+15.25 4
+};
+\addplot [thick, black, forget plot]
+table {%
+15.75 2
+16.25 2
+};
+\addplot [thick, black, forget plot]
+table {%
+16.75 0
+17.25 0
+};
+\addplot [thick, black, forget plot]
+table {%
+18.75 16
+19.25 16
+};
+\addplot [thick, black, forget plot]
+table {%
+19.75 4
+20.25 4
+};
+\addplot [thick, black, forget plot]
+table {%
+20.75 1
+21.25 1
+};
+\addplot [thick, black, forget plot]
+table {%
+21.75 0
+22.25 0
+};
+\addplot [thick, black, forget plot]
+table {%
+22.75 0
+23.25 0
+};
+\end{axis}
+
+\end{tikzpicture}
