@@ -8,8 +8,8 @@ In Chapter~\ref{ch:learning_from_scratch}, we have validated the framework propo
 We have observed that such a pipeline was characterised by long training times, and identified the simulator as the main bottleneck.
 
 In this chapter, we propose our final simulation architecture for maximising the sampling performance of synthetic data for robot locomotion applications.
-Starting from the contact-aware state-space representation proposed in Chapter~\ref{ch:contact_aware_dynamics}, we introduce state-of-the-art \acp{RBDA} for obtaining the terms forming the multibody \acp{EoM} and computing the \emph{forward dynamics} function $\operatorname{FD}(\mathcal{M}, \Qu, \Nu, \Torques, \forcesix_L)$ used in the  $\dot{\mathbf{x}}(t)$ definition.
-Excluding inverse dynamics, in which our formulation represents the actual inverse of the forward dynamics also for floating-base system, the implementation of the other \acp{RBDA} contains only minor differences compared to the reference formulation presented by \textcite{featherstone_rigid_2008}.
+Starting from the contact-aware state-space representation proposed in Chapter~\ref{ch:contact_aware_dynamics}, we introduce state-of-the-art \acp{RBDA} for obtaining the terms forming the multibody \acp{EoM} and computing the \emph{forward dynamics} function $\operatorname{FD}(\mathcal{M}, \Qu, \Nu, \Torques, \forcesix_L)$ used in the  $\dot{\mathbf{x}}(t)$ definition of Equation~\ref{equation:tangential_deformation_dynamics} and Equation~\ref{equation:floatig_base_dynamics_with_contacts_state_space}.
+Excluding inverse dynamics, that we formulate as the true inverse of the forward dynamics also for floating-base systems, the implementations of the other \acp{RBDA} contain only minor differences compared to the reference formulation presented by \textcite{featherstone_rigid_2008}.
 Beyond being denoted with the notation introduced in Chapter~\ref{ch:robot_modelling} that makes explicit the reference frame of quantities like 6D velocities and 6D forces, we provide a unified implementation for both fixed-base and floating-base robots, and our inverse dynamics extends its acceleration to force mapping also to the base link.
 In the second part of this chapter, we propose  \jaxsim, a new physics engine in reduced coordinates that, thanks to the implementation of these algorithms in \jax, enables running rigid-body simulations on modern hardware accelerators like \acsp{GPU} and \acsp{TPU}.
 In fact, the problem of the previous architectures was not really the general-purpose simulator, but the limited parallel capabilities of \acsp{CPU} in which it was executed.
@@ -21,7 +21,7 @@ They have been implemented such that they can be executed transparently on any s
 \label{section:fb_rbda}
 
 In previous sections, we described how the dynamics of a floating-base system interacting with a non-flat terrain surface can be described, and how its evolution over time can be obtained through numerical integration.
-When we introduced the state-space representations, in Equation~\eqref{equation:floatig_base_dynamics_state_space} and Equation~\eqref{equation:floatig_base_dynamics_with_contacts_state_space}, we used the \emph{forward dynamics} function $\operatorname{FD}$ to describe the dynamics of the floating-base system velocity $\Nu$.
+When we introduced the state-space representations, in Equation~\eqref{equation:floatig_base_dynamics_state_space} and Equation~\eqref{equation:floatig_base_dynamics_with_contacts_state_space}, we used the \emph{forward dynamics} function $\operatorname{FD}(\cdot)$ to describe the dynamics of the floating-base system velocity $\Nu$.
 We also mentioned that it can be calculated by inverting the following \ac{EoM}, already defined in Equation~\eqref{eq:eom_multibody_compact}:
 %
 \begin{equation}
@@ -30,7 +30,7 @@ We also mentioned that it can be calculated by inverting the following \ac{EoM},
     ,
 \end{equation}
 %
-assuming the knowledge, at any integration step, of the floating-base version of the mass matrix $M(\Qu)$, the bias-vector $h(\Qu, \Nu)$, and the Jacobians matrix $\jac_\mathcal{L}(\Qu)$.
+by assuming the knowledge, at any integration step, of the floating-base version of the mass matrix $M(\Qu)$, the bias-vector $h(\Qu, \Nu)$, and the Jacobians matrix $\jac_\mathcal{L}(\Qu)$.
 Calculating the forward dynamics from the \acp{EoM} involves the inversion of the mass matrix that, depending on the number of the number of \acp{DoF}, could be computationally expensive when performed in a simulation loop.
 Furthermore, depending on the selected integrator, it might be needed to evaluate the system's dynamics multiple times for each simulation step, computing and inverting $M(\mathbf{q})$ at every evaluation.
 
@@ -83,7 +83,7 @@ We allow specifying a custom pose of fixed-base models, and assume their base ve
 \item We use the notation of 6D quantities introduced in Chapter~\ref{ch:robot_modelling} that makes explicit the reference frame of 6D quantities like velocities, accelerations, and forces.
 %
 \item All the input and output quantities are expressed in inertial representation, with the exclusion of the mass matrix $M(\Qu)$ and the Jacobian $\jac_\mathcal{L}(\Qu)$ that are computed for efficiency reasons in body-fixed representation.
-Section~\ref{sec:change_of_base_variables} provides the transformations to apply for changing the velocity representation of the base link.
+Section~\ref{sec:change_of_base_variables} provides the transformations to apply for changing the velocity representation of the computed quantities.
 %
 \item We assume the model $\mathcal{M}$ only containing joints with 1 \ac{DoF}.
 As a consequence, all joint quantities $\Shape, \Shaped, \Shapedd, \Torques \in \realn^n$, where $n = N_B - 1$.
@@ -91,19 +91,19 @@ As a consequence, all joint quantities $\Shape, \Shaped, \Shapedd, \Torques \in 
 \item If the model description contains fixed joints, we assume they can be removed from the kinematic tree through a \emph{lumping} process.
 If links $P$ and $C$ are connected with a fixed joint, the lumping process replaces the link pair $(P, C)$ with an equivalent link $\tilde{P}$ associated to the frame of $P$, having an equivalent 6D inertia $\masssix[\tilde{P}]_{\tilde{P}} = \masssix[P]_P + \transfor[P]^C \masssix[C]_C \transvel[C]_P$.
 %
-\item The floating-base \ac{RNEA} implementation implemented in \textcite[Section 9.5]{featherstone_rigid_2008} is not a proper $\operatorname{ID}$ function as it was defined in Definition~\ref{def:id}, since it treats the base acceleration as an output instead of being an input.
+\item The floating-base \ac{RNEA} implemented in \textcite[Section 9.5]{featherstone_rigid_2008} is not a proper $\operatorname{ID}$ function as it was defined in Definition~\ref{def:id}, since it treats the base acceleration as an output instead of being an input.
 In other words, the reference $\operatorname{FD}$ and $\operatorname{ID}$ are not inverse functions.
 In fact, the reference implementation is presented as a hybrid-dynamics problem, where the base acceleration is computed through a forward pass.
 Our \acs{RNEA} implementation instead accepts as additional input the acceleration of the base $\accsix[W]_{W,B}$, that forms the first six elements of the generalized acceleration $\Nud[W]$.
 We assume this acceleration being provided externally, either measured or estimated if applied on real robots.
-Our algorithm returns the 6D force $\forcesix[W]_B$ that, when exerted on the base link together with the optional external forces, produces the provided acceleration.
+Our algorithm returns the 6D force $\forcesix[W]_B$ that, when exerted on the base link together with the optional external forces, produces the provided base acceleration.
 The effects of gravity are handled internally.
 %
 \end{enumerate}
 
 \subsection{Model specification}
 
-The information about the kinematics, the inertial properties of all links, and the joint types, are included in the model specification $\mathcal{M}$:
+The information about the kinematics, the inertial properties of all links, and the joint types, are included in the model specification $\mathcal{M}$\footnote{All information included in the model $\mathcal{M}$ could be directly computed from model descriptions like \acs{SDF}, \acs{URDF}, \acs{MJCF}, \etc}:
 %
 \begin{enumerate}
 %
@@ -121,11 +121,11 @@ We denote the link frames with the link index, \ie $\homo[0]_1$ denotes the tran
 %
 \item The 6D inertia of all links $\masssix_L$, expressed in link frame.
 %
-\item For each joint $i$, connecting the link pair $(\lambda(i), i)$, $\mathcal{M}$ includes the velocity transformation $\transvel[\operatorname{pre}(i)]_{\lambda(i)}$ that locates the predecessor frame $\operatorname{pre}(i)$ of joint $i$ from the frame $\lambda(i)$ of its parent link.
+\item For each joint $i$, connecting the link pair $(\lambda(i), i)$, $\mathcal{M}$ includes the velocity transformation $\transvel[\operatorname{pre}(i)]_{\lambda(i)}$ that locates the predecessor frame $\operatorname{pre}(i)$ of joint $i$ from the frame $\lambda(i)$ of its parent link (refer to Figure~\ref{fig:joint_model} for a visual feedback).
 %
-\item The type of all joints, retrieved through the \spacedlowsmallcaps{Jtype} function from the joint index.
+\item The type of all joints, retrieved through the $\text{\spacedlowsmallcaps{Jtype}}(\cdot)$ function from the joint index.
 %
-\item A function \spacedlowsmallcaps{Jcalc} accepting a joint type and a joint position $\shape \in \realn$ that returns the motion subspace $\subspace$ and the joint velocity transform $\transvel[\operatorname{suc}(\cdot)]_{\operatorname{pre}(\cdot)}$ corresponding to the given joint position.
+\item A function $\text{\spacedlowsmallcaps{Jcalc}}(\cdot)$ accepting a joint type and a joint position $\shape \in \realn$ that returns the motion subspace $\subspace$ and the joint velocity transform $\transvel[\operatorname{suc}(\cdot)]_{\operatorname{pre}(\cdot)}$ corresponding to the given joint position (refer to Figure~\ref{fig:joint_model} for a visual feedback).
 %
 \end{enumerate}
 %
@@ -147,7 +147,7 @@ When needed, we often exploit the relation $\transfor[\lambda(i)]^i = \transvel[
 Regarding joint accelerations, we assume the presence of joints with only 1~\ac{DoF} and a constant motion subspace, resulting to Equation~\eqref{eq:joint_model_acceleration_propagation} and the considerations reported in Definition~\ref{definition:propagation_accelerations}.
 %
 \item We use 1-based indexing for vectors and matrices.
-This means that, if $A \in \realn^{n \times m}$, the top-left element is $A_{(1, 1)}$ and the bottom-right $A_{(m,m)}$.
+This means that, if $A \in \realn^{n \times m}$, the top-left element is $A_{(1, 1)}$ and the bottom-right $A_{(n,m)}$.
 Selectors of multiple elements use the $:$ delimiter, for example $A_{(1:3,1:3)}$ is the top-left $3 \times 3$ block, and $A_{(1:3,1)}$ its first column.
 Note that, while this notation simplifies pseudocode, it requires a careful implementation with 0-based array libraries.
 %
@@ -161,7 +161,7 @@ The \ac{CRBA} is an efficient algorithm that computes the body-fixed mass matrix
     M_B(\Shape) = 
     \begin{bmatrix}
         \masssix[B](\Shape) & F(\Shape) \\
-        F^T(\Shape) & H(\Shape)
+        F^\top(\Shape) & H(\Shape)
     \end{bmatrix}
     \in \realn^{(6+n)\times(6+n)}
     .
@@ -209,28 +209,28 @@ The resulting mass matrix can be converted to other velocity representations wit
 
 \State $M = \boldsymbol{0}_{(6+n)\times(6+n)}$
 
-\State $M_{(1:6, 1:6)} = \masssix^c_0$
-\Comment{Compute $M_{bb}$}
-
 \For{$i = N_B^{\mathcal{M}} \textbf{ to } 1$}
     \State $\masssix^c_{\lambda(i)} = \masssix^c_{\lambda(i)} + \transvel[i]_{\lambda(i)}^\top \masssix^c_i \transvel[i]_{\lambda(i)}$
     
     \LComment{Compute $M_{jj}$}
     \State $\mathbf{F}_i = \masssix^c_i \mathbf{S}_i$
-    \State $M_{(i+6,i+6)} = \mathbf{S}_i^T \mathbf{F}_i$
+    \State $M_{(i+6,i+6)} = \mathbf{S}_i^\top \mathbf{F}_i$
     \State $j = i$
     \While{$\lambda(j) \neq 0$}
-        \State $\mathbf{F}_i = \transvel[j]_{\lambda(j)}^T \mathbf{F}_i$
+        \State $\mathbf{F}_i = \transvel[j]_{\lambda(j)}^\top \mathbf{F}_i$
         \State $j = \lambda(j)$
-        \State $M_{(i+6,j+6)} = \mathbf{F}^T_i \mathbf{S}_j$
+        \State $M_{(i+6,j+6)} = \mathbf{F}^\top_i \mathbf{S}_j$
         \State $M_{(j+6,i+6)} = M_{(i+6,j+6)}$
     \EndWhile
 
     \LComment{Compute $M_{jb}$ and $M_{bj}$}
     \State $\mathbf{F}_i = \transvel[j]_0^\top \mathbf{F}_i$
-    \State $M_{(i+6, 1:6)} = \mathbf{F}_i^T$
+    \State $M_{(i+6, 1:6)} = \mathbf{F}_i^\top$
     \State $M_{(1:6, i+6)} = \mathbf{F}_i$
 \EndFor
+
+\State $M_{(1:6, 1:6)} = \masssix^c_0$
+\Comment{Compute $M_{bb}$}
 
 \State \textbf{output} $M$
 
@@ -603,7 +603,7 @@ The algorithm takes the following inputs:
     \item $K, D \in \realn^+$: the parameters of the spring-damper model used for both the normal and tangential force calculation;
     \item $\mu \in \realn^+$: the static friction coefficient of the contact point;
     \item $\mathcal{H}: \realn^2 \mapsto \realn$: a function returning the terrain height $z_T$ at given $(x, y)$ coordinates;
-    \item $\mathcal{S}: \realn^2 \mapsto \realn^3$: a function returning the normal of the surface $\hat{\mathbf{n}}$ at given $(x, y)$ coordinates;
+    \item $\mathcal{S}: \realn^2 \mapsto \realn^3$: a function returning the normal of the surface $\hat{\mathbf{n}}$ at given $(x, y)$ coordinates\footnote{Under the assumption of smooth terrain, an approximation of $\mathcal{S}$ could be calculated from $\mathcal{H}$, \ie $\mathcal{S}(x, y) = f\left(\mathcal{H}(x, y)\right)$};
 \end{itemize}
 %
 and provides the following outputs:
@@ -626,6 +626,7 @@ In order to optimise performance, the algorithm can be vectorised to process all
 \State $x_{cp}, y_{cp}, z_{cp} = \pos[W]_{cp}$
 \State $z_T = \mathcal{H}(x_{cp}, y_{cp})$
 \State ${}^W \dot{\mathbf{u}} = -(K / D) {}^W \mathbf{u}$
+\Comment{Material relaxation dynamics}
 \State $\forcesix[W]_{cp} = \zeros_6$
 
 \If{$z_{cp} < z_T$}
@@ -666,16 +667,17 @@ In order to optimise performance, the algorithm can be vectorised to process all
 \end{algorithmic}
 \end{algorithm}
 
+\pagebreak
 \section{Jaxsim}
 \label{section:jaxsim}
 
-The previous sections described how we can model and simulate a floating-base robot locomoting in an environment efficiently compute relevant quantities useful, for example, for model-based control.
+The previous sections described how we can model and simulate a floating-base robot locomoting in an environment, and efficiently compute relevant quantities useful, for example, for model-based control.
 For robot-learning applications, and particularly the domain of \ac{RL}, the execution of the dynamics on \ac{CPU} often represents the major bottleneck of the training pipeline.
 We can identify two principal sources affecting performance in such setup:
 
 \begin{enumerate}
-    \item \acp{CPU} can only run concurrently albeit with great speed a small number of threads, that usually match the double of their physical cores;
-    \item When a training pipeline exploits \acp{GPU} for optimising its function approximators (in the form of \acp{NN}, for example), the data sampled from the simulation has to be moved from the \ac{CPU} to the \ac{GPU}, incurring in overheads related to the data transport.
+    \item \acp{CPU} can only run concurrently --albeit with great speed-- a small number of threads, that usually match the double of their physical cores;
+    \item When a training pipeline exploits \acp{GPU} for optimising its function approximators (in the form of \acp{NN}, for example), the data sampled from the simulation has to be moved from the \ac{CPU} to the \ac{GPU}, incurring into overheads related to the data transport.
 \end{enumerate}
 
 In this section, we describe how to overcome these two limitations by introducing \jaxsim, a highly scalable rigid-body simulator of floating-base systems for robot locomotion research.
@@ -690,16 +692,16 @@ Here below a complete list of features of \jaxsim:
 
 \begin{itemize}
     \item Physics engine implemented in reduced coordinates;
-    \item Forward Euler and \ac{RK4} integrators;
-    \item Collision detection between points associated with the model's collision shapes and a customisable terrain surface;
-    \item Continuous soft-contacts model computing interaction forces without introducing friction cone approximations;
+    \item Forward Euler, Semi-implicit Euler, and \ac{RK4} integrators;
+    \item Collision detection between points associated with the model's collision shapes and a customisable smooth terrain surface;
+    \item Continuous soft-contacts model to compute interaction forces without introducing friction cone approximations;
     \item Support of the complete set of link's inertial parameters;
     \item Support of revolute, prismatic, and fixed joints; 
-    \item Support of \ac{SDF} and \ac{URDF} model descriptions;
+    \item Support of \ac{SDF} and \ac{URDF} model descriptions\footnote{\url{https://github.com/ami-iit/rod}};
     \item Implemented in plain Python using the \jax framework for fast development and readability;
     \item Possibility to maximise runtime performance by \ac{JIT}-compiling Python code and executing physics transparently on \acp{CPU}, \acp{GPU}, and \acp{TPU};
     \item Seamless integration with \jax's auto-vectorization capability for parallelizing simulation steps on hardware accelerators;
-    \item High-level API for computing model-based kinematics and dynamics quantities based on the algorithms presented in Section~\ref{section:fb_rbda}.
+    \item High-level API for computing model-based kinematics and dynamics quantities based on the algorithms presented in Section~\ref{section:fb_rbda} and notation introduced in Chapter~\ref{ch:robot_modelling}.
 \end{itemize}
 
 \begin{remark*}[\ac{AD} support]
@@ -727,7 +729,7 @@ However, at the current stage of development, the \ac{AD} support of the algorit
         \textbf{Tiny Differentiable Simulator} \parencite{heiden_neuralsim_2021} & \cpp & Reduced & \ck & \ck & & \ck & \ck & \ck & & \ck \\
         \textbf{Nimble Physics} \hspace{1.5cm} \textcite{werling_fast_2021} & \cpp & Reduced & \ck & & & \ck & \ck & \ck & \ck & \ck \\
         \textbf{Nvidia ISAAC} \hspace{1cm} \textcite{makoviychuk_isaac_2021} & \cpp & Reduced & \ck & \ck & & & \ck & \ck & \ck & \\
-        \textbf{Dojo} \hspace{3cm} \textcite{howell_dojo_2022} & Julia & Maximal & \ck & & & \ck & \ck & & & \ck \\
+        \textbf{Dojo} \hspace{3.5cm} \textcite{howell_dojo_2022} & Julia & Maximal & \ck & & & \ck & \ck & & & \ck \\
         \textbf{Brax} \hspace{3cm} \textcite{freeman_brax_2021} & Python & Maximal & \ck & \ck & \ck & \ck & \ck & \ck & & \ck \\
         \textbf{\jaxsim} & Python & Reduced & \ck & \ck & \ck & $[*]$ & \ck & & \ck & \ck \\
         \bottomrule
@@ -788,7 +790,7 @@ The experiment is composed of two phases, both of which can be illustrated by Fi
 In the first phase, the model is actuated for 1 second with random torques starting from a configuration with zero velocity and, therefore, zero momentum.
 The simulation is performed with all lossy components (like joint friction) disabled, therefore, due to momentum conservation, the momentum should remain zero over the entire horizon.
 In the second phase, the model evolves for 100 seconds without actuation from the configuration reached in the previous phase.
-Also in this case, not having any lossy effect, the total mechanical energy of the system should remain constant over the entire horizon due to energy conservation.
+Also in this case, since there is no loss, the total mechanical energy of the system (\ie the sum of the kinetic and potential energies defined in Equation~\eqref{eq:kinetic_and_potential_energies}) should remain constant over the entire horizon due to energy conservation.
 
 We perform this experiment using the model of the iCub robot with a configuration characterised by 23 of its \acp{DoF}.
 The experiment is executed at different integration step sizes and with both the forward Euler and \ac{RK4} integrators.
@@ -800,8 +802,8 @@ In order to get a fair comparison between \jaxsim and Gazebo, we enable the opti
 The results of the momentum conservation and energy conservation experiments are shown, respectively, in Figure~\ref{fig:jaxsim_conservation_momentum} and Figure~\ref{fig:jaxsim_conservation_energy}.
 
 In the results of the first phase, it can be seen that in almost all configurations the 6D momentum drifts from its initial value.
-Particularly, all configurations show a more substantial drift in conjunction with increasing the integration step size.
-The configuration of \jaxsim with the \ac{RK4} integrator can outperform the others, showing acceptable drifts with steps below $20$~ms.
+Particularly, all configurations show a more substantial drift in conjunction with larger integration steps.
+The configuration of \jaxsim with the \ac{RK4} integrator can outperform the other ones, showing acceptable drifts with steps below $20$~ms.
 Considering as acceptable a drift of $0.1$\% after $1$~s of simulation, also the forward Euler integration scheme stepping at $0.001$~s falls within this limit.
 
 In the results of the second phase, a similar drift could be noticed in all the tested configurations.
@@ -835,15 +837,15 @@ In this section, we evaluate the runtime performance of the \aclp{RBDA} implemen
 We compute the total time necessary to compute the output of the \ac{CRBA}, \ac{RNEA}, and \ac{ABA} algorithms.
 To assess how much the execution time is affected by the topology of the simulated robot, we consider three different robot models with an increased number of \acp{DoF}.
 In particular, we benchmark the 9~\acp{DoF} fixed-base Panda manipulator from Franka Emika, the 12~\acp{DoF} quadruped ANYmal C from ANYbotics, and the humanoid iCub from IIT.
-Before running any test with \jaxsim, we call each algorithm one time so that it can get \ac{JIT} compiled since in this experiment we are interested in their runtime performance.
-For each bar in the plot, we first compute the mean time taken by a single run of 1000 executions of the algorithms, and then report the average over 10 runs.
+Before running any test with \jaxsim, we call each algorithm one time so that it can get \ac{JIT} compiled since in this experiment we are interested in their runtime performance rather than compilation time.
+For each bar in the plot, we first compute the mean time taken by a single run of 1000 executions of the algorithms, and then report the average over 10 of these runs.
 Figure~\ref{fig:jaxsim_benchmark_algos} shows the resulting mean, where the variance of the 10 runs has been omitted since it's negligible for all algorithms.
 
 The results are comparable for all three tested robot models.
 The execution time of the \jaxsim algorithms compared to the implementation of Pinocchio are about 10 times higher when executed on \ac{CPU}, and 100 times higher when executed on \ac{GPU}.
 These numbers are expected since Pinocchio algorithms are implemented entirely in \cpp and have been optimised for almost a decade.
-For all three robot models, the \jaxsim algorithms executed on \ac{CPU} do not exceed $250~\mu s$, making them compatible with a real-time loop running at a target rate of 1~kHz, in which a model-based controller might have to compute the mass matrix $M(\Qu)$ through \ac{CRBA} and the bias forces $h(\Qu, \Nu)$ through \ac{RNEA}.
-Instead, the \ac{GPU} execution of a single instance of the algorithms exceeds 1~ms in most cases, making it incompatible with real-time usage.
+Regardless, for all three robot models, the \jaxsim algorithms executed on \ac{CPU} do not exceed $250~\mu s$, making them compatible with a real-time loop running at a target rate of 1~kHz, in which a model-based controller might have to compute the mass matrix $M(\Qu)$ through \ac{CRBA} and the bias forces $h(\Qu, \Nu)$ through \ac{RNEA}.
+Instead, the \ac{GPU} execution of a single instance of the algorithms exceeds 1~ms in most cases, making them incompatible with real-time usage.
 
 \begin{figure}
     \centering
@@ -869,19 +871,19 @@ The major strengths of \jaxsim appear when the characteristics of hardware accel
 In this test, we evaluate the scalability of \jaxsim by increasing the number of parallel instances exploiting the auto-vectorization capabilities of \jax.
 Instead of testing parallel calls of the \acp{RBDA}, we consider a more practical scenario of a 1~ms simulation step with the forward Euler integration scheme.
 We benchmark the performance on the 23~\acp{DoF} model of the iCub humanoid with 8 collidable points corresponding to the vertices of the two boxes that model its feet collision shapes.
-We compute the equivalent \ac{RTF} of the parallel integration, which consists of the ratio between the total simulated time and the time it took to compute it.
+We compute the \emph{equivalent} \ac{RTF} of the parallel integration, which consists of the ratio between the total simulated time and the time it took to compute it.
 For example, if the parallel integration of 10 models takes 1~ms, the equivalent \ac{RTF} is 10.
 A higher \ac{RTF} corresponds to a better sampling efficiency.
 This test is performed on the same laptop as the previous tests, and also on a workstation with a more powerful \ac{GPU}, whose specifications are reported in Table~\ref{tab:specifications}.
-For each point in the plot, we first compute the mean time of a single run over 100 integration steps, and then report the average over 10 runs.
+For each point in the plot, we first compute the mean time of a single run over 100 integration steps, and then report the average over 10 of these runs.
 The results of the \ac{CPU} and \ac{GPU} executions are shown in Figure~\ref{fig:jaxsim_benchmark_parallel}, where the variance of the 10 runs has been omitted since it is negligible for all executions.
 
 On the laptop setup, the integration step on \ac{CPU} starts with a \ac{RTF} greater than 1 already with a single instance.
-A single \ac{CPU} core is able to reach a \ac{RTF} of about 5 with 16 parallel models, showing some benefits of parallel integration also on this hardware.
+A single \ac{CPU} core is able to reach a \ac{RTF} of about 5 with 16 parallel models, showing some benefits of parallel integration also on this type of hardware.
 With more than 16 models, increasing the number of models does not give any benefit to the equivalent \ac{RTF} as the execution time grows linearly with the number of models.
 The integration step of \ac{GPU} starts with a lower \ac{RTF} of 0.11.
-This effect is expected since a single \ac{GPU} core is less powerful than a \ac{CPU} core.
-However, the parallel integration on \ac{GPU} runs without overhead until 128 models.
+This effect is expected since a single \ac{GPU} core is typically less powerful than a \ac{CPU} core.
+However, the parallel integration on \ac{GPU} is able to scale without showing any overhead until 128 models.
 The equivalent \ac{RTF} on \ac{GPU} peaks at a value of about $19$ between 512 and 1024 parallel models.
 On this hardware, the 512-1024 range is justified by the number of CUDA cores equal to 640.
 
@@ -900,24 +902,25 @@ The peak \ac{RTF} of this high-end \ac{GPU} is about 200.
     \label{fig:jaxsim_benchmark_parallel}
 \end{figure}
 
+\pagebreak
 \section{Conclusions}
 
 In this chapter, we proposed \jaxsim, a new physics engine capable of executing multibody simulations on modern hardware accelerators.
 \jaxsim simulates the dynamics of free-floating mechanical systems through a reduced coordinates approach, therefore guaranteeing that joint constraints are never violated.
-Regarding the interaction with the environment, it is currently capable of detecting collisions between a smooth ground surface not necessarily planar, and points corresponding to the collision shapes of the links.
+Regarding the interaction with the environment, it is currently capable of detecting collisions between a smooth ground surface not necessarily planar and points belonging to the collision shapes of the links.
 Being implemented in reduced coordinates, it allows to efficiently compute all terms of the \ac{EoM} that are fundamental for model-based control at any simulated step.
 We have validated its integration accuracy, obtaining either comparable or better results than Gazebo Sim, depending on the adopted integration scheme.
-We also benchmarked the \acp{RBDA} performance, finding that \ac{JIT}-compiled Python code on \ac{CPU} runs 10 times slower compared to a state-of-the-art \cpp implementation, remaining compatible with real-time usage.
-However, the best characteristics of \jaxsim emerge when modern hardware accelerators are exploited in highly parallel computations.
+We also benchmarked the \acp{RBDA} performance, finding that \ac{JIT}-compiled Python code on \ac{CPU} runs 10 times slower compared to a state-of-the-art \cpp implementation, remaining in any case compatible with real-time usage.
+Nonetheless, the best characteristics of \jaxsim emerge when modern hardware accelerators are exploited in highly parallel computations.
 We have shown that it can reach a \ac{RTF} of 20 on a laptop and 200 on a workstation.
 Applications requiring sampling experience with high throughput such as those characterising \ac{RL} research, would benefit the most from these performances.
 Furthermore, generating physics data directly in the same device where function approximators are optimised would remove any overhead related to the data transfer from the \ac{CPU}.
 We intend to investigate these directions in future activities.
 
-The physics engine still presents multiple limitations in this first version.
+\jaxsim still presents multiple limitations in this first version.
 Firstly, the shown performances were obtained in a setting where no exteroception was necessary.
 Integrating basic rendering functionality would surely affect performance.
-Furthermore, \jaxsim does not yet support collisions between links, limiting its adoption for robot manipulation.
+Furthermore, collisions between links are not yet supported, limiting the adoption for robot manipulation.
 Finally, it does not yet allow enforcing additional dynamic constraints like joint limits, and closed kinematic chains.
 
 To conclude, although the automatic differentiation capability provided by the \jax framework has not yet been thoroughly tested with the \jaxsim algorithms, its combination with the smooth dynamics given by the contact-aware state-space representation opens up exciting research directions that will be explored in the future.

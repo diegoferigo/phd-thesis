@@ -51,7 +51,7 @@ The controlled joints belong to the legs, torso, and arms.
 Hands, wrists, and neck, which arguably play a minor role in balancing, are locked in their natural positions.
 The policy computes target joint velocities bounded in $[-180,180]$~deg/s at $25$~Hz.
 Commanding joint velocities rather than joint positions prevents target joint positions from being too distant from each other in consecutive steps.
-Especially at training onset, this would lead to jumpy references that the \pid controllers cannot track, affecting the discovery of the relation between $\mathbf{x}_t$ and $\mathbf{x}_{t+1}$.
+Especially at training onset, this would lead to jumpy references that the \pid controllers cannot track, affecting the discovery of the relation between the states $\mathbf{x}_t$ and $\mathbf{x}_{t+1}$.
 The integration process, instead, enables to use a policy that generates discontinuous actions while maintaining continuous \pid inputs with no need for additional filters.
 
 \subsection{State}
@@ -78,8 +78,16 @@ The integration process, instead, enables to use a policy that generates discont
 \end{table}
 
 Since no perception is involved, the state of the \ac{MDP} contains information about the robot's kinematics and dynamics.
-It is defined as the tuple $\mathbf{x} := \langle \mathbf{q}, \mathbf{\boldsymbol{\nu}}, \mathbf{f}_L, \mathbf{f}_R \rangle \in \mathcal{X}$.
-The observation, computed from the state $\mathbf{x}$, is defined as the tuple $\boldsymbol{o} := \langle \mathbf{o}_s, \mathbf{o}_{\dot{s}}, \mathbf{o}_h, \mathbf{o}_R, \mathbf{o}_c, \mathbf{o}_f, \mathbf{o}_F, \mathbf{o}_v \rangle \in \mathcal{O}$, where $\mathcal{O} := \mathbb{R}^{62}$.
+It is defined as the tuple $\mathbf{x} := \langle \mathbf{q}, \mathbf{\boldsymbol{\nu}}, \mathbf{f}_L, \mathbf{f}_R \rangle \in \mathcal{X}$, where $(\mathbf{f}_L, \mathbf{f}_R)$ are the 6D forces exchanged between the feet and the terrain.
+The observation, computed from the state $\mathbf{x}$ and the robot model $\mathcal{M}$, is defined as the tuple
+%
+\begin{equation*}
+    \boldsymbol{o} =
+    \boldsymbol{o}(\mathbf{x}, \mathcal{M}) :=
+    \langle \mathbf{o}_s, \mathbf{o}_{\dot{s}}, \mathbf{o}_h, \mathbf{o}_R, \mathbf{o}_c, \mathbf{o}_f, \mathbf{o}_F, \mathbf{o}_v \rangle \in \mathcal{O}
+\end{equation*}
+%
+where $\mathcal{O} := \mathbb{R}^{62}$.
 %
 The observation consists of the following terms:
 %
@@ -117,12 +125,12 @@ We select minimal state components encoding the environment dynamics without aff
 
 The initial state distribution $\rho(\mathbf{x}_0): \mathcal{X} \mapsto \mathcal{O}$ defines the value of the observation in which the agent begins each episode.
 Sampling the initial state from a distribution with small variance, particularly regarding joint positions and velocities, positively affects exploration without degrading the learning performance.
-At the beginning of each episode, for each joint $j$ we sample its position $s_{j,0}$ from $\mathcal{N}(\mu=s_0, \sigma=10 \, \text{deg})$, where $s_{0}$ represents the fixed initial reference, and its velocity $\dot{s}_{j,0}$ from $\mathcal{N}(\mu=0, \sigma=90 \, \text{deg/s})$.
+At the beginning of each episode, for each joint $j \in \mathcal{J}$ we sample its position $s_{j,0}$ from $\mathcal{N}(\mu=s_0, \sigma=10 \, \text{deg})$, where $s_{0}$ represents the fixed initial reference, and its velocity $\dot{s}_{j,0}$ from $\mathcal{N}(\mu=0, \sigma=90 \, \text{deg/s})$.
 As a result, the robot may or may not start with the feet in contact with the ground, encouraging the agent to learn how to land and deal with impacts.
 
 \paragraph{Exploration}
 
-In order to promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame.
+In order to promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame located over its pelvis.
 The applied force vector has a fixed magnitude of 200~N and is applied for 200~ms.
 Considering the weight of the iCub, approximately 33~kg, the normalised impulse sums up to 1.21~Ns/Kg.
 We sample the direction of the applied force from a uniform spherical distribution.
@@ -141,7 +149,7 @@ We detect the falling condition when any link but the feet touches the ground pl
 During the training process, the environment performs a domain randomisation step at the beginning of each new episode.
 The masses of the robot's links are sampled from a normal distribution $\mathcal{N}(\mu=m_0, \sigma=0.2 m_0)$, where $m_0$ is the nominal mass of the link defined in the model description.
 To avoid making assumptions about the feet's and ground's material properties, we randomise the Coulomb friction $\mu_c$ of the feet by sampling it from $\mathcal{U}(0.5, 3)$.
-Finally, since the simulation does not include the real dynamics of the actuators, to increase robustness, we apply a delay to the position references fed to the \pid controllers, sampled from $\mathcal{U}(0, 20)$~ms.
+Finally, since the simulation does not include the real dynamics of the actuators, to increase robustness, we apply a delay to the position references fed to the \pid controllers, sampled from $\mathcal{U}(0, 20)$~ms, and kept constant during the entire episode (until termination).
 
 \section{Agent}
 
@@ -330,7 +338,7 @@ This term minimises the sum of the norms of the linear and angular components of
 
 \item[Feet contact forces]\!($r_f$)\;
 %
-This reward term pushes the transient towards a steady-state pose in which the vertical forces at feet's \acp{CoP} $(f^{CoP}_L, f^{CoP}_R)$ assume the value of half of the robot's weight, distributing it equally on the two feet.
+This reward term pushes the transient towards a steady-state pose in which the vertical forces at feet's \acp{CoP} $(f^{CoP}_L, f^{CoP}_R)$ (see Appendix~\ref{appendix:center_of_pressure}) assume the value of half of the robot's weight, distributing it equally on the two feet.
 
 \item[Feet CoP]\!($r_p$)\;
 %
@@ -375,7 +383,7 @@ A larger variety of push-recovery strategies are displayed in the following vide
 
 \subsection{Deterministic planar forces}
 
-We evaluate the push-recovery performance from horizontal forces.
+We evaluate the push-recovery performance by assessing the resilience from the application of external forces to the horizontal transverse plane of the robot.
 Forces are applied for 0.2~s after 3~s from the simulation start, when the robot is stably standing still and front-facing.
 Success is defined if the robot is still standing after 7~s, defining as a standing state the configuration in which only the feet can be in contact with the ground.
 In Fig.~\ref{fig:force_polar}, success rates for forces pointing in 12 directions are reported.

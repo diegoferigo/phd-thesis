@@ -6,11 +6,11 @@ In the first part of this thesis contributions, we proposed a general framework 
 The simulations were performed using the general-purpose Gazebo Sim, which provides a rich ecosystem supporting many types of robots, sensors, physics engines, and rendering capabilities.
 However, the benefits of exploiting general-purpose solutions often introduce a trade-off with the achievable performance.
 As we have experienced for the push-recovery policy presented in Chapter~\ref{ch:learning_from_scratch}, a single iteration of policy training could last multiple days, resulting in a long tuning process that could limit the search space.
-The bottleneck of the training pipeline is the computations performed by the rigid-body simulator, limiting the rate at which new trajectories can be sampled.
+The bottleneck of the training pipeline are the computations performed by the rigid-body simulator, limiting the rate at which new trajectories can be sampled.
 
 In the continuation of this thesis, we attempt to reply to the question: \textit{"How can we optimise sampling performance of synthetic data?"}.
 In this chapter, we derive the state-space representation of a floating-base multibody system interacting with a known ground surface.
-Assuming the knowledge of the terrain height at any point in space, this formulation of the dynamics enables calculating the robot's trajectory using a plain numerical integration scheme, regardless of the contact state.
+Assuming the knowledge of the terrain height at any point in space and the smoothness of the terrain surface, this formulation of the dynamics enables calculating the robot's trajectory using a plain numerical integration scheme, regardless of the contact state.
 To this end, we introduce a continuous soft-contacts model for resolving points-surface collisions supporting both static (sticking) and dynamic (slipping) contacts.
 Each contact point's dynamics state is structured such that it can be included in the state-space representation and integrated with the robot's dynamics.
 The resulting representation will be used, in the next chapter, as a base for a novel physics engine targeted to exploit modern hardware accelerators for maximising trajectory sampling.
@@ -27,7 +27,7 @@ The \acp{EoM} of a floating-base multibody system have been previously introduce
 In this chapter, when it is not required to decompose the Coriolis and gravitational terms explicitly, we use a more compact notation introducing the following vector of \emph{bias forces}:
 %
 \begin{equation*}
-    h(\Qu, \Nu) = C(\Qu, \Nu) \Nu + g(\Qu)
+    h(\Qu, \Nu) = C(\Qu, \Nu) \Nu + g(\Qu) \in \realn^{6+n}
     .
 \end{equation*}
 
@@ -93,7 +93,7 @@ In this representation, a possible formulation of the state vector is the follow
     ,
 \end{align*}
 %
-where we model the orientation of the base link with a quaternion $\quat = (w, \mathbf{r}) \in \mathbb{R}^4$, where $w \in R$ is its real part and $\mathbf{r} \in \mathbb{R}^3$ its imaginary part.
+where we model the orientation of the base link with a quaternion $\quat = (w, \mathbf{r}) \in \mathbb{R}^4$, where $w \in \realn$ is its real part and $\mathbf{r} \in \mathbb{R}^3$ its imaginary part.
 Quaternions are useful in the context of modelling an element of $\SO(3)$ because their description is a more practical $\realn^4$ vector.
 
 We can now structure the desired state-space form of the system: 
@@ -111,13 +111,13 @@ We can now structure the desired state-space form of the system:
             \dot{\mathbf{s}}
         \end{pmatrix}
         \\
-        \operatorname{FD}(\mathcal{M}, \mathbf{q}, \boldsymbol{\nu}, \boldsymbol{\tau}, \forcesix_L)
+        \operatorname{FD}(\mathcal{M}, \mathbf{q}, \boldsymbol{\nu}, \boldsymbol{\tau}, \forcesix_\mathcal{L}^{ext})
     \end{bmatrix} =
     f\left(\mathbf{x}(t), \mathbf{u}(t)\right)
     .
 \end{equation}
 %
-We introduced the \emph{forward dynamics} function $\operatorname{FD}$ to model the dynamics of the system's velocity $\Nu$.
+We introduced the \emph{forward dynamics} function $\operatorname{FD}(\cdot)$ to model the dynamics of the system's velocity $\Nu$.
 We will discuss in greater detail the computation of forward dynamics in Chapter~\ref{ch:scaling_rigid_body_simulations}.
 At this moment, assuming the knowledge of all model parameters forming the \acp{EoM}, we can think of isolating the generalized acceleration $\Nud$ from Equation~\eqref{eq:eom_multibody_compact}.
 It is worth noting that $\Qud \neq \Nu$, in fact we used the term $\posd[W]_B$ as derivative of the base position.
@@ -156,7 +156,7 @@ Detecting and handling contacts between bodies is one of the most challenging pr
 For simplicity, we assume that only contacts between points belonging to the model and a terrain surface can occur.
 Considering our locomotion scenario, this assumption allows us to describe robots with collision shapes composed of a set of \emph{collidable points}.
 This approach enables a unified logic for shapes ranging from simple boxes to complex meshes.
-Note, however, that point-surface collisions do not provide expected results when a primitive shape like a box, modelled for example with its eight corner points, falls over a triangle-shaped terrain surface.
+Note, however, that point-surface collisions do not provide expected results when a primitive shape like a box, modelled for example with its eight corner points, falls over the tip of a triangle-shaped terrain surface.
 In this case, the collision detection should consider the box as a surface instead of a set of points.
 If this use case is relevant, a possible workaround would be adding new collidable points on the box's surface, at a higher computational cost.
 Despite this limitation, the point-surface model could suffice in many target scenarios.
@@ -200,7 +200,7 @@ we can compute the \emph{penetration vector} as follows:
 %
 where $h_z = z_T - z_C$ is the \emph{penetration depth}, positive only for collidable points below the ground surface.
 
-In the following sections, we need to project the penetration vector $\mathbf{h}$ and the linear velocity $\vellin[W]_{W, C}$ of the collidable point into the parallel and normal directions of the ground surface.
+In the following sections, we need to project the penetration vector $\mathbf{h}$ and the linear velocity $\vellin[W]_{W, C}$ of the collidable point into the parallel and normal directions \wrt the ground surface.
 We denote the magnitude of the normal deformation as $\delta \in \mathbb{R}$, and the normal and tangential components of the velocity as $\vellin[W]^{\perp}_{W, C}, \vellin[W]^{\parallel}_{W, C} \in \mathbb{R}^3$:
 %
 \begin{align*}
@@ -228,7 +228,7 @@ Considering the setting illustrated in Figure~\ref{fig:soft_contact_model}, we c
 \begin{equation*}
     \begin{cases}
         \delta = {}^W \mathbf{h} \cdot \hat{\mathbf{n}}, \\
-        \dot{\delta} = {}^W \dot{\mathbf{h}} \, \cdot \hat{\mathbf{n}} = -\posd[W]_{cp} \cdot \hat{\mathbf{n}}
+        \dot{\delta} = {}^W \dot{\mathbf{h}} \, \cdot \hat{\mathbf{n}} = -\posd[W]_{cp} \cdot \hat{\mathbf{n}} = -\vellin[W]_{W,C}^\perp
     \end{cases}
     .
 \end{equation*}
@@ -294,7 +294,7 @@ The friction cone defines two distinct contacts regimes: \emph{sticking} if the 
 %
 The same study we considered for the model of normal forces~\parencite{azad_modeling_2010} proposes a spring-damper-clutch system for the tangential forces, where the additional clutch component controls the sticking-slipping condition.
 
-Extending their formulation to our point-surface setting, we can introduce the following relation between the tangential forces and the tangential material deformation:
+Extending their 2D formulation to our 3D point-surface setting, we can introduce the following relation between the tangential forces and the tangential material deformation:
 %
 \begin{equation}
     \label{equation:tangential_contact_model}
@@ -304,7 +304,7 @@ Extending their formulation to our point-surface setting, we can introduce the f
     ,
 \end{equation}
 %
-where $\alpha, \beta \in \mathbb{R}$ are model parameters, $\mathbf{u} \in \mathbb{R}^3$ is the tangential deformation of the material as illustrated in Figure~\ref{fig:soft_contact_model}, and $\vellin[W]_{W,clutch}$ is the clutch velocity.
+where $\alpha, \beta \in \mathbb{R}$ are model parameters, $\mathbf{u} \in \mathbb{R}^3$ is the 3D tangential deformation of the material as illustrated in Figure~\ref{fig:soft_contact_model}, and $\vellin[W]_{W,clutch}$ is the unknown clutch velocity.
 
 When sticking, the clutch velocity is zero and, assuming the knowledge of $\mathbf{u}$, the tangential force can be computed with Equation~\eqref{equation:tangential_contact_model}.
 Instead, when the magnitude of the sticking force exceeds the friction cone bounds, the clutch is unlocked and the collidable point starts sliding.
@@ -335,6 +335,7 @@ Combining Equations~\eqref{equation:tangential_contact_model}~and~\eqref{equatio
 \end{equation}
 %
 that can be numerically integrated to obtain $\mathbf{u}$.
+It is worth noting that this formulation does not need to either know or keep track of the clutch velocity.
 
 \subsection{Augmented system dynamics}
 
@@ -345,11 +346,11 @@ The effects of the contact model introduced in the previous sections can be incl
     \begin{bmatrix}
         \mathbf{q} \\ \boldsymbol{\nu} \\ \operatorname{vec}(\mathbf{U})
     \end{bmatrix}
-    \in \mathbb{R}^{2n+2n_c+13}
+    \in \mathbb{R}^{2n+3n_c+13}
     .
 \end{equation*}
 %
-We introduced the matrix $\mathbf{U} \in \mathbb{R}^{2 \times n_c}$ that stacks the tangential deformations corresponding to all the $n_c$ collidable points of the model.
+We introduced the matrix $\mathbf{U} \in \mathbb{R}^{3 \times n_c}$ that stacks the tangential deformations corresponding to all the $n_c$ collidable points of the model.
 Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformation_dynamics} and plugged in the following contacts-aware dynamics system:
 %
 \begin{equation}
@@ -403,7 +404,7 @@ The most common \emph{single-step} method is \emph{forward Euler}:
     .
 \end{equation*}
 %
-It is the most basic explicit integration method that can be seen, rearranging the equation, as an approximation of the forward finite difference formula:
+It is the most basic explicit integration method that can be seen, by rearranging the equation, as an approximation of the forward finite difference formula:
 %
 \begin{equation*}
     \frac{\mathbf{x}(t + \dd{t}) - \mathbf{x}(t)}{\dd{t}} \approx \dot{\mathbf{x}}(t)
@@ -422,9 +423,9 @@ For example, the popular \emph{Runge-Kutta} explicit methods implement the follo
     ,
 \end{equation*}
 %
-where $\mathbf{k}_i = f\left(\mathbf{x}_i(t), t_i\right)$ is an intermediate evaluation of the system's dynamics.
+where $\mathbf{k}_i = f\left(\mathbf{x}_i(t), t_i\right)$ is an intermediate evaluation of the system's dynamics and $\mathbf{x}_i(t)$ the reached intermediate states.
 Intuitively, these methods reduce the integration error by using an averaged value of the state derivative over the interval.
-The most widely adopted instance of this family is the $4$th-order \ac{RK4}, which computes the slopes
+The most widely adopted instance of this family is the \ac{RK4} corresponding to a $4$th-order, which computes the slopes
 %
 \begin{align*}
     \mathbf{k}_1 &= f\left(\mathbf{x}(t), t\right) \\
@@ -507,7 +508,7 @@ In this window, considering the frame of \ac{CoM} $G = (\pos[W]_{CoM}, [B])$, we
 The simulation is configured with a standard gravity of $g = 9.8 \, m/s$.
 
 In this setting, the threshold of the friction cone separating the sticking and the slipping regimes is $\mu f_\perp = 4.9 \, N$, averaged over the four contacts points of the bottom box surface.
-Figure~\ref{fig:sliding_box} reports the plots of the $x$ components of the \ac{CoM} position and linear velocity.
+Figure~\ref{fig:sliding_box} reports the plots of the $x$ components of the \ac{CoM}'s position and linear velocity.
 It can be seen that, as expected, when the applied force is smaller than the threshold, the box stays still.
 As soon as the external force exceeds the threshold, the box starts accelerating.
 As soon as the external force goes to zero, the frictional effects of the contact model produce a reaction force that decelerates the box with a fast transient until it reaches the sticking regime again.
@@ -534,7 +535,7 @@ We validated the dynamical system in a simplified setting in which single bodies
 While sphere and box collisions might seem trivial examples, they often represent the typical collision shapes adopted to simulate robot's feet.
 The shown results remain valid also in case of a smooth uneven terrain supported by the contact-model, where a comparable behaviour occurs in a different plane.
 
-This setting presents different limitations, especially when compared to general-purpose simulators.
-In fact, it does not detect the collision between different bodies and does not consider joint limits and other types of constraints.
+The final contact-aware dynamical system combined with the point-surface collision detection logic presents different limitations, especially when compared to implementations provided by general-purpose simulators.
+Our solution does not support detecting collisions between different bodies and does not consider joint limits and other types of constraints.
 To address the former, more advanced geometrical processing is necessary for detecting all ranges of collisions between points, primitive shapes, edges, surfaces, \etc
 For the latter, instead, it is possible to introduce an additional phase in the simulation step that computes the generalized forces to apply to the system for enforcing those constraints.

@@ -19,23 +19,23 @@ The first successful attempts to apply \acl{RL} to robotics, combined with usage
 In the following period, in the late 1990s and the entire 2000s, the body of research mainly focused on trajectory optimisation, particularly targeting learning from demonstration~\parencite{schaal_learning_1996,  atkeson_robot_1997, schaal_is_1999}.
 In order to limit the challenges posed by the computational constraints in conjunction with the available hardware, researchers widely exploited parameterized movement primitives~\parencite{schaal_dynamic_2006} and policy gradients methods~\parencite{peters_reinforcement_2003, peters_policy_2006, kober_policy_2008}, also attempting to bridge the latter with stochastic optimal control~\parencite{theodorou_generalized_2010}.
 Restricting the domain to robot locomotion, this decade was mainly characterised by the usage of quadrupeds~\parencite{kohl_policy_2004, honglak_lee_quadruped_2006, kolter_hierarchical_2007, theodorou_reinforcement_2010}.
-\textcite{koberReinforcementLearningRobotics2013} provide a well-structured and extensive survey on the state and challenges of research in \ac{RL} applied to robotics in this period.
+\textcite{koberReinforcementLearningRobotics2013} provide a well-structured and extensive survey on the state and challenges of research in \ac{RL} applied to robotics characterising this period.
 
 In the early 2010s, after the advent and initial success of \ac{DL}~\parencite{hinton_fast_2006}, hardware advancements enabled significant progress in speech recognition and computer vision research.
 The transfer of similar methodologies to \ac{RL}, whose performance was previously limited by computational constraints, at that point, was natural, and the interest in their combination, \ac{DRL}, exploded.
 \textcite{mnih_human-level_2015} showed that \ac{DRL} was suitable for becoming a generic and effective method to learn end-to-end policies also in high-dimensional problems.
 Similar ideas have been transferred to the control of simulated robots by~\textcite{lillicrap_continuous_2016}, showing that this category of algorithms can train end-to-end policies with performance comparable to those obtained by methods that can access the complete system's dynamics.
-In the same years, the \ac{RL} community has been very prolific and produced a large number of algorithms, for example, \ac{TRPO}~\parencite{schulman_trust_2017}, \ac{PPO}~\parencite{schulman_proximal_2017}, and \ac{SAC}~\parencite{haarnoja_soft_2018}, to mention a few among those that have been widely adopted in the following years.
+In the same years, the \ac{RL} community has been very prolific and produced a large number of algorithms, for example, \ac{TRPO}~\parencite{schulman_trust_2017}, \ac{PPO}~\parencite{schulman_proximal_2017}, and \ac{SAC}~\parencite{haarnoja_soft_2018}, to mention a few among those that have experienced a wide adoption.
 
 \pagebreak[1]
 The emergence of \ac{DRL}, together with new algorithms, provided a strong thrust also in their transfer to the robotics domain.
-Limiting the scope to quadrupedal locomotion, many parallel research directions emerged over time.
+Limiting the scope to \emph{quadrupedal locomotion}, many parallel research directions emerged over time.
 Researchers succeeded to transfer policies from simulation to real-world robots~\parencite{tan_sim--real_2018, hwangboLearningAgileDynamic2019s} introducing
 models of the actuation dynamics in the training process.
 Other studies, exploiting imitation learning from motion data, proposed techniques to learn policies for simulated robots~\parencite{peng_learning_2020} that were later adapted to their real-world counterparts~\parencite{smith_legged_2021}.
 Other methods integrated high-level planners and low-level controllers within the learning pipeline~\parencite{tsounis_deepgait_2020}, used the learning component as corrective action~\parencite{gangapurwala_real-time_2021}, performed control in Cartesian space~\parencite{bellegarda_robust_2021}, or exploited hardware accelerators to speed-up learning~\parencite{rudin_learning_2021}.
 
-For what concerns research on bipedal locomotion, instead, the literature is more sparse.
+For what concerns research on \emph{bipedal locomotion}, instead, the literature is more sparse.
 The work of \textcite{heess_emergence_2017} posed one of the first milestones in end-to-end learning of locomotion behaviours from simple reward signals, exploiting a distributed version of \ac{PPO} and a curriculum learning strategy that makes the learned task progressively more challenging.
 A second relevant work comes from the computer graphics community, that nowadays shares multiple research directions with robot learning.
 \textcite{peng_deepmimic_2018} proposed a method that, utilising motion capture data of highly-dynamic movements, produces a policy that can execute and adapt the collected trajectories on a simulated character.
@@ -45,47 +45,47 @@ Finally, \textcite{rodriguez_deepwalk_2021} proposed a methodology based on curr
 \section{Review of Simulators for Robot Learning}
 \label{sec:review_simulators_robot_learning}
 
-All works discussed in the previous section propose algorithms, architectures, and learning pipelines that, during the training phase of a policy, require a constant flow of new data sampled from the controlled robot.
-In most cases, obtaining the necessary amount of data from physical robots would either take too long or be dangerous due to the high probability of damaging the system and its surroundings due to the inherent trial-and-error nature of \ac{RL}.
+All works discussed in the previous section proposed algorithms, architectures, and learning pipelines that, during the training phase of a policy, require a constant flow of new data sampled from the controlled robot.
+In most cases, obtaining the necessary amount of data from physical robots would either take too long or be dangerous due to the high probability of damaging the system and its surroundings as a consequence of the inherent trial-and-error nature of \ac{RL}.
 Many of the contributions in the robot learning domain exploit rigid-body simulators and robot models to generate enough state transitions for the learning process to converge to a satisfying solution.
 Due to the unavoidable introduction of approximations, the evolution of rigid-body simulations will differ from the evolution of the real system.
-This mismatch, for example, could originate from the estimation error of the inertial parameters of the simulated robot, from the wrong assumption of a perfectly rigid body, from the simplistic modelling of the actuation dynamics, from the approximations of the contact dynamics and contact parameters, from the mismatch between simulated and real sensor noises, \etc
+This mismatch, for example, could originate from the estimation error of the inertial parameters of the simulated robot, from the wrong assumption of a perfectly rigid body, from the simplistic modelling of the actuation dynamics, from the approximations of the contact dynamics and contact parameters, from the mismatch between simulated and real sensors noise, \etc
 Agents trained in environments characterised by such approximations, that could be referred all together as \emph{reality gap}, could learn to exploit modelling approximations to reach unrealistic performance that could never be transferred elsewhere.
 The most popular method to mitigate the occurrence of this behaviour is \emph{domain randomization}~\parencite{peng_sim--real_2018, muratore_robot_2022}, widely studied in sim-to-real research~\parencite{zhao_sim--real_2020}, that aims to regularise the simulation with different methods to prevent overfitting during training.
-In the rest of this section, we pass over similar methodologies that could be applied to any simulation, and focus instead on providing a review of common simulators that could be used for robot learning and, particularly, locomotion applications.
+In the rest of this section, we bypass similar methodologies that could be applied to any simulation, and focus instead on providing a review of common simulators that could be used for robot learning and, particularly, locomotion applications.
 
 The process of describing the evolution of a dynamical system is deeply rooted in control and systems theory.
 As regards physical robots, despite the theory behind the evolution of their rigid-body description has been known for centuries, the advent of general-purpose simulators did not occur until the early 2000s.
-The most established simulator that is nowadays widely used is Gazebo~\parencite{koenig_design_2004}.
-It interfaces with multiple physics engines, using ODE\footnote{\url{https://www.ode.org/}} as a default, and supports importing models and world descriptions from the \ac{URDF} and the \ac{SDF} files.
+The most established simulator that nowadays is still widely used is Gazebo~\parencite{koenig_design_2004}.
+It interfaces with multiple physics engines, using ODE\footnote{\url{https://www.ode.org/}} as a default, and supports importing models and world descriptions from the \ac{SDF} and the \ac{URDF} files.
 A second very popular simulator, mainly for robot learning, is Mujoco~\parencite{todorov_mujoco_2012}.
 It is specifically designed for model-based optimisation with a particular focus on contact dynamics.
 Another common simulator supporting multiple physics engines and common descriptions is CoppeliaSim~\parencite{rohmer_v-rep_2013}, formerly known as V-Rep.
-It exposes Bullet~\parencite{coumans_pybullet_2016} as the default physics engine.
+It features Bullet~\parencite{coumans_pybullet_2016} as the default physics engine.
 More recently, Nvidia released its general-purpose toolkit Nvidia Isaac\footnote{\url{https://developer.nvidia.com/isaac-sdk}} that integrates with their PhysX\footnote{\url{https://developer.nvidia.com/physx-sdk}} physics engine.
 
-Beyond general-purpose simulators,many standalone physics engines can be used to simulate multibody systems.
+Beyond general-purpose simulators, many standalone physics engines can be used to simulate multibody systems.
 PyBullet~\parencite{coumans_pybullet_2016}, despite its origins in videogame development, is another common option in robot learning research.
 DART~\parencite{lee_dart_2018}, also available in Gazebo, interfaces with several collision detectors and constraint solvers, and was recently used as the basis of Nimble Physics~\parencite{werling_fast_2021} which adds differentiable physics support.
 
 Differentiable physics originates from differentiable programming~\parencite{innes_differentiable_2019} and scientific machine learning~\parencite{rackauckas_universal_2021}, in which physics laws are implemented with \ac{AD}~\parencite{baydin_automatic_2018} frameworks that allow to propagate the gradients through their calculation.
 In the past few years, it has become a popular research direction that has yielded outstanding results in many fields.
 In the domain of robotics, differentiability is still under scrutiny~\parencite{suh_differentiable_2022} and research is active~\parencite{gillen_leveraging_2022}.
-On the one hand, common \acp{RBDA} have been studied to compute analytical gradients~\parencite{carpentier_analytical_2018, belbute-peres_end--end_2018}.
-On the other hand, the entire computational flow was implemented with an \ac{AD} framework~\parencite{freeman_brax_2021, howell_dojo_2022}.
+On the one hand, common \acp{RBDA} have been studied to compute analytical gradients~\parencite{carpentier_analytical_2018, belbute-peres_end--end_2018, singh_efficient_2022}.
+On the other hand, the entire computational flow was implemented with \ac{AD} frameworks~\parencite{freeman_brax_2021, howell_dojo_2022}.
 
 On a similar note, simulations implemented entirely with \ac{AD} frameworks could be executed directly on hardware accelerators like \acp{GPU} or \acp{TPU}, as an alternative to \acp{CPU} either on a single machine or a cluster.
-Even though \ac{CPU} simulations could be optimized to run fast~\parencite{hwangbo_per-contact_2018}, hardware accelerators can provide a degree of scalability that outperforms any \ac{CPU}-based solution.
+Even though \ac{CPU} simulations could be optimised to run fast~\parencite{hwangbo_per-contact_2018} under given circumstances, hardware accelerators can provide a degree of scalability that outperforms any \ac{CPU}-based solution.
 Thanks to their hardware, Nvidia pioneered this domain with PhysX.
-More recent development showed remarkable learning speed with their Isaac Gym~\parencite{liangGPUAcceleratedRoboticSimulation2018s, makoviychuk_isaac_2021, rudin_learning_2021} framework.
+More recent development showed remarkable learning speed with their Isaac Gym framework~\parencite{liangGPUAcceleratedRoboticSimulation2018s, makoviychuk_isaac_2021, rudin_learning_2021}.
 In this realm, the past few years have seen several other attempts to develop comparable solutions~\parencite{heiden_neuralsim_2021, qiao_efficient_2021, freeman_brax_2021}.
 
-Regardless of the selected simulator, in reinforcement learning research it is common to abstract environments and agents, allowing to develop them independently from each other.
-The most common environment abstraction is provided by OpenAI Gym~\parencite{brockman_openai_2016}.
-Environments exposing the \verb|gym.Env| interface can be implemented with any of the simulators discussed in this section, and they can be
-employed by any \ac{RL} agent of available frameworks supporting this interface.
+Regardless of the selected simulator, in \ac{RL} research it is common to abstract environments and agents, allowing to develop them independently from each other.
+The most common environment abstraction is provided by OpenAI Gym~\parencite{brockman_openai_2016} in Python.
+Environments employing the \verb|gym.Env| interface can be implemented with any of the simulators discussed in this section, and they can be
+employed by any \ac{RL} agent included in the available frameworks supporting this interface.
 
-Considering the increasing interest in simulation and the related speed of development, The review provided in this section is far from complete.
+Considering the increasing interest in simulations and its corresponding speed of advancements, the review provided in this section is far from complete.
 We conclude by pointing the interested reader to the surveys on the topic, from the early ones~\parencite{ivaldiToolsSimulatingHumanoid2014s,erezSimulationToolsModelbased2015s} to the most recent~\parencite{collins_review_2021, kim_survey_2021, korber_comparing_2021}, acknowledging that either they became outdated quickly, or use metrics that are valid only for a few selected use cases.
 
 \section{Review of Push-recovery Strategies}
@@ -93,13 +93,13 @@ We conclude by pointing the interested reader to the surveys on the topic, from 
 Locomotion is among the most fundamental capabilities that legged robots need to master in order to become useful in the real world.
 In the past ten years, quadrupedal locomotion research achieved remarkable results, and nowadays, quadrupeds are able to autonomously navigate hazardous environments with great agility \parencite{lee_learning_2020, miki_learning_2022}.
 Despite decades of research, the situation of bipedal locomotion is quite different, especially when we compare the agility of most of the existing humanoid robots with human capabilities.
-Many fundamental methods, techniques, and control architectures widely adopted by locomotion research on humanoid robots have been first studied in the simplified case of push recovery.
+Many fundamental methods, techniques, and control architectures widely adopted by bipedal locomotion research have been first studied in the simplified case of push recovery.
 In fact, the ability to react appropriately to external perturbations is paramount for achieving robust locomotion capabilities, and often advances in push recovery research are preparatory for advances in locomotion research~\parencite{jeong_robust_2019}.
 
 Humans are able to employ different strategies to keep their balance, such as \emph{ankle}, \emph{hip}, and \emph{stepping} strategies~\parencite{nashner_organization_1985, maki_role_1997, stephens_humanoid_2007}.
 The adoption of these strategies follows an activation proportional to the magnitude of external disturbances.
 The effectiveness of human capabilities mainly stems from how different strategies are combined into a continuous motion~\parencite{mcgreavy_unified_2020}.
-The applicability of these principles for the generation of control actions applied to robots traditionally relied on simplified models approximating their dynamics, such as the \ac{LIP} model~\parencite{kajita_3d_2001} and the \ac{CP}~\parencite{pratt_capture_2006}.
+The applicability of these principles for the generation of control actions applied to robots traditionally relied on \emph{simplified models} approximating their dynamics, such as the \ac{LIP} model~\parencite{kajita_3d_2001} and the \ac{CP}~\parencite{pratt_capture_2006}.
 Together with the formulation of the \ac{ZMP}~\parencite{vukobratovic_contribution_1969, vukobratovic_zero-moment_2004} widely adopted as a stability criterion, simplified models became very popular and still used nowadays.
 Modern applications alternatively rely on the \ac{DCM}, that can be seen as an extension of the \ac{CP} theory~\parencite{shafiee_online_2019}.
 
@@ -108,14 +108,14 @@ The generation of the actual joint strategy is usually achieved through either h
 Implementing an effective and robust blending of all the discrete strategies has been considered challenging and prone to failures, even with careful tuning~\parencite{mcgreavy_unified_2020}.
 Nonetheless, their usage still represents an active research area that can achieve promising results~\parencite{jeong_robust_2019}.
 
-In the past few years, the robotics community attempted to develop methods based on robot learning and, in particular, \ac{RL} to generate a unified control action that automatically blends the discrete strategies.
+In the past few years, the robotics community attempted to develop methods based on robot learning and, in particular, \ac{RL} to generate a unified control action that automatically blends the discrete strategies~\parencite{yang_learning_2018}.
 Early results have been demonstrated capable of controlling the lower limbs of a simulated humanoid robot~\parencite{kim_push_2019} and, more recently, a real exoskeleton~\parencite{duburcq_reactive_2022}.
 
 \section{Thesis Content}
 \label{sec:thesis_content}
 
 The previous sections outlined the history, the overall status, and the most recent breakthroughs in the domains of reinforcement learning for robot locomotion, rigid-body simulations for robot learning, and push-recovery strategies for humanoid robots.
-In view of the subject of this thesis on how modern technology can help us generate synthetic data for humanoid robot planning and control, and considering the three reviewed research domains, we conclude this chapter by identifying problems still open and detailing how the contributions to knowledge provided in Part~\ref{part:contribution} aim to solve them.
+In view of the subject of this thesis regarding how modern technology can help us generate synthetic data for humanoid robot planning and control, and considering the three reviewed research domains, we conclude this chapter by identifying problems still open and detailing how the contributions to knowledge provided in the next Part~\ref{part:contribution} aim to solve them.
 
 \subsection{\autoref{ch:rl_env_for_robotics}: Reinforcement Learning Environments for Robotics}
 
@@ -136,9 +136,9 @@ At the lower level, the \scenario \cpp abstraction layer provides different inte
 We currently provide a complete implementation for simulated robots interfacing with the new Gazebo Sim\footnote{\url{https://gazebosim.org/}} simulator, supporting the DART and Bullet physics engines.
 At the high level, the \emph{Gym-Ignition} Python package\footnote{In its earlier releases, the new Gazebo Sim simulator was called Ignition Gazebo, from what derives the name of our Python package.} provides abstraction layers of the different components that typically form a robotic environment: the Task and the Runtime.
 On the one hand, the Task provides the necessary components to develop agnostic decision-making logic with the generic \scenario \acp{API}, and on the other, the Runtime provides the actual interfacing either with a simulator or a real robot.
-This whole architecture allows to develop the Tasks only once, and use them for training, executing, or refining a policy in any of the supported Runtimes.
+This whole architecture the user to only develop the Tasks only once, and use them for training, executing, or refining a policy in any of the supported Runtimes.
 The selected Gazebo Sim simulator has multiple advantages over alternative options for generating synthetic data.
-Its plugin-based architecture allows third-party developers to integrate custom physics engines and rendering engines, enabling them to develop agnostic environments that select the desired engines during runtime.
+Its plugin-based architecture allows third-party developers to integrate custom physics engines and custom rendering engines, enabling them to develop agnostic environments that select the desired engines during runtime.
 For robot learning, if needed, it enables seamlessly switching engines, opening the possibility to add them as a whole in the domain randomization set.
 Furthermore, considering the wide adoption of Gazebo within the robotics community, it enables roboticists to create environments using familiar tools, guaranteeing that their execution remains reproducible thanks to a single-process architecture not possible with the previous generations of the simulator.
 
@@ -190,8 +190,8 @@ For validating the framework proposed in the previous contribution, we identify 
 
 Generating the appropriate control action for highly-dynamic movements has always been challenging in robotics, especially when the controlled system is redundant and under-actuated like a humanoid robot.
 Traditional methods based on control theory and optimal control either rely on accurate descriptions of the dynamics, or exploit approximations in the form of either simplified or reduced models.
-The first ones strongly rely on the accuracy of the dynamic model, to the point of failure in the presence of a mismatch sufficiently large that controller's robustness is unable to compensate for it adequately.
-The second ones, instead, often constrain the space of individual control actions and, when dealing with multiple options, their automatic selection might require careful and often manual tuning.
+Methods based on control theory strongly rely on the accuracy of the dynamic model, to the point of failure in the presence of a mismatch sufficiently large that controller's robustness is unable to compensate for it adequately.
+Instead, those based on optimal control often constrain the space of individual control actions and, when dealing with multiple options, their automatic selection might require careful and often manual tuning.
 Furthermore, with the increase in the controlled \acp{DoF} and the number of optimisation constraints, this family of methods is still facing computational challenges in real-time settings.
 An alternative direction for this category of problems is \ac{RL}, providing a unified learning framework that, given a meaningful reward signal, does not require the knowledge of the controlled system's dynamics.
 However, regardless of its accuracy, the dynamic model can provide interesting priors that could benefit learning.
@@ -247,8 +247,9 @@ Robot locomotion applications may not need many of the features provided by gene
 \paragraph{Context of Contribution}
 
 We describe the multibody dynamics in reduced coordinates as a dynamical system in state-space capable of modelling free-floating robots.
-With locomotion applications in mind, we propose a dynamical system augmenting the multibody \acp{EoM} that supports contacts with uneven terrain, formulating a soft-contacts model for points-surface collisions without any approximation of the corresponding friction cone.
-We obtain a continuous, albeit stiff, state-space representation of the dynamical system whose trajectories can be computed by any numerical integration scheme.
+With locomotion applications in mind, we propose a dynamical system augmenting the multibody \acp{EoM} with contacts in presence of uneven smooth terrain, formulating a soft-contacts model capable to handle both sticking and slipping states without approximating the corresponding friction cone.
+To this end, we extend existing soft-contact models developed for sphere-plane surface to a more generic point-surface setting.
+When combined with the multibody \acp{EoM}, we obtain a continuous, albeit stiff, state-space representation of the dynamical system whose trajectories can be computed by any numerical integration scheme.
 
 \paragraph{Contribution Outputs}
 
@@ -268,7 +269,7 @@ Towards the aim of maximising the performance of sampling synthetic data for rob
 \paragraph{Open Problem}
 
 Training policies in a simulated setting is still the predominant choice in \ac{RL} research.
-Although sim-to-real methodologies are progressing rapidly, and the community is actively researching either learning directly from real-world robots or offline transitions, simulations remain a central component in this domain.
+Although sim-to-real methodologies are progressing rapidly, and the community is actively researching on either learning directly from real-world robots or from offline transitions, simulations remain a central component in this domain.
 In the setting of robot locomotion, the training process involves sampling simulated trajectories of a multibody system endowed with a considerable number of \acp{DoF} interacting, at least, with the terrain surface.
 Most of the general-purpose simulators currently available perform computations entirely on \acp{CPU}.
 Despite the most advanced frameworks providing \ac{RL} agents support the parallel execution of multiple environments either on a single machine or on a cluster, sampling trajectories represents the main bottleneck of the entire learning pipeline.
@@ -282,7 +283,7 @@ Inspired by the results shown by \textcite{freeman_brax_2021}, we propose \jaxsi
 The key to the transparent execution on different devices is the exploitation of the contact-aware multibody dynamics introduced in Chapter~\ref{ch:contact_aware_dynamics}.
 It enables the development of efficient routines, not relying on any dynamic allocation that can be deployed on hardware accelerators.
 The possibility to execute the simulation entirely on hardware accelerators represents an essential feature for applications requiring the generation of a massive amount of data like those belonging to the robot learning domain.
-We also describe state-of-the-art \acp{RBDA} proposed by \textcite{featherstone_rigid_2008} with the notation introduced in Chapter~\ref{ch:robot_modelling} that can be executed on this hardware.
+We also describe state-of-the-art \acp{RBDA} proposed by \textcite{featherstone_rigid_2008} with the notation introduced in Chapter~\ref{ch:robot_modelling} that can be executed on this hardware, and provide an updated version of the \ac{RNEA} compatible with floating-base robots, that exactly corresponds to the inverse of forward dynamics algorithms like \ac{ABA}.
 
 \paragraph{Contribution Outputs}
 
@@ -295,4 +296,4 @@ The activities leading to the publication of the contribution to knowledge are c
     \textbf{Daniele Pucci:} Resources, Supervision, Funding acquisition.
 \end{quote}
 %
-The software components described in this chapter have been open-sourced and are publicly available at the following link: \url{https://github.com/ami-iit/jaxsim}.
+The software components described in this chapter have been open-sourced and are publicly available at the following link:\linebreak \url{https://github.com/ami-iit/jaxsim}.
