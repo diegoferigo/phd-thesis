@@ -3,7 +3,6 @@
 \addtocontents{toc}{\protect\vspace{\beforebibskip}}
 \addcontentsline{toc}{chapter}{\tocEntry{Epilogue}}
 
-\acresetall
 \chapter*{Epilogue}
 \chaptermark{Epilogue}
 
@@ -13,7 +12,7 @@ Part~\ref{part:foundations} introduced the reader to the fundamental concepts an
 In particular, Chapter~\ref{ch:introduction} introduced robotic simulators, describing their main components and properties, and provided a brief description of the technologies that enabled the activities related to this thesis.
 Chapter~\ref{ch:robot_modelling}, after an initial overview of frame kinematics and rigid body dynamics, derived the \acp{EoM} of a rigid multibody system describing the dynamics of floating-base robots.
 Then, Chapter~\ref{ch:reinforcement_learning} provided a bird-eye view of \ac{RL}.
-With the goal of formulating the theory behind \ac{PPO}, that is the \ac{RL} algorithm used in Part~\ref{part:contribution}, this second background chapter first defined all the elements necessary to formalise the \ac{RL} problem, then it described the taxonomy of the available algorithms available to compute a solution, and finally provided the theory of policy optimisation.
+With the goal of formulating the theory behind \ac{PPO}, which is the \ac{RL} algorithm used in Part~\ref{part:contribution}, this second background chapter first defined all the elements necessary to formalise the \ac{RL} problem, then it described the taxonomy of the available algorithms available to compute a solution, and finally provided the theory of policy optimisation.
 
 The thesis continued with Part~\ref{part:contribution}, describing the contributions to knowledge of this thesis.
 The first two chapters analysed the challenges of creating robotic environments for \ac{RL} research for the aim of sampling experience.
@@ -36,7 +35,7 @@ We have benchmarked, among other properties, the scalability of \jaxsim when exe
 
 \section*{Discussions, Limitations, and Future work}
 
-To conclude the thesis, we provide final discussion points of each contribution to knowledge, outlining pitfalls and future work directions.
+To conclude the thesis, we provide final discussion pointing of each contribution to knowledge, outlining pitfalls and future work directions.
 
 \subsection*{\autoref{ch:rl_env_for_robotics}: Reinforcement Learning Environments for Robotics}
 
@@ -60,7 +59,7 @@ Access to a new collection would help the community to have a more diverse range
 \subsection*{\autoref{ch:learning_from_scratch}: Learning from scratch exploiting robot models}
 
 In this chapter, we proposed a scheme to train a policy with \ac{RL} for balancing a simulated humanoid robot in the presence of external disturbances, sampling synthetic data from the framework proposed in the previous chapter.
-We adopted a process based on reward shaping to guide the the state space exploration throughout the training phase.
+We adopted a process based on reward shaping to guide the state space exploration throughout the training phase.
 Starting from a simple reward structure, we tried to address undesired behaviour by iteratively adding new terms, until its final form.
 We decided to control most of the \acp{DoF} of the iCub robot, acknowledging that the kinematics is highly redundant, and the policy optimisation could have stalled to local optima.
 Parameter tuning is paramount for these applications, and details are too often left out from research discussions.
@@ -69,7 +68,7 @@ Nonetheless, each experiment was days long on powerful workstations, and paramet
 Much work also went into the training infrastructure, leveraging a cluster of machines and implementing the proper experiment deployment, with logging and synchronisation support.
 
 Beyond the training process, our results also show limitations, particularly when possible future sim-to-real applications are considered.
-Our control architecture relies on a policy providing velocity references, that are integrated and given as inputs to independent \pid joint controllers, generating the final joint torques actuated by the simulator.
+Our control architecture relies on a policy providing velocity references, which are integrated and given as inputs to independent \pid joint controllers, generating the final joint torques actuated by the simulator.
 Beyond being difficult to tune with performance comparable to those of the real-world counterpart, the low-level \pid controllers present a trade-off between accuracy and compliance.
 In our experiment, the position \pid controllers resulted in a stiff robot, that together with rigid contacts, limited the emergence of a natural, smooth, and more human-like behaviour.
 We think two different directions can be considered for improvements.
@@ -95,7 +94,7 @@ Practitioners working in \ac{RL} applied to robotics must be aware that this fie
 
 \subsection*{\autoref{ch:contact_aware_dynamics}: Contact-aware Multibody Dynamics}
 
-This chapter proposed a state-space representation modelling the dynamics of a floating-base robot in contact with a ground surface, that can be integrated numerically over time to compute the trajectory of the system.
+This chapter proposed a state-space representation modelling the dynamics of a floating-base robot in contact with a ground surface, which can be integrated numerically over time to compute the trajectory of the system.
 Being formulated in reduced coordinates, the system dynamics is forced to evolve enforcing the joint constraints.
 While being quite generic and providing a compact formulation applicable to any articulated structure, it presents different limitations.
 The collision detection corresponding to the contact model considers only points rigidly attached to the links and a smooth ground surface.

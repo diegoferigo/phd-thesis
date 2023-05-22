@@ -1,11 +1,10 @@
-\acresetall
 \chapter{State-of-the-Art and Thesis Content}
 \label{ch:sota}
 
 This chapter concludes the introductory part of this thesis.
 With the basic knowledge about robot simulators, robot modelling, and \ac{RL} provided by the previous chapters, we attempt to draw the state-of-the-art of domains covered by this thesis.
 Then, from the picture of the current research status, we identify what we believe are problems still open, and outline how this thesis aims to solve them by providing the contributions to knowledge of this work.
-We start by reviewing the research on \ac{RL} for robot locomotion, that should provide a bird-eye view of how this methodology evolved and has been applied over the past three decades to the specific domain of interest of this thesis.
+We start by reviewing the research on \ac{RL} for robot locomotion, which should provide a bird-eye view of how this methodology evolved and has been applied over the past three decades to the specific domain of interest of this thesis.
 Then, we review the technological evolution of robot simulators, focusing on robot learning applications.
 Finally, to provide the necessary context to motivate one of our contributions, we review the domain of push-recovery strategies applied to bipedal robots.
 
@@ -37,9 +36,10 @@ Other methods integrated high-level planners and low-level controllers within th
 
 For what concerns research on \emph{bipedal locomotion}, instead, the literature is more sparse.
 The work of \textcite{heess_emergence_2017} posed one of the first milestones in end-to-end learning of locomotion behaviours from simple reward signals, exploiting a distributed version of \ac{PPO} and a curriculum learning strategy that makes the learned task progressively more challenging.
-A second relevant work comes from the computer graphics community, that nowadays shares multiple research directions with robot learning.
+A second relevant work comes from the computer graphics community, which nowadays shares multiple research directions with robot learning.
 \textcite{peng_deepmimic_2018} proposed a method that, utilising motion capture data of highly-dynamic movements, produces a policy that can execute and adapt the collected trajectories on a simulated character.
-Regarding the transfer of policies to real bipeds, instead, \textcite{xieIterativeReinforcementLearning2019s} proposed to learn locomotion policies leveraging data from generated from pre-existing controllers, \textcite{castillo_robust_2021} developed a cascade control architecture to train a trajectory planning policy that is deployed on a real robot, and \textcite{li_reinforcement_2021} were able to track high-level velocity commands on their bipedal robot with a policy learned in simulation with an extensive use of domain randomization.
+Regarding the transfer of policies to real bipeds, instead, \textcite{xieIterativeReinforcementLearning2019s} proposed to learn locomotion policies leveraging data from generated from pre-existing controllers.
+\textcite{castillo_robust_2021} developed a cascade control architecture to train a trajectory planning policy that is deployed on a real robot, and \textcite{li_reinforcement_2021} were able to track high-level velocity commands on their bipedal robot with a policy learned in simulation with an extensive use of domain randomization.
 Finally, \textcite{rodriguez_deepwalk_2021} proposed a methodology based on curriculum learning to train a single policy capable of controlling a humanoid robot for omnidirectional walking, and \textcite{bloesch_towards_2022} introduced an end-to-end method to learn walking gaits without relying on simulated data.
 
 \section{Review of Simulators for Robot Learning}
@@ -50,8 +50,8 @@ In most cases, obtaining the necessary amount of data from physical robots would
 Many of the contributions in the robot learning domain exploit rigid-body simulators and robot models to generate enough state transitions for the learning process to converge to a satisfying solution.
 Due to the unavoidable introduction of approximations, the evolution of rigid-body simulations will differ from the evolution of the real system.
 This mismatch, for example, could originate from the estimation error of the inertial parameters of the simulated robot, from the wrong assumption of a perfectly rigid body, from the simplistic modelling of the actuation dynamics, from the approximations of the contact dynamics and contact parameters, from the mismatch between simulated and real sensors noise, \etc
-Agents trained in environments characterised by such approximations, that could be referred all together as \emph{reality gap}, could learn to exploit modelling approximations to reach unrealistic performance that could never be transferred elsewhere.
-The most popular method to mitigate the occurrence of this behaviour is \emph{domain randomization}~\parencite{peng_sim--real_2018, muratore_robot_2022}, widely studied in sim-to-real research~\parencite{zhao_sim--real_2020}, that aims to regularise the simulation with different methods to prevent overfitting during training.
+Agents trained in environments characterised by such approximations, which could be referred all together as \emph{reality gap}, could learn to exploit modelling approximations to reach unrealistic performance that could never be transferred elsewhere.
+The most popular method to mitigate the occurrence of this behaviour is \emph{domain randomization}~\parencite{peng_sim--real_2018, muratore_robot_2022}, widely studied in sim-to-real research~\parencite{zhao_sim--real_2020}, which aims to regularise the simulation with different methods to prevent overfitting during training.
 In the rest of this section, we bypass similar methodologies that could be applied to any simulation, and focus instead on providing a review of common simulators that could be used for robot learning and, particularly, locomotion applications.
 
 The process of describing the evolution of a dynamical system is deeply rooted in control and systems theory.
@@ -99,13 +99,13 @@ In fact, the ability to react appropriately to external perturbations is paramou
 Humans are able to employ different strategies to keep their balance, such as \emph{ankle}, \emph{hip}, and \emph{stepping} strategies~\parencite{nashner_organization_1985, maki_role_1997, stephens_humanoid_2007}.
 The adoption of these strategies follows an activation proportional to the magnitude of external disturbances.
 The effectiveness of human capabilities mainly stems from how different strategies are combined into a continuous motion~\parencite{mcgreavy_unified_2020}.
-The applicability of these principles for the generation of control actions applied to robots traditionally relied on \emph{simplified models} approximating their dynamics, such as the \ac{LIP} model~\parencite{kajita_3d_2001} and the \ac{CP}~\parencite{pratt_capture_2006}.
+The applicability of these principles for the generation of control actions applied to robots has traditionally relied on \emph{simplified models} approximating their dynamics, such as the \ac{LIP} model~\parencite{kajita_3d_2001} and the \ac{CP}~\parencite{pratt_capture_2006}.
 Together with the formulation of the \ac{ZMP}~\parencite{vukobratovic_contribution_1969, vukobratovic_zero-moment_2004} widely adopted as a stability criterion, simplified models became very popular and still used nowadays.
 Modern applications alternatively rely on the \ac{DCM}, that can be seen as an extension of the \ac{CP} theory~\parencite{shafiee_online_2019}.
 
 The structure of control algorithms utilizing any of these models, however, typically considers only the \ac{CoM} of the robot.
 The generation of the actual joint strategy is usually achieved through either hierarchical~\parencite{feng_optimization_2014} or predictive~\parencite{wieber_trajectory_2006, aftab_ankle_2012} architectures.
-Implementing an effective and robust blending of all the discrete strategies has been considered challenging and prone to failures, even with careful tuning~\parencite{mcgreavy_unified_2020}.
+Implementing an effective and robust blending of all the discrete strategies (ankle, hip, stepping, \etc) has been considered challenging and prone to failures, even with careful tuning~\parencite{mcgreavy_unified_2020}.
 Nonetheless, their usage still represents an active research area that can achieve promising results~\parencite{jeong_robust_2019}.
 
 In the past few years, the robotics community attempted to develop methods based on robot learning and, in particular, \ac{RL} to generate a unified control action that automatically blends the discrete strategies~\parencite{yang_learning_2018}.
@@ -125,17 +125,17 @@ The number of frameworks for \ac{RL} research is constantly increasing.
 While the \verb|gym.Env| interface became the de-facto abstraction layer to isolate agents and environments, an appropriate structure for environments has never been properly outlined.
 In robot learning applications, the implementation of the decision-making logic related to the task to learn is often intertwined with the setting in which it is executed, that could be either in simulation or in the real world.
 Therefore, usually environments cannot be transferred between different settings without significant refactoring.
-Furthermore, in simulated environments, the choice of the simulator and how it communicates with the environment implementation when sampling experience could undermine the reproducibility of the simulation, resulting in different outcomes at each execution.
+Furthermore, in simulated environments, the choice of the simulator and how it communicates with the environment could undermine the reproducibility of the simulation, resulting in different outcomes at each execution.
 
 \paragraph{Context of Contribution}
 
 We present a framework for developing robotic environments for \acl{RL} research.
 The framework is composed of two main components.
 At the lower level, the \scenario \cpp abstraction layer provides different interfaces of entities part of a scene like World and Model, with additional Link and Joint interfaces to simplify the interaction.
-\scenario is not strictly related to robot learning, it provides a unified interface that could be implemented to communicate either with simulated robots running in any simulator, or with real robots, passing through, \eg, a robotic middleware.
+\scenario is not strictly related to robot learning, but it provides a unified interface that could be implemented to communicate either with simulated robots running in any simulator, or with real robots, passing through, \eg, a robotic middleware.
 We currently provide a complete implementation for simulated robots interfacing with the new Gazebo Sim\footnote{\url{https://gazebosim.org/}} simulator, supporting the DART and Bullet physics engines.
 At the high level, the \emph{Gym-Ignition} Python package\footnote{In its earlier releases, the new Gazebo Sim simulator was called Ignition Gazebo, from what derives the name of our Python package.} provides abstraction layers of the different components that typically form a robotic environment: the Task and the Runtime.
-On the one hand, the Task provides the necessary components to develop agnostic decision-making logic with the generic \scenario \acp{API}, and on the other, the Runtime provides the actual interfacing either with a simulator or a real robot.
+On the one hand, the Task provides the necessary components to develop agnostic decision-making logic with the generic \scenario \acp{API}, and on the other hand, the Runtime provides the actual interfacing either with a simulator or a real robot.
 This whole architecture the user to only develop the Tasks only once, and use them for training, executing, or refining a policy in any of the supported Runtimes.
 The selected Gazebo Sim simulator has multiple advantages over alternative options for generating synthetic data.
 Its plugin-based architecture allows third-party developers to integrate custom physics engines and custom rendering engines, enabling them to develop agnostic environments that select the desired engines during runtime.

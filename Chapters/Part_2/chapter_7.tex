@@ -1,11 +1,10 @@
-\acresetall
 \chapter{Contact-aware Multibody Dynamics}
 \label{ch:contact_aware_dynamics}
 
 In the first part of this thesis contributions, we proposed a general framework for creating robotic environments and, with it, introduced a scheme for training a policy for generating push-recovery control signals balancing the iCub humanoid robot in the presence of external disturbances.
 The simulations were performed using the general-purpose Gazebo Sim, which provides a rich ecosystem supporting many types of robots, sensors, physics engines, and rendering capabilities.
 However, the benefits of exploiting general-purpose solutions often introduce a trade-off with the achievable performance.
-As we have experienced for the push-recovery policy presented in Chapter~\ref{ch:learning_from_scratch}, a single iteration of policy training could last multiple days, resulting in a long tuning process that could limit the search space.
+As we have experienced with the push-recovery policy presented in Chapter~\ref{ch:learning_from_scratch}, a single iteration of policy training could last multiple days, resulting in a long tuning process that could limit the search space.
 The bottleneck of the training pipeline are the computations performed by the rigid-body simulator, limiting the rate at which new trajectories can be sampled.
 
 In the continuation of this thesis, we attempt to reply to the question: \textit{"How can we optimise sampling performance of synthetic data?"}.
@@ -15,16 +14,125 @@ To this end, we introduce a continuous soft-contacts model for resolving points-
 Each contact point's dynamics state is structured such that it can be included in the state-space representation and integrated with the robot's dynamics.
 The resulting representation will be used, in the next chapter, as a base for a novel physics engine targeted to exploit modern hardware accelerators for maximising trajectory sampling.
 
-\section{State-space Multibody Dynamics}
+\section{Notation}
+
+\subsection{Frame kinematics with quaternions}
+\label{sec:frame_kinematics_quaternion}
+
+In Chapter~\ref{ch:robot_modelling}, we introduced the homogeneous transformation $\homo[A]_B \in \SE(3)$ to describe the pose of a frame (corresponding also to a rigid body).
+An alternative representation of the $\SE(3)$ group is the tuple $(\pos[A]_B, {}^A \bar{q}_B)$, where $\pos[A]_B \in \realn^3$ is the \emph{position vector} and ${}^A \bar{q}_B$ a \emph{unit quaternion}.
+A generic quaternion can be defined as follows:
+%
+\begin{equation*}
+    q \in \mathbb{H} := \left\{ q_w + \hat{i} q_x + \hat{j} q_y + \hat{k} q_z \;:\;\; q_w, q_x, q_y, q_z \in \realn \right\}
+    ,
+\end{equation*}
+%
+where $\Re(q) = q_w$ is the \emph{real} part of the quaternion and $\Imag(q) = \hat{i} q_x + \hat{j} q_y + \hat{k} q_z$ is the \emph{imaginary} part.
+Elements of $\SO(3)$ describing frame rotations can be described by \emph{unit quaternions}:
+%
+\begin{equation*}
+    \bar{q} \in \Spin(3) := \left\{ q \in \mathbb{H} \;:\; |q| = 1 \right\}
+    .
+\end{equation*}
+%
+A quaternion could be also described with a real vector of its coefficients:
+%
+\begin{equation*}
+    \quat = (w, \mathbf{r}) \in \realn^4
+    ,
+\end{equation*}
+%
+where $w = q_w \in \realn$ and $\mathbf{r} = (q_x, q_y, q_z) \in \realn^3$.
+In this chapter, we mainly use this last representation since it has a direct relation with the practical usage in algorithms design.
+The pose of a generic frame can therefore be described by a vector $(\pos[A]_B, \quat[A]_B) \in \realn^7$.
+%
+For what regards the frame velocity, we can keep using any of the 6D vectors introduced in Section~\ref{sec:frame_velocities}, \ie $\velsix_{A,B} = (\vellin_{A,B}, \velang_{A,B}) \in \realn^6$.
+
+\subsection{Frame pose derivative and 6D velocity with quaternions}
+
+When the orientation of a frame is expressed with a quaternion, it's worth introducing the relation between the derivative of the pose $(\posd[A]_B, \quatd[A]_B) \in \realn^7$ and the 6D velocity $\velsix_{A,B} \in \realn^6$.
+In fact, particularly in this case with the quaternion, it's clear that the two cannot be related by a simple numerical differentiation since they also have different dimensions.
+The following relations hold:
+%
+\begin{equation}
+    \label{eq:pose_dot_with_quaternion}
+    \begin{cases}
+        \posd[A]_B = \vellin[{A[B]}]_{A,B} \\
+        \quatd[A]_B = \frac{1}{2} S(\velang[B]_{A,B}) \quat[A]_B
+    \end{cases}
+    ,
+\end{equation}
+%
+where we notice that the derivative of the position is the linear part of the mixed velocity defined in Equation~\eqref{eq:mixed_velocity} (denoted as $\orid[A]_B$), and defined the derivative of the quaternion~\parencite{sola_quaternion_2017} by introducing the following matrix:
+%
+\begin{equation*}
+    \operatorname{S}(\velang) =
+    \begin{bmatrix}
+        0 & -\velang^\top \\ \velang & -\velang^\wedge
+    \end{bmatrix}
+    .
+\end{equation*}
+
+The relations of Equation~\eqref{eq:pose_dot_with_quaternion} can be used for integrating numerically the frame pose, using one of the schemes that will be introduced in Section~\ref{sec:integrators}.
+The quaternion $\quat$, in this setting, has to be treated with care, because only unit quaternions can describe rotations.
+
+Numerical integration schemes do not enforce this property is maintained along the trajectory, and numeric approximations could lead to unwanted instabilities.
+This problem can be either solved or mitigated by different types of solutions.
+The most straightforward solution is normalising the quaternion after each integration step.
+Alternatively, a correction term orthogonal to the quaternion dynamics of the following form can be introduced:
+%
+\begin{equation*}
+    \quatd = \frac{1}{2} \operatorname{S}\left( \rot[B]_W \velang[W]_{W,B} \right) \quat + \frac{1}{2} K_{\quat} \quat \left( \norm{\quat}^{-1} - 1 \right)
+    ,
+\end{equation*}
+%
+that corresponds to a Baumgarte stabilization on $\SO(3)$~\parencite{gros_baumgarte_2015}, where $K_{\quat} \in \realn$ is the correction coefficient.
+This stabilization term progressively projects the quaternion towards a unity quaternion, restoring the norm in case of drifting.
+In the continuation of this thesis, we do not explicitly include any correction, considering its choice an implementation detail.
+
+\begin{remark*}[Geometric integration of quaternions]
+%
+Quaternions, like other representations of elements of $\SO(3)$, have strong geometrical properties based on the underlying symmetries.
+These properties can be exploited to obtain more rigorous integration schemes performed directly on the manifold~\parencite{andrle_geometric_2013}.
+The quaternion relation of Equation~\eqref{eq:pose_dot_with_quaternion} can be seen as a differential equation in $\quat[A]_B$.
+By exploiting properties of the matrix exponential together with quaternion properties, it can be shown~\parencite{andrle_geometric_2013, sola_quaternion_2017, sola_micro_2020} that the following relation implements a zero-\emph{th} order integration:
+%
+\begin{align*}
+    \quat_{t_{k+1}} = \quat_{t_k} \otimes \left( \norm{\velang}\cos(\velang \Delta t / 2), \frac{}{} \sin(\velang \Delta t / 2) \right)
+\end{align*}
+%
+where $\otimes$ denotes the quaternion multiplication, and $\velang$ is assumed constant within the integration interval $[t_k, t_{k+1}]$.
+
+While both integration approaches are valid options --albeit showing different numerical stability \parencite{andrle_geometric_2013}--, we develop the theory of this chapter using the numerical derivative.
+This choice allows treating the entire state of a multibody system, including the base quantities, as a vector in $\realn^n$, simplifying the equations of this chapter.
+If needed, practical implementations of the presented results could adopt the geometrical integration if better numerical stability is required, paying the price to treat the base orientation separately.
+%
+\end{remark*}
+
+\subsection{Multibody dynamics}
 
 The \acp{EoM} of a floating-base multibody system have been previously introduced in Section~\ref{sec:multibody_dynamics} in the following form:
 %
 \begin{equation*}
     M(\Qu) \Nud + C(\Qu, \Nu) \Nu + g(\Qu) = B \Torques + \sum_{\mathcal{L}} J_{L}^\top(\Qu) \forcesix_L^{ext}
-    .
+    ,
 \end{equation*}
 %
-In this chapter, when it is not required to decompose the Coriolis and gravitational terms explicitly, we use a more compact notation introducing the following vector of \emph{bias forces}:
+where $\Qu$ is the generalised position and $\Nu$ is the generalised velocity already introduced in Equation~\eqref{eq:floating_base_velocity}.
+%
+If a quaternion $\quat[W]_B$ is used to model the orientation of the base frame $B$, as described in Section~\ref{sec:frame_kinematics_quaternion}, we can expand the generalised position and velocity as follows:
+%
+\begin{align}
+    \label{eq:qu_nu_quaternion}
+    \mathbf{q} &= \left( \pos[W]_B,  \quat[W]_B, \mathbf{s} \right) \in \mathbb{R}^{n+7} \\
+    \boldsymbol{\nu} &= \Nu[W] = \left( \vellin[W]_{W,B}, \velang[W]_{W,B}, \dot{\mathbf{s}} \right) \in \mathbb{R}^{n+6}
+    ,
+\end{align}
+%
+where we chose the inertial-fixed representation of the base velocity, introduced in Section~\ref{sec:right_trivialized_velocity}, just for practical reasons.
+
+When the explicit decomposition of the Coriolis and gravitational terms is not required, we combine their effects into the following vector of \emph{bias forces}:
 %
 \begin{equation*}
     h(\Qu, \Nu) = C(\Qu, \Nu) \Nu + g(\Qu) \in \realn^{6+n}
@@ -32,11 +140,11 @@ In this chapter, when it is not required to decompose the Coriolis and gravitati
 \end{equation*}
 
 We can compact the Lagrangian formulation of the system's dynamics even more by updating the terms related to the external 6D forces.
-We assume, for each link $L \in \mathcal{L}$, that an external 6D force $\forcesix[L]^{ext}_L$ always exists but is zero if the link has no interaction with the environment.
+We assume, for each link $L \in \mathcal{L}$, that an external 6D force $\forcesix^{ext}_L$ always exists but is zero if the link has no interaction with the environment.
 If we stack the Jacobians and the 6D forces of all links in the following new matrices:
 %
 \begin{align*}
-    J_\mathcal{L} = 
+    J_\mathcal{L}(\Qu) = 
     \begin{bmatrix}
         J_0 \\
         J_1 \\
@@ -62,47 +170,70 @@ we can replace the sum with a more compact matrix product:
     .
 \end{equation}
 
-Now, to simplify the numerical integration of this system, we should express this non-linear \ac{ODE} in a state-space form:
+\section{State-space Multibody Dynamics}
+
+The \acp{EoM} of a multibody system of Equation~\eqref{eq:eom_multibody_compact} are expressed as non-linear \ac{ODE}.
+Modern control theory studies the properties of these systems studied by operating on their \emph{state-space} representation~\parencite{friedland_control_2005}, which assumes the following general form:
 %
-\begin{equation*}
-    \dot{\mathbf{x}}(t) = f\left(\mathbf{x}(t), \mathbf{u}(t)\right) .
-\end{equation*}
+\begin{equation}
+\label{eq:state_space_representation}
+\begin{cases}
+    \mathbf{x}(t) &= f \left( t, \mathbf{x}(t), \mathbf{u}(t) \right) \\
+    \mathbf{y}(t) &= g \left( t, \mathbf{x}(t), \mathbf{u}(t) \right)
+\end{cases}
+,
+\end{equation}
 %
-We can obtain this form by grouping the variables in the \emph{state vector} $\mathbf{x}$ and the \emph{input vector} $\mathbf{u}$:
+where the first is the \emph{state equation} and the second is the \emph{output equation}.
+The variable $\mathbf{x}$ is called \emph{state vector} and the variable $\mathbf{u}$ is called \emph{input vector}.
+State-space models are particularly interesting for computing, starting from a given initial state $\mathbf{x}_0$, the future trajectory of an arbitrarily complex system, under the assumption of the complete knowledge of its dynamics $f(\cdot)$ and inputs $\mathbf{u}(t)$, if any.
+In the most general case, even when closed-form solutions of Equation~\eqref{eq:state_space_representation} cannot be found, future trajectories can be computed through numerical integration~\parencite{cellier_continuous_2006}, as it will be described in Section~\ref{sec:integrators}.
+
+In the case of a rigid multibody system, the \acp{EoM}~\eqref{eq:eom_multibody_compact} can be expressed in state-space representation by introducing the following state and input vectors:
 %
-\begin{align*}
+\begin{align}
+    \label{eq:input_and_state_vectors}
     \mathbf{x}(t) =
     \begin{bmatrix}
-        \mathbf{q} \\ \boldsymbol{\nu}
+        \Qu \\ \Nu
     \end{bmatrix}
     \in \mathbb{R}^{2n+13},
     &&
     \mathbf{u}(t) =
     \begin{bmatrix}
-        \boldsymbol{\tau} \\ \forcesix^{ext}_\mathcal{L} 
+        \Torques \\ \forcesix^{ext}_\mathcal{L} 
     \end{bmatrix}
     \in \mathbb{R}^{n+6n_L}.
-\end{align*}
+\end{align}
 %
-Most of the state-of-the-art \aclp{RBDA}~\parencite{featherstone_rigid_2008}, for efficiency reasons, exploit properties of the inertial-fixed velocity representation, introduced in Section~\ref{sec:right_trivialized_velocity}.
-In this representation, a possible formulation of the state vector is the following:
+With these definitions, we can define the state equation of our system as:
 %
-\begin{align*}
-    \mathbf{q} &= \left( \pos[W]_B,  \quat[W]_B, \mathbf{s} \right) \in \mathbb{R}^{n+7} \\
-    \boldsymbol{\nu} &= \left( \vellin[W]_{W,B}, \velang[W]_{W,B}, \dot{\mathbf{s}} \right) \in \mathbb{R}^{n+6}
+\begin{equation*}
+    \dot{\mathbf{x}}(t) =
+    \begin{bmatrix}
+        \dot{\mathbf{q}} \\ \dot{\boldsymbol{\nu}}
+    \end{bmatrix} =
+    f\left(\mathbf{x}(t), \mathbf{u}(t)\right)
     ,
-\end{align*}
+\end{equation*}
 %
-where we model the orientation of the base link with a quaternion $\quat = (w, \mathbf{r}) \in \mathbb{R}^4$, where $w \in \realn$ is its real part and $\mathbf{r} \in \mathbb{R}^3$ its imaginary part.
-Quaternions are useful in the context of modelling an element of $\SO(3)$ because their description is a more practical $\realn^4$ vector.
+where we still need to find the equations of $\Qud$ and $\Nud$.
 
-We can now structure the desired state-space form of the system: 
+The variable $\Nud \in \realn^{6+n}$ is the \emph{generalised acceleration} of the system.
+Assuming the mass matrix $M(\Qu)$ non-singular, the dynamics of $\Nu$ can be extracted directly from the \acp{EoM}~\eqref{eq:eom_multibody_compact}.
+As we will introduce in Chapter~\ref{ch:scaling_rigid_body_simulations}, the computation of $\Nud$ is also known as \emph{forward dynamics} of the multibody system, and the methodology that requires the inversion of the mass matrix is just one among the available methods, not necessarily the most computationally efficient.
+In order to maintain a degree of generality, in this chapter we mark this computation with the $\operatorname{FD}(\cdot)$ function.
+
+For what regards $\Qud$, we can simply extend the base quantities of Equation~\eqref{eq:pose_dot_with_quaternion} with the joint velocities $\dot{\mathbf{s}}$.
+The advantage of using the numerical integration form of the quaternion should now be clear, since it enables its direct inclusion in the state vector.
+
+The final form of the state-space representation can be found by combining all the previous elements:
 %
 \begin{equation}
     \label{equation:floatig_base_dynamics_state_space}
     \dot{\mathbf{x}}(t) =
     \begin{bmatrix}
-        \dot{\mathbf{q}} \\ \dot{\boldsymbol{\nu}}
+        \Qud \\ \Nud
     \end{bmatrix} =
     \begin{bmatrix}
         \begin{pmatrix}
@@ -111,43 +242,24 @@ We can now structure the desired state-space form of the system:
             \dot{\mathbf{s}}
         \end{pmatrix}
         \\
-        \operatorname{FD}(\mathcal{M}, \mathbf{q}, \boldsymbol{\nu}, \boldsymbol{\tau}, \forcesix_\mathcal{L}^{ext})
+        \operatorname{FD}(\mathcal{M}, \Qu, \Nu, \Torques, \forcesix_\mathcal{L}^{ext})
     \end{bmatrix} =
     f\left(\mathbf{x}(t), \mathbf{u}(t)\right)
     .
 \end{equation}
 %
-We introduced the \emph{forward dynamics} function $\operatorname{FD}(\cdot)$ to model the dynamics of the system's velocity $\Nu$.
-We will discuss in greater detail the computation of forward dynamics in Chapter~\ref{ch:scaling_rigid_body_simulations}.
-At this moment, assuming the knowledge of all model parameters forming the \acp{EoM}, we can think of isolating the generalized acceleration $\Nud$ from Equation~\eqref{eq:eom_multibody_compact}.
-It is worth noting that $\Qud \neq \Nu$, in fact we used the term $\posd[W]_B$ as derivative of the base position.
-This value matches the linear component of the mixed velocity $\velsix[{B[W]}]_{W,B}$, denoted as $\orid[A]_B$ in Equation~\eqref{eq:mixed_velocity}.
+Also in this case, it's worth noting that $\Qud \neq \Nu$, due to the nature of the angular variables of the base link. 
 
-\begin{remark*}[Quaternion derivative]
+Computing the evolution of this system requires the knowledge of its inputs, represented by the joint torques $\Torques$ and the external forces $\forcesix_{\mathcal{L}}^{ext}$.
+The external forces could either be known 6D forces supplied by the user, or unknown 6D forces resulting from the interaction with the environment:
 %
-Details of the equation used to define the derivative of the quaternion can be found in~\cite{sola_quaternion_2017}.
-In Equation~\eqref{equation:floatig_base_dynamics_state_space}, we used the following matrix:
+\begin{equation}
+    \label{eq:decomposition_external_forces}
+    \forcesix_\mathcal{L}^{ext} = \forcesix_\mathcal{L}^{user} + \forcesix_\mathcal{L}^{contact}
+\end{equation}
 %
-\begin{equation*}
-    \operatorname{S}(\velang) =
-    \begin{bmatrix}
-        0 & -\velang^\top \\ \velang & -\velang^\wedge
-    \end{bmatrix}
-    .
-\end{equation*}
-%
-Due to numerical errors, the quaternion obtained from the integration of the system could lose its unitary norm.
-We can introduce a correction term orthogonal to the quaternion dynamics corresponding to a Baumgarte stabilization on SO$(3)$~\citep{gros_baumgarte_2015}, that iteratively restores the norm in case of drifting:
-%
-\begin{equation*}
-    \dot\quat = \frac{1}{2} \operatorname{S}\left( \rot[B]_W \velang[W]_{W,B} \right) \quat + \frac{1}{2} K_{\quat} \quat \left( \norm{\quat}^{-1} - 1 \right)
-    ,
-\end{equation*}
-%
-where $K_{\quat} \in \mathbb{R}$ is the correction coefficient.
-In the rest of this chapter, being only a workaround for numerical errors, we do not explicitly include this correction term in Equation~\eqref{equation:floatig_base_dynamics_state_space}.
-%
-\end{remark*}
+In the next section, we describe a methodology to compute the unknown forces exchanged with the environment by assuming that the floating-base model only interacts with the terrain $\forcesix_\mathcal{L}^{contact} := \forcesix_\mathcal{L}^{terrain}$, assumption compatible with our locomotion setting.
+In a more general setting, $\forcesix_\mathcal{L}^{contact}$ should also include the forces exchanged between bodies, for example to simulate either self-collisions or interaction with other bodies part of the scene, particularly useful for robot manipulation.
 
 \section{Contact model}
 \label{section:contact_model}
@@ -178,13 +290,13 @@ Finally, we describe how their effects can be included in our dynamical system d
     \centering
     \resizebox{.63\textwidth}{!}{
     \includegraphics{images/contributions/chapter_7/soft_contact_model.tikz}}
-    \caption{Illustration of the point-surface soft-contact model for non-planar terrains.}
+    \caption{Illustration of the point-surface soft-contact model for non-planar terrains. The collidable point follow a trajectory $\pos_{cp}(t)$, penetrating the ground in $\pos_{cp}^0 := \left( x^0, y^0, \mathcal{H}(x^0, y^0) \right)$. While penetrating the material, the point reaches a generic point $\pos_{cp}$, over which a local contact frame $C = (\pos_{cp}, [W])$ is positioned, with a linear velocity $\vellin_{W,C} \in \realn^3$. The figure reports also the \emph{penetration depth} $h \in \realn$, the \emph{normal deformation} $\delta \in \realn$, and the tangential deformation $\mathbf{u} \in \realn^3$, used for the calculation of the 3D reaction force $\forcelin[C]_{cp}$ with the proposed soft-contact model.}
     \label{fig:soft_contact_model}
 \end{figure}
 
 For each time-varying collidable point belonging to the simulated model, we introduce a new local frame $C = (\ori_C, [W])$, having its origin located over the point's time-varying position $\pos[W]_{cp}(t)$ and orientation of $W$, illustrated in Figure~\ref{fig:soft_contact_model}.
 
-In this setup, \emph{collision detection} is as easy as assessing if the $z$ coordinate the collidable point is lower than the terrain height.
+In this setup, \emph{collision detection} is as easy as assessing if the $z$ coordinate of the collidable point is lower than the terrain height.
 We can assume having a \emph{heightmap} function $\mathcal{H}: (x, y) \mapsto z$ providing the terrain height at any location.
 We also assume to know the direction of the terrain normal $\hat{\mathbf{n}}$ in world coordinates at any location of the terrain's surface\footnote{For smooth terrains, it can be shown that the normal can be estimated from $\mathcal{H}$.}.
 If $\pos[W]_T = (x_{cp}, y_{cp}, z_T)$ is the point on the terrain surface vertical to the collidable point, where $z_T = \mathcal{H}(x_{cp}, y_{cp})$,
@@ -357,7 +469,7 @@ Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformati
 \label{equation:floatig_base_dynamics_with_contacts_state_space}
     \dot{\mathbf{x}}(t) =
     \begin{bmatrix}
-        \dot{\mathbf{q}} \\ \dot{\boldsymbol{\nu}} \\ \operatorname{vec}(\dot{\mathbf{U}})
+        \Qud \\ \Nud \\ \operatorname{vec}(\dot{\mathbf{U}})
     \end{bmatrix} =
     \begin{bmatrix}
         \begin{pmatrix}
@@ -365,7 +477,7 @@ Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformati
             \frac{1}{2} \operatorname{S}\left( \rot[B]_W \velang[W]_{W,B} \right) \quat[W]_B \\
             \dot{\mathbf{s}}
         \end{pmatrix} \\
-        \operatorname{FD}(\mathcal{M}, \mathbf{q}, \boldsymbol{\nu}, \boldsymbol{\tau}, \forcesix_L) \\
+        \operatorname{FD}(\mathcal{M}, \Qu, \Nu, \Torques, \forcesix_\mathcal{L}^{ext}) \\
         \operatorname{vec}(\dot{\mathbf{U}})
     \end{bmatrix} =
     f\left(\mathbf{x}(t), \mathbf{u}(t)\right)
@@ -373,6 +485,22 @@ Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformati
 \end{equation}
 %
 This final non-linear system, albeit being quite stiff when new contacts are made or broken, does not present any discontinuity.
+
+In the considered locomotion setting, considering the decomposition of the external forces of Equation~\eqref{eq:decomposition_external_forces} and the assumption of knowing the terrain profile\footnote{The terrain profile could also be estimated by introducing perception algorithms.}, the input vector of Equation~\eqref{eq:input_and_state_vectors} can be simplified as follows:
+%
+\begin{equation*}
+    \mathbf{u}(t) = \left( \Torques,\, \forcesix_\mathcal{L}^{user} \right)
+    ,
+\end{equation*}
+%
+since the forces exchanged with the terrain can be computed from the kinematics and the terrain properties:
+%
+\begin{equation*}
+    \forcesix_\mathcal{L}^{contact} := \forcesix_\mathcal{L}^{terrain} = \forcesix_\mathcal{L}^{terrain}(\Qu, \Nu, \mathcal{H}, \mathcal{S})
+    ,
+\end{equation*}
+%
+where $\mathcal{H}: (x, y) \mapsto z$ returns the terrain height and $\mathcal{S}: (x, y) \mapsto \hat{\mathbf{n}}$ returns the terrain normal.
 
 \section{Integrators}
 \label{sec:integrators}

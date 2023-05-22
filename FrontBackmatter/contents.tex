@@ -128,4 +128,93 @@
         \acro{ZMP}{Zero Moment Point}
     \end{acronym}
 
+    %*******************************************************
+    % List of Symbols
+    %*******************************************************
+
+    \phantomsection
+    \pdfbookmark[1]{List of Symbols}{los}
+    
+    \nomenclature[A, 01]{$\pos$}{Point in space}
+    \nomenclature[A, 01]{$A, B, C, \dots$}{Frame names}
+    \nomenclature[A, 01]{$W$}{World (inertial) frame}
+    \nomenclature[A, 02]{$[A]$}{Orientation frame of frame A}
+    \nomenclature[A, 02]{$\ori_A \in \realn^3$}{Origin of frame A}
+    \nomenclature[A, 02]{$A = (\ori_A, [A])$}{Definition of frame A}
+    \nomenclature[A, 03]{$\pos[A] \in \realn^3$}{Coordinate vector of point $\pos$ expressed in frame $A$}
+    \nomenclature[A, 03]{$\rot[A]_B \in \SO(3)$}{Rotation matrix from orientation frame $[B]$ to $[A]$}
+    \nomenclature[A, 04]{$\homo[A]_B \in \SE(3)$}{Homogeneous transformation from frame $B$ to $A$}
+    \nomenclature[A, 04]{${}^{A}\tilde{\mathbf{p}} \in \realn^4$}{Homogeneous representation of coordinate vector $\pos[A]$}
+    \nomenclature[A, 05]{$\vellin[C]_{A,B} \in \realn^3$}{Linear velocity of frame $B$ relative to frame $A$, expressed in $C$}
+    \nomenclature[A, 06]{$\velang[C]_{A,B} \in \realn^3$}{Angular velocity of frame $B$ relative to frame $A$, expressed in $C$}
+    \nomenclature[A, 06]{$\velsix[C]_{A,B} \in \realn^6$}{6D velocity of frame $B$ relative to frame $A$, expressed in $C$}
+    \nomenclature[A, 06]{$\velsix[C]_{A,B}^\wedge \in \se(3)$}{Matrix representation of 6D velocity $\velsix[C]_{A,B}$}
+    \nomenclature[A, 07]{$\transvel[A]_B \in \realn^{6\times 6}$}{Velocity transformation from frame $B$ to frame $A$}
+    \nomenclature[A, 08]{$\velsix[C]_{A,B} \crossvelsix \in \realn^{6\times6}$}{Cross product operator on $\realn^6$ for 6D velocities}
+    \nomenclature[A, 09]{$\velsixd[C]_{A,B} \in \realn^3$}{Apparent acceleration of frame $B$ relative to $A$, expressed in C}
+    \nomenclature[A, 10]{$\accsix[C]_{A,B} \in \realn^3$}{Intrinsic acceleration of frame $B$ relative to $A$, expressed in C}
+    \nomenclature[A, 10]{$\accsixproper[C]_{A,B} \in \realn^3$}{Proper acceleration of frame $B$ relative to $A$, expressed in C}
+    \nomenclature[A, 10]{$\forcelin[A] \in \realn^3$}{Linear force expressed in frame $A$}
+    \nomenclature[A, 11]{$\forceang[A] \in \realn^3$}{Angular force (torque) expressed in frame $A$}
+    \nomenclature[A, 11]{$\forcesix[A] \in \realn^6$}{6D force expressed in frame $A$}
+    \nomenclature[A, 11]{$\transfor[A]^B \in \realn^{6\times 6}$}{Force transformation from frame $B$ to frame $A$}
+    \nomenclature[A, 11]{$\velsix[C]_{A,B} \crossforsix \in \realn^{6\times6}$}{Cross product operator on $\realn^6$ for 6D forces}
+    \nomenclature[A, 11]{$I \in \realn^{3\times3}$}{Inertia tensor}
+    \nomenclature[A, 12]{$\masssix[B] \in \realn^{6\times6}$}{6D inertia matrix, expressed in frame $B$}
+    \nomenclature[A, 12]{$g \in \realn^+$}{Standard gravity}
+    \nomenclature[A, 13]{$\gravity[W] \in \realn^3$}{Gravitational acceleration vector}
+    \nomenclature[A, 13]{$\subspacee[X]_{P,C} \in \realn^6$}{Joint motion subspace between frame $P$ and $C$, expressed in $X$}
+    \nomenclature[A, 13]{$n \in \mathbb{N}$}{Number of degrees of freedom of a multibody system}
+    \nomenclature[A, 14]{$\Qu \in \SE(3) \times \realn^n$}{Floating-base position}
+    \nomenclature[A, 15]{$\Nu[X] \in \realn^{6+n}$}{Floating-base velocity having base velocity $\velsix[X]_{W,B}$}
+    \nomenclature[A, 16]{$\Shape \in \realn^n$}{Joint positions}
+    \nomenclature[A, 16]{$\Shaped \in \realn^n$}{Joint velocities}
+    \nomenclature[A, 16]{$\Shapedd \in \realn^n$}{Joint accelerations}
+    \nomenclature[A, 16]{$\jac[Y]_{B,E} \in \realn^{6\times n}$}{Relative Jacobian of frame $E$ \wrt $B$, expressed in $Y$}
+    \nomenclature[A, 17]{$\jac[Y]_{W,E} \in \realn^{6\times (6+n)}$}{Free-floating Jacobian of frame $E$, expressed in $Y$}
+    \nomenclature[A, 18]{$\jac[Y]_{W,E/X} \in \realn^{6\times (6+n)}$}{Free-floating Jacobian of frame $E$, expressed in $Y$, for base velocity expressed in $X$}
+    \nomenclature[A, 19]{$M(\Qu) \in \realn^{(6+n)\times (6+n)}$}{Mass matrix}
+    \nomenclature[A, 20]{$C(\Qu, \Nu) \in \realn^{(6+n)\times(6+n)}$}{Coriolis matrix}
+    \nomenclature[A, 20]{$g(\Qu) \in \realn^{6+n}$}{Potential force vector (or gravity vector)}
+    \nomenclature[A, 20]{$h(\Qu, \Nu) \in \realn^{6+n}$}{Bias forces vector}
+    \nomenclature[A, 21]{$\Torques \in \realn^n$}{Joint generalized forces}
+    \nomenclature[A, 22]{$\mathcal{L}$}{Set of link indices}
+    \nomenclature[A, 23]{$n_L$}{Number of links}
+    \nomenclature[A, 24]{$\forcesix_\mathcal{L}^\text{ext} \in \realn^{6 \times n_L}$}{Vector stacking external forces applied to all links}
+    \nomenclature[A, 24]{$\jac_\mathcal{L} \in \realn^{6 n_L \times (6+n)}$}{Matrix stacking floating-base Jacobians of all links}
+    \nomenclature[A, 25]{$q \in \mathbb{H}$}{A quaternion}
+    \nomenclature[A, 26]{$\bar{q} \in \operatorname{Spin}(3)$}{A unit quaternion}
+    \nomenclature[A, 27]{$\quat = (w, \mathbf{r}) \in \realn^4$}{Quaternion coefficients}
+    \nomenclature[A, 28]{$\mathcal{H}$}{Function providing terrain height}
+    \nomenclature[A, 29]{$\mathcal{S}$}{Function providing terrain normal}
+    \nomenclature[A, 30]{$(\cdot)^\parallel, \, (\cdot)_\parallel$}{Component parallel to the terrain}
+    \nomenclature[A, 30]{$(\cdot)^\perp, \, (\cdot)_\perp$}{Component normal to the terrain}
+        
+    \nomenclature[L, 01]{$\mathcal{S}$}{The state space}
+    \nomenclature[L, 02]{$\mathcal{A}$}{The action space}
+    \nomenclature[L, 03]{$s_t \in \mathcal{S}$}{State of the environment at time $t$}
+    \nomenclature[L, 04]{$a_t \in \mathcal{A}$}{Action applied to the environment at time $t$}
+    \nomenclature[L, 05]{$\mathcal{P} \,:\, \mathcal{S} \times \mathcal{A} \to \operatorname{Pr}[\mathcal{S}]$}{State-transition probability density function}
+    \nomenclature[L, 06]{$\mathcal{R} \,:\, \mathcal{S} \times \mathcal{A} \times \mathcal{S} \to \realn$}{Reward function}
+    \nomenclature[L, 07]{$r_t \in \realn$}{Immediate reward at time $t$}
+    \nomenclature[L, 08]{$a = \mu(s)$}{Action taken from deterministic policy in state $s$}
+    \nomenclature[L, 09]{$a \sim \pi(\cdot \given s)$}{Action sampled from stochastic policy in state $s$}
+    \nomenclature[L, 10]{$\pi_{\boldsymbol{\theta}}$}{Stochastic policy parameterized with $\boldsymbol{\theta}$}
+    \nomenclature[L, 11]{$\tau = (s_0, a_0, s_1, a_1, \dots, s_T)$}{Trajectory of states and actions}
+    \nomenclature[L, 12]{$s_0 \sim \rho_0(\cdot)$}{Sampling state from initial state distribution}
+    \nomenclature[L, 13]{$R_t$}{Return at time $t$}
+    \nomenclature[L, 13]{$\hat{R}_t$}{Reward-to-go at time $t$}
+    \nomenclature[L, 14]{$R(\tau)$}{Discounted return of trajectory $\tau$}
+    \nomenclature[L, 15]{$J(\pi)$}{Performance function of stochastic policy $\pi$}
+    \nomenclature[L, 16]{$\pi^*$}{Optimal policy}
+    \nomenclature[L, 17]{$\langle \mathcal{S}, \mathcal{A}, \mathcal{R}, \mathcal{P}, \mathcal{\rho}_0 \rangle$}{Tuple defining a Markov Decision Process}
+    \nomenclature[L, 18]{$V^\pi(s)$}{State-value function for policy $\pi$ at state $s$}
+    \nomenclature[L, 18]{$Q^\pi(s, a)$}{Action-value function for policy $\pi$ at state-action pair $(s, a)$}
+    \nomenclature[L, 19]{$A^\pi(s, a)$}{Advantage function for policy $pi$ at state-action pair $(s, a)$}
+    \nomenclature[L, 20]{$\mathbb{E}[\cdot]$}{Expected value of a random variable}
+    \nomenclature[L, 21]{$\hat{\mathbb{E}}[\cdot]$}{Empirical average estimating the expected value of a random variable from samples}
+
+    \renewcommand{\nomname}{List of Symbols}
+    \printnomenclature
+
 \endgroup

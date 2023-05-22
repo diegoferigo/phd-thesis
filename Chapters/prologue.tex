@@ -2,7 +2,6 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\tocEntry{Prologue}}
 
-\acresetall
 \chapter*{Prologue}
 \chaptermark{Prologue}
 
@@ -53,7 +52,7 @@ However, the past decades have shown that advances in computing hardware and sof
 
 In the 2010s, the \ac{RL} community has been particularly prolific, producing a considerable number of new algorithms.
 Despite their improved properties like increased sample efficiency, faster and more stable convergence, \etc they always rely on a given amount of trial-and-error experience, with no exception.
-If, on the one hand, better algorithms are lower-bounded by the least amount of data describing the decision-making logic to learn, on the other, the amount of synthetic data that simulators can generate has no theoretical upper bound.
+If, on the one hand, better algorithms are lower-bounded by the least amount of data describing the decision-making logic to learn, on the other hand, the amount of synthetic data that simulators can generate has no theoretical upper bound.
 The rapid adoption of \ac{RL} in the robotics domain forced practitioners to use the simulation technology from either robotics or gaming available at that time, which was never optimised for maximising execution speed.
 In fact, a single simulation instance executing in real-time has always been more than enough for the original purpose.
 It is not uncommon to find \ac{RL} experiments that require days, weeks, or even months worth of data, giving those with access to large computational resources a significant advantage.
@@ -199,7 +198,7 @@ The results of the research conducted for this thesis produced the following sof
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition}.
+\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from the setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition}.
 
 \vspace{3mm}
 \noindent

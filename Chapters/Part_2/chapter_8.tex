@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Scaling rigid-body simulations}
 \label{ch:scaling_rigid_body_simulations}
 
@@ -602,8 +601,8 @@ The algorithm takes the following inputs:
     \item ${}^W \mathbf{u} \in \realn^3$: the tangential deformation of the terrain associated to the contact point;
     \item $K, D \in \realn^+$: the parameters of the spring-damper model used for both the normal and tangential force calculation;
     \item $\mu \in \realn^+$: the static friction coefficient of the contact point;
-    \item $\mathcal{H}: \realn^2 \mapsto \realn$: a function returning the terrain height $z_T$ at given $(x, y)$ coordinates;
-    \item $\mathcal{S}: \realn^2 \mapsto \realn^3$: a function returning the normal of the surface $\hat{\mathbf{n}}$ at given $(x, y)$ coordinates\footnote{Under the assumption of smooth terrain, an approximation of $\mathcal{S}$ could be calculated from $\mathcal{H}$, \ie $\mathcal{S}(x, y) = f\left(\mathcal{H}(x, y)\right)$};
+    \item $\mathcal{H}: \realn^2 \to \realn$: a function returning the terrain height $z_T$ at given $(x, y)$ coordinates;
+    \item $\mathcal{S}: \realn^2 \to \realn^3$: a function returning the normal of the surface $\hat{\mathbf{n}}$ at given $(x, y)$ coordinates\footnote{Under the assumption of smooth terrain, an approximation of $\mathcal{S}$ could be calculated from $\mathcal{H}$, \ie $\mathcal{S}(x, y) = f\left(\mathcal{H}(x, y)\right)$};
 \end{itemize}
 %
 and provides the following outputs:

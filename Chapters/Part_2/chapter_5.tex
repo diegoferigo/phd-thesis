@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Reinforcement Learning Environments for Robotics}
 \label{ch:rl_env_for_robotics}
 
@@ -34,9 +33,8 @@ Reproducibility, in this case, can be enforced only with careful handling and pr
 \item[Modularity]
 %
 \acl{RL} is one of the most generic learning frameworks.
-Its definition, a learning agent that interacts with an environment, facilitates the separation of the components in a \ac{RL} framework.
-In a sense, most of the learning-from-interaction processes can be represented by such scheme.
-In the field of robotics, however, we might benefit from a more fine-grained abstraction of the environment.
+Its structure is composed of a learning agent interacting with an environment, as illustrated in Figure~\ref{fig:rl_setting}.
+While most of the related software architectures already map their component based on this high-level structure, specific implementations for robotics might benefit from a more fine-grained abstraction, particularly regarding the environment.
 For instance, we might want to achieve the same learning goal on robots with different mechanical structures.
 In order to promote code reuse and minimise system integration effort, a modular design that abstracts the robot and the logic of the learned task is a valuable addition.
 %
@@ -300,7 +298,8 @@ Future releases of the simulator will include official Python bindings.}.
     \resizebox{0.75\textwidth}{!}{
     \includegraphics{images/contributions/chapter_5/scenario_and_gym_ignition.tikz}
     }
-    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acp{API} to interact with the robots part of the environment.}
+    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acp{API} to interact with the robots part of the environment.\\
+    A typical data flow starts with the agent setting the action with \texttt{gym.Env.step}. The processing of the action is a combination of logic inside the active runtime and the active task. In particular, the runtime receives the action and directly forwards it to the task for being processed. The task, by operating transparently over the \scenario \acp{API}, applies the action to the robot, and then waits the runtime to perform the time stepping. After this phase, the task computes the reward, packs the observation, detects if the environment reached the terminal state, and returns all this data back to the agent passing through the \texttt{gym.Env} \acp{API}.}
     \label{fig:scenario_and_gym_ignition}
 \end{figure}
 

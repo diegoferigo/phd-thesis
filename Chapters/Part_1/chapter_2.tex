@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Robot Modelling}
 \label{ch:robot_modelling}
 
@@ -253,11 +252,11 @@ The terms forming the left-trivialized velocity $\velsix[B]_{A,B}$ of frame $B$ 
     \end{bmatrix}
     \begin{bmatrix}
         \rotd[A]_B & \orid[A]_B \\ \zeros_{1\times 3} & 0
-    \end{bmatrix} =\\
+    \end{bmatrix} \\
     &= \begin{bmatrix}
         \rot[A]_B^\top \rotd[A]_B & \rot[A]_B^\top \orid[A]_B \\
         \zeros_{1\times 3} & 0
-    \end{bmatrix} =\\
+    \end{bmatrix} \\
     &=
     \begin{bmatrix}
         \velang[B]_{A,B}^\wedge& \vellin[B]_{A,B} \\
@@ -308,12 +307,11 @@ The terms forming the right-trivialized velocity $\velsix[A]_{A,B}$ of frame $B$
     \begin{bmatrix}
         \rot[A]_B^\top & -\rot[A]_B^\top \ori[A]_B \\
         \zeros_{1\times3} & 1
-    \end{bmatrix}
-    =\\
+    \end{bmatrix} \\
     &= \begin{bmatrix}
         \rotd[A]_B \rot[A]_B^\top & \orid[A]_B - \rotd[A]_B \rot[A]_B^\top \ori[A]_B \\
         \zeros_{1\times 3} & 0
-    \end{bmatrix} = \\
+    \end{bmatrix} \\
     &=
     \begin{bmatrix}
         \velang[A]_{A,B}^\wedge & \vellin[A]_{A,B} \\
@@ -583,6 +581,7 @@ Note that the relation $(\crossvelsix[{\velsix[B]_{A,B}}])^{-\top} = \crossforsi
 The combination of the overline with the star marks mnemonically the $(\cdot)^{-\top}$ operator.
 
 \section{Rigid-body Kinematics}
+\label{sec:rigid_body_kinematics}
 
 This section provides a mathematical description of the kinematics of a \emph{rigid body}.
 We first provide the definition of a rigid body, and then define its position and velocity.
@@ -699,13 +698,13 @@ The \emph{6D inertia matrix} of the body that unifies all the previous inertial 
 \label{sec:eom_rigid_body}
 
 We have seen that the kinematics of a rigid body can be described with the position and velocity of its corresponding frame: $\homo[W]_B$ and $\homod[W]_B$, respectively.
-The dynamics of the rigid body can be derived from the basic principles of Lagrangian mechanics.
+The dynamics of the rigid body can be derived from the formulation of Lagrangian mechanics founded on the principle of least action~~\parencite{bullo_geometric_2004, selig_geometric_2005, marsden_jerrold_e_introduction_2013, maruskin_dynamical_2018}.
 
 \begin{definition*}[Lagrangian mechanics]
 %
-Lagrangian mechanics defines a \emph{mechanical system} with a pair $(\mathbb{Q}, L)$ of a \emph{configuration space} $\mathbb{Q}$ and a smooth function $L(\Qu, \Qud) = K - U$ called \emph{Lagrangian}.
-The Lagrangian takes as input the system configuration and the system velocity $(\Qu, \Qud) \in \mathbb{Q} \times \mathbb{V}$,
-where $\mathbb{V}$ is the \emph{algebra} of $\mathbb{Q}$, and computes the difference between the kinetic energy $K$ and potential energy $U$ of the system.
+Lagrangian mechanics defines a \emph{mechanical system} with a pair $(\mathcal{Q}, L)$ of a \emph{configuration space} $\mathcal{Q}$ and a smooth function $L(\Qu, \Qud) = K - U$ called \emph{Lagrangian}.
+The Lagrangian takes as input the system configuration and the system velocity $(\Qu, \Qud) \in \mathcal{Q} \times \mathcal{V}$,
+where $\mathcal{V}$ is the \emph{tangent space} of $\mathcal{Q}$, and computes the difference between the \emph{kinetic energy} $K$ and \emph{potential energy} $U$ of the system.
 %
 \end{definition*}
 
@@ -724,28 +723,30 @@ The variational principle, when applied to the action of a mechanical system, yi
 \label{definition:euler_lagrange}
 %
 The trajectory $\Qu(t)$ is the stationary point of the action functional $\mathcal{S}$ if and only if it satisfies the Euler-Lagrange equation:
-\begin{equation*}
+\begin{equation}
+    \label{eq:euler_lagrange}
     \dv{t} \pdv{L}{\Qud} - \pdv{L}{\Qu} = 0
     .
-\end{equation*}
+\end{equation}
 %
-This equation holds in Euclidean space, when $\mathbb{Q} = \mathbb{V} = \realn^n$.
+This equation holds in Euclidean space, when $\mathcal{Q} = \mathcal{V} = \realn^n$.
 %
 \end{definition*}
 
-Depending on the system to be described, there may be many possible choices of the \emph{generalised position} $\Qu \in \mathbb{Q}$ and its derivative $\Qud \in \mathbb{V}$, that we will refer as \emph{generalised velocity}.
+Depending on the system to be described, there may be many possible choices of the \emph{generalised position} $\Qu \in \mathcal{Q}$ and its derivative $\Qud \in \mathcal{V}$, that we will refer as \emph{generalised velocity}.
 In the case of a rigid body, we can describe the system configuration with the kinematic quantities of its corresponding frame, \ie using $\Qu = \homo[W]_B \in \SE(3)$ and $\Qud = \homod[W]_B$.
 With this choice of variables, the Lagrangian of the system is the following:
 %
 \begin{equation*}
-    L(\homo[W]_B, \homod[W]_B) = K(\homo[W]_B, \homod[W]_B) - U(\homo[W]_B).
+    L \left( \homo[W]_B, \homod[W]_B \right) = K \left( \homo[W]_B, \homod[W]_B \right) - U \left( \homo[W]_B \right).
 \end{equation*}
 
 \begin{remark*}[Extension to non-Euclidean spaces]
 %
 It can be noted that the choice of $(\Qu, \Qud) = (\homo[W]_B, \homod[W]_B)$ implies that the configuration space is no longer Euclidean.
-In these circumstances, the Euler-Lagrange equation does not hold.
-It can be shown that, introducing Lie theory, the Lagrangian formulation can be generalised to any smooth manifold, and the \acp{EoM} of the system can be obtained by applying the Euler-Poincaré equation~\parencite{marsden_jerrold_e_introduction_2010, maruskin_dynamical_2018}.
+In these circumstances, the Euler-Lagrange equation~\eqref{eq:euler_lagrange} does not hold.
+It can be shown that, introducing Lie theory, the Lagrangian formulation can be generalised to any smooth manifold, and the \acp{EoM} of the system can be obtained by applying the Euler-Poincaré equation~\parencite{marsden_jerrold_e_introduction_2013, maruskin_dynamical_2018}.
+To this end, $\mathcal{Q}$ must belong to a group and $\mathcal{V}$ related to its Lie algebra (respectively, the $\SE(3)$ matrix Lie group and the $\se(3)$ group in our case).
 In this background chapter, in order to help focus only on the most important theoretical results required to understand the topic discussed in this thesis, we will omit the mathematical details of differential geometry.
 The interested readers are recommended to refer to specific textbooks~\parencite{warner_foundations_1983, selig_geometric_2005} for a rigorous derivation of the theory of Lie groups and differential manifolds.
 %
@@ -757,16 +758,16 @@ With this notation, the \emph{left-trivialized Lagrangian} is defined as:
 %
 \begin{equation}
     \label{eq:left_trivialized_lagrangian}
-    l(\homo, \velsix) = L(\homo, \homo \velsix^\wedge) = k(\velsix) - U(\homo)
+    \ell(\homo, \velsix) = L(\homo, \homo \velsix^\wedge) = \kappa(\velsix) - U(\homo)
     ,
 \end{equation}
 %
-where we used the relation $\homod = \homo \velsix^\wedge$ of Equation~\eqref{eq:sixd_velocity_body_fixed}, and introduced the \emph{trivialized kinetic energy} $k(\cdot)$ that can be shown to only depend on $\velsix$.
+where we used the relation $\homod = \homo \velsix^\wedge$ of Equation~\eqref{eq:sixd_velocity_body_fixed}, and introduced the \emph{trivialized kinetic energy} $\kappa(\cdot)$ that can be shown to only depend on $\velsix$~\parencite[Remark~2.5]{traversaro_modelling_2017}.
 The trivialized kinetic energy and the potential energy can be computed as:
 %
 \begin{align}
     \label{eq:kinetic_and_potential_energies}
-    k(\velsix) &= \frac{1}{2} \velsix^\top \masssix \velsix , \\
+    \kappa(\velsix) &= \frac{1}{2} \velsix^\top \masssix \velsix , \\
     U(\homo) &=
     \begin{bmatrix}\gravity^\top & \zeros_{1\times3}\end{bmatrix}
     m \homo
@@ -776,7 +777,7 @@ The trivialized kinetic energy and the potential energy can be computed as:
 %
 where $\gravity = \gravity[W] \in \realn^3$ is the gravitational acceleration vector, and $\mathbf{c}$ the displacement between of the \ac{CoM} of the body and its frame, as defined in Equation~\eqref{eq:com_definition}.
 
-We now note that the sets of the system's positions and velocities are connected by a relationship between $\homo[W]_B \in \SE(3)$ and $\velsix^\wedge \in \se(3)$.
+We now note that the sets of the system's positions and velocities are connected by a relationship between $\homo[W]_B \in \SE(3)$ and $\velsix^\wedge_{W,B} \in \se(3)$.
 This relation enables the application of the Euler-Poincaré equation to obtain the system's dynamics.
 As shown by \textcite[Section~2.6.2]{traversaro_modelling_2017}, the resulting \acp{EoM} of the rigid body are the following:
 %
@@ -858,7 +859,7 @@ They impose motion constraints on 5 dimensions of the local space, therefore the
 We model a joint as a time-varying transformation between the frames $P$ and $C$ of its \emph{parent} and \emph{child} links:
 %
 \begin{equation*}
-    \homo[P]_C(\shape) : \realn \mapsto \SE(3)
+    \homo[P]_C(\shape) : \realn \to \SE(3)
     .
 \end{equation*}
 %
@@ -1123,12 +1124,13 @@ Furthermore, interesting properties of the mathematical model that can be comput
 
 In reduced coordinates, we can formalise the generalised position and the generalised velocity of the floating-base multibody system as follows:
 %
-\begin{equation*}
+\begin{equation}
+\label{eq:floating_base_position}
     \begin{cases}
-        \Qu = \left(\homo[W]_B, \Shape\right) \in \mathbb{Q} = \SE(3) \times \realn^n \\
-        \Qud = \left(\homod[W]_B, \Shaped\right) \in \mathbb{V}
+        \Qu = \left(\homo[W]_B, \Shape\right) \in \mathcal{Q} = \SE(3) \times \realn^n \\
+        \Qud = \left(\homod[W]_B, \Shaped\right) \in \mathcal{V}
     \end{cases}
-\end{equation*}
+\end{equation}
 %
 where we introduced the \emph{joint positions} $\Shape \in \realn^n$, also called \emph{shape}.
 Under the assumption of having only 1-\ac{DoF} joints, $n$ is the overall number of internal \aclp{DoF} of the system, matching the number of joints $n_J$.
@@ -1137,14 +1139,15 @@ A more general formulation can be found in \parencite{featherstone_rigid_2008}.
 
 Similarly to what we observed for a single rigid body, it can be more convenient to represent the system's velocity as a column vector:
 %
-\begin{equation*}
+\begin{equation}
+\label{eq:floating_base_velocity}
     \Nu[X] =
     \begin{bmatrix}
         \velsix[X]_{W,B} \\ \Shaped
     \end{bmatrix}
     \in \realn^{6+n}
     ,
-\end{equation*}
+\end{equation}
 %
 where $\velsix[X]_{W,B}$ is the velocity of the base link, $\Shaped \in \realn^n$ are the \emph{joint velocities}, and the generic frame $X$ is a placeholder to select one among the \emph{body-fixed} $X=B$, \emph{inertial-fixed} $X=W$, or \emph{mixed} $X=B[W]$ representations.
 
@@ -1156,7 +1159,7 @@ The link $E$ can be thought of as the \emph{end-effector} frame, even if it appl
 \subsubsection{Link pose}
 
 The pose of a link $E$ \wrtl the world frame uniquely depends on the generalised position $\Qu$.
-We can denote the pose as a function $\homo[W]_E(\Qu): \mathbb{Q} \mapsto \SE(3)$, defined as follows:
+We can denote the pose as a function $\homo[W]_E(\Qu): \mathcal{Q} \mapsto \SE(3)$, defined as follows:
 %
 \begin{equation}
     \label{eq:multibody_kinematics_pose}
@@ -1276,8 +1279,8 @@ Also in this case, we utilise the left-trivialized Lagrangian taking as input th
 In the simplified setting of maximal coordinates, the Lagrangian of the overall system can be obtained as the combination of the left-trivialized Lagrangian of all its links:
 %
 \begin{align*}
-    l(\Qu, \Nu) &= k(\Qu, \Nu) - U(\Qu), \\
-    k(\Qu, \Nu) &= \frac{1}{2} \sum_{L \in \mathcal{L}} \velsix[L]_{W,L}^\top \masssix_L \velsix[L]_{W,L}, \\
+    \ell(\Qu, \Nu) &= k(\Qu, \Nu) - U(\Qu), \\
+    \kappa(\Qu, \Nu) &= \frac{1}{2} \sum_{L \in \mathcal{L}} \velsix[L]_{W,L}^\top \masssix_L \velsix[L]_{W,L}, \\
     U(\Qu) &= - \sum_{L \in \mathcal{L}} \begin{bmatrix}\gravity[W]^\top & \zeros_{1\times3}\end{bmatrix}
     m_L \, \homo[W]_L
     \begin{bmatrix} {}^L\mathbf{c} \\ 1 \end{bmatrix}
@@ -1287,7 +1290,7 @@ In the simplified setting of maximal coordinates, the Lagrangian of the overall 
 In reduced coordinates, we can obtain an alternative and more compact expression of the energies:
 %
 \begin{align*}
-    k(\Qu, \Nu) &= \frac{1}{2} \Nu^\top M(\Qu) \Nu, \\
+    \kappa(\Qu, \Nu) &= \frac{1}{2} \Nu^\top M(\Qu) \Nu, \\
     U(\Qu) &= -\begin{bmatrix}\gravity^\top & \zeros_{1\times3}\end{bmatrix}
     m \, \homo[W]_B
     \begin{bmatrix}{}^B\mathbf{c}(\Shape) \\ 1 \end{bmatrix}
@@ -1318,14 +1321,14 @@ and ${}^B\mathbf{c}(\Shape) \in \realn^3$ is its \ac{CoM} expressed in the coord
 %
 We introduced $\jac_L(\Qu) = \jac[L]_{W,L/B}$ as the floating-base left-trivialized Jacobian of link $L$ for left-trivialized generalised velocities $\Nu[B]$, as defined in Equation~\eqref{eq:jacobian_left_trivialized}.
 
-The \aclp{EoM} of the multibody system, considering that its configuration $\Qu$ is an element of $\SE(3)\times\realn^n$, can be obtained by applying the Hamel equations~\parencite{marsden_jerrold_e_introduction_2010, maruskin_dynamical_2018}, that can be seen as the combination of the Euler-Poincarè equation for the base variables in $\SE(3)$ and the classical Euler-Lagrange equation for the joint variables in $\realn^n$.
+The \aclp{EoM} of the multibody system, considering that its configuration $\Qu$ is an element of $\SE(3)\times\realn^n$, can be obtained by applying the Hamel equations~\parencite{marsden_jerrold_e_introduction_2013, maruskin_dynamical_2018}, that can be seen as the combination of the Euler-Poincarè equation for the base variables in $\SE(3)$ and the classical Euler-Lagrange equation for the joint variables in $\realn^n$.
 The left-trivialized Lagrangian plugged into the Hamel equations gives the \acp{EoM} of the multibody system~\parencite[Appendix~A.4]{traversaro_modelling_2017}:
 %
 \begin{equation}
     \label{eq:equation_of_motion_multibody}
     \begin{cases}
         \Qud = \left( \homod[W]_B, \Shaped \right)  \\
-        M(\Qu) \Nud + C(\Qu, \Nu) \Nu + g(\Qu) = B \Torques + \sum_{\mathcal{L}} J_{L}^\top(\Qu) \forcesix_L^{ext}
+        M(\Qu) \Nud + C(\Qu, \Nu) \Nu + g(\Qu) = B \Torques + \sum_{L \in \mathcal{L}} J_{L}^\top(\Qu) \forcesix_L^{ext}
     \end{cases}
 \end{equation}
 %
@@ -1336,6 +1339,16 @@ where we used the mass matrix $M(\Qu)$ defined in Equation~\eqref{eq:mass_matrix
     g(\Qu) &= -M(\Qu) \begin{bmatrix}\rot[W]_B^\top \gravity[W] \\ \zeros_{3\times1} \\ \zeros_{n\times1}\end{bmatrix}
     .
 \end{align*}
+%
+When the decomposition of gravity and Coriolis effects is not important, we will use the compact form of the \ac{EoM}:
+%
+\begin{equation}
+    \label{eq:equation_of_motion_multibody_compact}
+    M(\Qu) \Nud + h(\Qu, \Nu) = B \Torques + \sum_{L \in \mathcal{L}} J_{L}^\top(\Qu) \forcesix_L^{ext}
+    ,
+\end{equation}
+%
+where we introduced the vector of \emph{bias forces} $h(\Qu, \Nu) \in \realn^{6+n}$.
 
 \begin{remark*}
 %

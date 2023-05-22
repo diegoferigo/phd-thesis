@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Simulators and Enabling Technologies}
 \label{ch:introduction}
 
@@ -24,7 +23,7 @@ Below we list and describe the main components that form a simulator.
 
 \paragraph{Description Parser}
 
-Accordingly to the robot modelling provided in the previous chapter, a robot can be described as a set of \emph{links} (or bodies) interconnected by a set of \emph{joints}, that apply motion constraints and can provide actuation.
+A robot can be described as a set of \emph{links} (or bodies) interconnected by a set of \emph{joints}, which apply motion constraints and can provide actuation.
 Simulating a robot requires knowledge of its \emph{kinematics}, encoding the topology and geometry of the links and joints, and its \emph{dynamics}, encoding their physical properties.
 This information is usually provided in textual form by a structured \emph{robot description}.
 Examples of common descriptions are the \ac{URDF}, \ac{SDF}, \ac{MJCF}, \ac{USD}.
@@ -39,7 +38,7 @@ It uses the information parsed from the robot description to predict how the dyn
 Depending on how the joint constraints are simulated, we can categorise physics engines in \emph{maximal coordinates} and \emph{reduced coordinates}.
 Using maximal coordinates, each simulated body is treated separately in the Cartesian space, and the overall robot's dynamics is computed by solving an optimisation problem that applies explicit constraints to enforce on the kinematics the effects of the joints.
 Instead, using reduced coordinates, the system dynamics considers the mechanical structure as a whole and it implicitly enforces motion constraints induced by the joints.
-The physics engine usually also includes routines of \emph{collision detection} that, exploiting geometrical properties of the link's collisions shapes, allow to assess if bodies are in contact, and \emph{contact models}, that compute interaction forces between colliding bodies.
+The physics engine usually also includes routines of \emph{collision detection} that, exploiting geometrical properties of the link's collisions shapes, allow to assess if bodies are in contact, and \emph{contact models}, which compute interaction forces between colliding bodies.
 A general-purpose simulator either implements or interfaces with at least one physics engine, and it is not uncommon to find simulators exposing multiple physics engines.
 
 \paragraph{Public APIs}
@@ -123,12 +122,12 @@ In the Artificial Mechanical Intelligence\footnote{\url{https://ami.iit.it/}} la
 Over the years, we developed the model description of our robots\footnote{\url{https://github.com/robotology/icub-models}} and built an entire infrastructure\footnote{\url{https://github.com/robotology/gazebo-yarp-plugins}} for this simulator.
 However, while previous attempts\footnote{\url{http://wiki.ros.org/openai_ros}}~\parencite{zamora_extending_2017,lopez_gym-gazebo2_2019} tried to integrate Gazebo into a \ac{RL} training pipeline, the performance that could be obtained together with the need to execute it in a separated process, always prevented its wide adoption by the robot learning community.
 
-After more than 15 years of development, Open Robotics started the development of a new simulator, representing the next generation of Gazebo, that from now we will call \emph{Gazebo Classic} for the sake of clarity.
+After more than 15 years of development, Open Robotics started the development of a new simulator, representing the next generation of Gazebo, that from now on we will call \emph{Gazebo Classic} for the sake of clarity.
 The new simulator, initially known as Ignition Gazebo and later rebranded as \emph{Gazebo Sim}, is a modular suite of libraries partially extracted from the monolithic architecture of its predecessor.
 Gazebo Sim, contrarily to its predecessor, offers programmatic \acp{API} to instantiate and step the simulator, enabling users to obtain a finer control of the simulation cycle.
 
 One of the simulation architectures presented in this thesis is based on Gazebo Sim.
-A more detailed overview of the features that motivated the adoption of the simulator and why they represent a valid choice for the contributed architecture will be discussed in more detail in Section~\ref{sec:scenario_gazebo}.
+A more detailed overview of the features that motivated the adoption of the simulator and why they represent a valid choice for the contributed architecture is discussed in more detail in Section~\ref{sec:scenario_gazebo}.
 
 \subsection{The iCub humanoid robot}
 
