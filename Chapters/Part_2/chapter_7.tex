@@ -261,6 +261,7 @@ The external forces could either be known 6D forces supplied by the user, or unk
 In the next section, we describe a methodology to compute the unknown forces exchanged with the environment by assuming that the floating-base model only interacts with the terrain $\forcesix_\mathcal{L}^{contact} := \forcesix_\mathcal{L}^{terrain}$, assumption compatible with our locomotion setting.
 In a more general setting, $\forcesix_\mathcal{L}^{contact}$ should also include the forces exchanged between bodies, for example to simulate either self-collisions or interaction with other bodies part of the scene, particularly useful for robot manipulation.
 
+\newpage
 \section{Contact model}
 \label{section:contact_model}
 
@@ -282,6 +283,7 @@ Also, in our setting, a continuous contact model has the advantage of providing 
 In the following sections, we first provide a description of the point-surface setting, introducing all the necessary elements for the contact model.
 Then, we provide a more detailed analysis of continuous methods for \emph{collisions handling}, specifying how they can model both the \emph{normal} and the \emph{tangential} forces.
 Finally, we describe how their effects can be included in our dynamical system defined in Equation~\eqref{equation:floatig_base_dynamics_state_space}.
+The algorithm implementing the proposed soft-contact model is reported in the next chapter in Section~\ref{sec:soft_contacts_algorithm}. 
 
 \subsection{Point-surface collisions}
 \label{section:point-surface_collisions}
@@ -290,11 +292,13 @@ Finally, we describe how their effects can be included in our dynamical system d
     \centering
     \resizebox{.63\textwidth}{!}{
     \includegraphics{images/contributions/chapter_7/soft_contact_model.tikz}}
-    \caption{Illustration of the point-surface soft-contact model for non-planar terrains. The collidable point follow a trajectory $\pos_{cp}(t)$, penetrating the ground in $\pos_{cp}^0 := \left( x^0, y^0, \mathcal{H}(x^0, y^0) \right)$. While penetrating the material, the point reaches a generic point $\pos_{cp}$, over which a local contact frame $C = (\pos_{cp}, [W])$ is positioned, with a linear velocity $\vellin_{W,C} \in \realn^3$. The figure reports also the \emph{penetration depth} $h \in \realn$, the \emph{normal deformation} $\delta \in \realn$, and the tangential deformation $\mathbf{u} \in \realn^3$, used for the calculation of the 3D reaction force $\forcelin[C]_{cp}$ with the proposed soft-contact model.}
+    \caption{Illustration of the point-surface soft-contact model for non-planar terrains. The collidable point follow a trajectory $\pos_{cp}(t)$, penetrating the ground in $\pos_{cp}^0 := \left( x^0, y^0, \mathcal{H}(x^0, y^0) \right)$. While penetrating the material, the point reaches a generic point $\pos_{cp}$, over which a local contact frame $C = (\pos_{cp}, [W])$ is positioned, with a linear velocity $\vellin[{C[W]}]_{W,C} = \posd[W]_C \in \realn^3$. The figure reports also the \emph{penetration depth} $h \in \realn$, the \emph{normal deformation} $\delta \in \realn$, and the compounded tangential deformation $\mathbf{m} \in \realn^3$ of the material, used for the calculation of the 3D reaction force $\forcelin[C]_{cp}$ with the proposed soft-contact model.}
     \label{fig:soft_contact_model}
 \end{figure}
 
 For each time-varying collidable point belonging to the simulated model, we introduce a new local frame $C = (\ori_C, [W])$, having its origin located over the point's time-varying position $\pos[W]_{cp}(t)$ and orientation of $W$, illustrated in Figure~\ref{fig:soft_contact_model}.
+Beyond the position of the collidable point, the contact model accounts also its linear velocity $\vellin_{W,C} \in \realn^3$.
+In the following formulation, we use the mixed representation of the point velocity, \ie $\vellin_{W,C} = \posd[W]_C$.
 
 In this setup, \emph{collision detection} is as easy as assessing if the $z$ coordinate of the collidable point is lower than the terrain height.
 We can assume having a \emph{heightmap} function $\mathcal{H}: (x, y) \mapsto z$ providing the terrain height at any location.
@@ -312,22 +316,25 @@ we can compute the \emph{penetration vector} as follows:
 %
 where $h_z = z_T - z_C$ is the \emph{penetration depth}, positive only for collidable points below the ground surface.
 
-In the following sections, we need to project the penetration vector $\mathbf{h}$ and the linear velocity $\vellin[W]_{W, C}$ of the collidable point into the parallel and normal directions \wrt the ground surface.
-We denote the magnitude of the normal deformation as $\delta \in \mathbb{R}$, and the normal and tangential components of the velocity as $\vellin[W]^{\perp}_{W, C}, \vellin[W]^{\parallel}_{W, C} \in \mathbb{R}^3$:
+In the following sections, we need to project the penetration vector $\mathbf{h}$ and the linear velocity $\posd[W]_C$ of the collidable point into the parallel and normal directions \wrt the ground surface.
+We denote the magnitude of the normal deformation as $\delta \in \mathbb{R}^+$, and the normal and tangential components of the velocity as $\vellin_C^\perp,\, \vellin_C^\parallel \in \mathbb{R}^3$:
 %
 \begin{align*}
     \begin{cases}
         \delta = {}^W\mathbf{h} \cdot \hat{\mathbf{n}}, \\
-        \vellin[W]^{\perp}_{W, C} = \left(\vellin[W]_{W, C} \cdot \hat{\mathbf{n}}\right) \hat{\mathbf{n}}, \\
-    \vellin[W]^{\parallel}_{W, C} = \vellin[W]_{W, C} - \vellin[W]^{\perp}_{W, C}
+        \vellin_C^\perp = \left(\posd[W]_C \cdot \hat{\mathbf{n}}\right) \hat{\mathbf{n}}, \\
+        \vellin_C^\parallel = \posd[W]_C - \vellin_C^\perp
     .
     \end{cases}
 \end{align*}
 %
-We do not yet provide a geometrical equation of the tangential deformation $\mathbf{u} \in \mathbb{R}^3$, as it would require tracking over time the position of the initial penetration point $\pos[W]^0_{cp}$, introducing an additional state component in the system not part of its state-space representation that can be difficult to handle.
-We will show in the next sections how to estimate $\mathbf{u}$.
+We do not yet provide a geometrical equation to compute the \emph{compounded tangential deformation} $\mathbf{m} \in \mathbb{R}^3$ of the terrain material, as it would require tracking over time the position of the initial penetration point $\pos[W]^0_{cp}$.
+Introducing in the system, for this purpose, an additional state component not part of its state-space representation would be difficult to handle.
+We will show in the next sections how to compute $\mathbf{m}$ such that both sticking and slipping contacts are supported.
+We also note that, assuming the knowledge of $\mathbf{m}$, the data required by the proposed contact model can be entirely computed from the floating-base configuration (generalized position $\Qu$ and velocity $\Nu$).
+Therefore, the contact force $\forcelin[C] \in \realn^3$ becomes an instantaneous function of the kinematics.
 
-Assuming that the effects of the normal and tangential deformations can be decomposed, in the next sections we first compute the normal force $\forcelin[C]_\perp = f_\perp \hat{\mathbf{n}} \in \mathbb{R}^3$, and then the tangential force $\forcelin[C]_\parallel \in \mathbb{R}^3$, both applied to the origin of frame $C$.
+Assuming that the effects of the normal and tangential deformations of the material can be decomposed, in the next sections we first compute the normal force $\forcelin[C]_\perp = f_\perp \hat{\mathbf{n}} \in \mathbb{R}^3$, and then the tangential force $\forcelin[C]_\parallel \in \mathbb{R}^3$, both applied to the origin of frame $C$.
 
 \subsection{Normal forces}
 \label{section:normal_forces}
@@ -340,14 +347,12 @@ Considering the setting illustrated in Figure~\ref{fig:soft_contact_model}, we c
 \begin{equation*}
     \begin{cases}
         \delta = {}^W \mathbf{h} \cdot \hat{\mathbf{n}}, \\
-        \dot{\delta} = {}^W \dot{\mathbf{h}} \, \cdot \hat{\mathbf{n}} = -\posd[W]_{cp} \cdot \hat{\mathbf{n}} = -\vellin[W]_{W,C}^\perp
+        \dot{\delta} = {}^W \dot{\mathbf{h}} \, \cdot \hat{\mathbf{n}} = -\posd[W]_C \cdot \hat{\mathbf{n}} = -\vellin_C^\perp
     \end{cases}
     .
 \end{equation*}
-%
-Considering the usage of inertial representation, we also have the relation $\posd[W]_{cp} = \vellin[W]_{W,C}$, that helps noticing the correspondence between $\dot{\delta}$ and the normal component of the collidable point's velocity $\vellin[W]^\perp_{W,C}$.
 
-The possible non-linear form of the relationship between the normal force $f_\perp$ and the deformation properties can be described by the following equation:
+A possible non-linear form of the relationship between the normal force $f_\perp$ and the deformation properties can be described by the following equation:
 %
 \begin{equation*}
     f_\perp = \forcelin[C]_\perp \cdot \hat{\mathbf{n}} =
@@ -357,8 +362,8 @@ The possible non-linear form of the relationship between the normal force $f_\pe
     \end{cases}
 \end{equation*}
 %
-where $k, \lambda \in \mathbb{R}$ are respectively the stiffness and damping coefficients of the material, and $a, b, c \in \mathbb{R}$ the parameters of the contact model.
-Note that this contact model does not present any discontinuity, in fact for what regards the term proportional to deformation rate we also have $\delta^b$.
+where $k, \lambda \in \mathbb{R}$ are respectively the \emph{stiffness} and \emph{damping} coefficients of the material, and $a, b, c \in \mathbb{R}$ the parameters of the contact model.
+Note that this contact model does not present any discontinuity, in fact for what regards the term proportional to deformation rate we also have $\delta^b$ that zeros this term when $\delta = 0$.
 
 This model has appeared with different coefficients proposed by various studies.
 In our implementation, we use the parameters $a = \frac{3}{2}$, $b=\frac{1}{2}$, and $c=1$, as proposed by \textcite{azad_modeling_2010}.
@@ -366,31 +371,33 @@ Despite being formulated for sphere-plane collisions, we apply the same model to
 assuming that the two collision types produce a comparable material deformation\footnote{These parameters, being quite difficult to identify, often belong to the domain randomization set in \ac{RL} settings.}.
 We can implement this model using the following logic:
 %
-\begin{equation*}
+\begin{equation}
+    \label{eq:soft_contact_normal_force}
     f_\perp = 
     \begin{cases}
         \max\left\{ 0, \sqrt\delta (k \delta + \lambda \dot\delta) \right\} & \text{if $\delta\geq0$,} \\
         0 & \text{if $\delta<0$.}
     \end{cases}
-\end{equation*}
+\end{equation}
 %
 As remarked by the same authors, this model has the advantage of not exposing any additional state variable.
-However, the implementation ignores the relaxation dynamics of the material after the contact is broken.
+However, the implementation ignores the relaxation dynamics of the material in the normal direction after the contact is broken.
 This could cause incorrect dynamics if a new contact is made immediately following the deactivation of the previous one and before the spring-damper model could reach the steady state, but in practice the effect only occurs in the few instants before the contact becomes steady, not affecting the simulated dynamics significantly.
 
 \subsection{Tangential forces}
 
 The continuous contact dynamics introduced in the previous section allows for including frictional effects described with any friction model.
-We approximate frictional effects with Coulomb's law of friction that, albeit being relatively simple, is widely adopted thanks to its versatility.
+We consider only effects due to \emph{dry friction}.
+We approximate these effects with Coulomb's law of friction that, albeit being relatively simple, is widely adopted thanks to its versatility.
 The physical interaction between two materials is assumed to be independent of the contact area, accounting consistently for our point-surface modelling.
-Coulomb friction for an object at rest is governed by the following model:
+The Coulomb friction for an object at rest is governed by the following model:
 %
 \begin{equation*}
-    \norm{\forcelin[C]_\parallel} \leq \mu f_\perp
+    \norm{\forcelin[C]_\parallel} \leq \mu_c f_\perp
     ,
 \end{equation*}
 %
-where $\forcelin_\parallel \in \mathbb{R}^3$ is the tangential force that the material deformation exerts on the point in the direction opposite to the tangential deformation, and $\mu \in \mathbb{R}$ is the \emph{static friction coefficient}.
+where $\forcelin_\parallel \in \mathbb{R}^3$ is the tangential force that the material deformation exerts on the point in the direction opposite to the compounded tangential deformation $\mathbf{m}$, and $\mu_c \in \mathbb{R}^+$ is the \emph{static friction coefficient}.
 This model depends on the unilateral force $f_\perp \geq 0$, and can be visualised as a cone considering a space having the three force components as axes.
 For this reason, it is often referred to as \emph{friction cone}.
 
@@ -399,26 +406,30 @@ The friction cone defines two distinct contacts regimes: \emph{sticking} if the 
 \begin{equation*}
     \forcelin[C]_\parallel = 
     \begin{cases}
-        \boldsymbol{f}_{stick} & \text{if $\norm{\boldsymbol{f}_{stick}} \leq \mu f_\perp$,} \\
+        \boldsymbol{f}_{stick} & \text{if $\norm{\boldsymbol{f}_{stick}} \leq \mu_c f_\perp$,} \\
         \boldsymbol{f}_{slip} & \text{otherwise.}
     \end{cases}
 \end{equation*}
 %
-The same study we considered for the model of normal forces~\parencite{azad_modeling_2010} proposes a spring-damper-clutch system for the tangential forces, where the additional clutch component controls the sticking-slipping condition.
+In practice, the two regimes are characterised respectively by the static friction coefficient $\mu_c \in \realn^+$ and the sliding friction coefficient $\mu_k \in \realn^+$, also called either kinetic or dynamic friction.
+As soon as the regime transitions from sticking to slipping, the considered coefficient of friction should be changed from the static to the dynamic.
+In the proposed model, in order to reduce the number of parameters to tune, we consider a unique coefficient $\mu = \mu_c = \mu_k$.
+The implementation can be changed trivially to use a different parameter in the slipping regime.
 
+The same study we considered for the model of normal forces~\parencite{azad_modeling_2010} proposes a spring-damper-clutch system for the tangential forces, where the additional clutch component controls the sticking-slipping condition.
 Extending their 2D formulation to our 3D point-surface setting, we can introduce the following relation between the tangential forces and the tangential material deformation:
 %
 \begin{equation}
     \label{equation:tangential_contact_model}
     \forcelin[C]_\parallel
-    = \alpha \mathbf{u} + \beta \dot{\mathbf{u}}
-    = \alpha \mathbf{u} + \beta (\vellin[W]^{\parallel}_{W,C} - \vellin[W]_{W,clutch})
+    = \alpha \mathbf{m} + \beta \dot{\mathbf{m}}
+    = \alpha \mathbf{m} + \beta (\vellin_C^\parallel - \vellin[{C[W]}]_{W,clutch})
     ,
 \end{equation}
 %
-where $\alpha, \beta \in \mathbb{R}$ are model parameters, $\mathbf{u} \in \mathbb{R}^3$ is the 3D tangential deformation of the material as illustrated in Figure~\ref{fig:soft_contact_model}, and $\vellin[W]_{W,clutch}$ is the unknown clutch velocity.
+where $\alpha, \beta \in \mathbb{R}^+$ are model parameters, $\mathbf{m} \in \mathbb{R}^3$ is the compounded 3D tangential deformation of the material as illustrated in Figure~\ref{fig:soft_contact_model}, and $\vellin[{C[W]}]_{W,clutch}$ is the unknown clutch velocity.
 
-When sticking, the clutch velocity is zero and, assuming the knowledge of $\mathbf{u}$, the tangential force can be computed with Equation~\eqref{equation:tangential_contact_model}.
+When sticking, the clutch velocity is zero and, assuming the knowledge of $\mathbf{m}$, the tangential force can be computed with Equation~\eqref{equation:tangential_contact_model}.
 Instead, when the magnitude of the sticking force exceeds the friction cone bounds, the clutch is unlocked and the collidable point starts sliding.
 In slipping state, the tangential force maintains the sticking direction, but enforces its magnitude to lay on the friction cone boundary:
 %
@@ -426,29 +437,31 @@ In slipping state, the tangential force maintains the sticking direction, but en
     \label{equation:sticking_slipping_forces}
     \forcelin[C]_\parallel =
     \begin{cases}
-        \forcelin_{stick} = \alpha \mathbf{u} + \beta \vellin[W]^{\parallel}_{W,C} &\text{if sticking,} \\
+        \forcelin_{stick} = \alpha \mathbf{m} + \beta \vellin_C^\parallel &\text{if sticking,} \\
         \forcelin_{slip} = \mu f_\perp \frac{\boldsymbol{f}_{stick}}{\norm{\boldsymbol{f}_{stick}}} &\text{if slipping.}
     \end{cases}
 \end{equation}
 %
 We use $\alpha = -k_t\sqrt{\delta}$ and $\beta = -\lambda_t \sqrt{\delta}$ as presented by \textcite{azad_modeling_2010}, where also in this case we assume that collidable points produce a material deformation comparable to the sphere-plane setting.
 
-The last missing point to discuss is how to calculate the tangential deformation $\mathbf{u}$ of the material.
+The last missing point to discuss is how to calculate the compounded tangential deformation $\mathbf{m}$ of the material.
 Combining Equations~\eqref{equation:tangential_contact_model}~and~\eqref{equation:sticking_slipping_forces}, we can obtain the dynamics of the tangential deformation:
 %
 \begin{equation}
     \label{equation:tangential_deformation_dynamics}
-    \dot{\mathbf{u}} =
+    \dot{\mathbf{m}} =
     \begin{cases}
-        \vellin[W]^{\parallel}_{W,C} &\text{if sticking,} \\
-        \beta^{-1} (\forcelin_{slip} - \alpha \mathbf{u}) &\text{if slipping,} \\
-        -\alpha \beta^{-1} \mathbf{u} &\text{if contact is broken,}
+        \vellin_C^\parallel &\text{if sticking,} \\
+        \beta^{-1} (\forcelin_{slip} - \alpha \mathbf{m}) &\text{if slipping,} \\
+        -\alpha \beta^{-1} \mathbf{m} &\text{if contact is broken,}
     \end{cases}
 \end{equation}
 %
-that can be numerically integrated to obtain $\mathbf{u}$.
+that can be numerically integrated to obtain $\mathbf{m}$.
 It is worth noting that this formulation does not need to either know or keep track of the clutch velocity.
+In fact, as soon as a sticking contact transitions to slipping, we calculate $\dot{\mathbf{m}}$ such that we obtain exactly the desired $\forcelin_{slip}$ (that is the projection of $\boldsymbol{f}_{stick}$ on the friction cone surface) given the current $(\mathbf{m}, \delta)$.
 
+\newpage
 \subsection{Augmented system dynamics}
 
 The effects of the contact model introduced in the previous sections can be included in the system's dynamics~\eqref{equation:floatig_base_dynamics_state_space} by extending its state as follows:
@@ -456,20 +469,20 @@ The effects of the contact model introduced in the previous sections can be incl
 \begin{equation*}
     \mathbf{x}(t) =
     \begin{bmatrix}
-        \mathbf{q} \\ \boldsymbol{\nu} \\ \operatorname{vec}(\mathbf{U})
+        \mathbf{q} \\ \boldsymbol{\nu} \\ \operatorname{vec}(\mathbf{M})
     \end{bmatrix}
     \in \mathbb{R}^{2n+3n_c+13}
     .
 \end{equation*}
 %
-We introduced the matrix $\mathbf{U} \in \mathbb{R}^{3 \times n_c}$ that stacks the tangential deformations corresponding to all the $n_c$ collidable points of the model.
-Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformation_dynamics} and plugged in the following contacts-aware dynamics system:
+We introduced the matrix $\mathbf{M} \in \mathbb{R}^{3 \times n_c}$ stacking the tangential deformations of all the $n_c$ collidable points.
+The model's dynamics can be obtained from Equations~\eqref{equation:tangential_deformation_dynamics} and plugged in the following contact-aware dynamic system:
 %
 \begin{equation}
 \label{equation:floatig_base_dynamics_with_contacts_state_space}
     \dot{\mathbf{x}}(t) =
     \begin{bmatrix}
-        \Qud \\ \Nud \\ \operatorname{vec}(\dot{\mathbf{U}})
+        \Qud \\ \Nud \\ \operatorname{vec}(\dot{\mathbf{M}})
     \end{bmatrix} =
     \begin{bmatrix}
         \begin{pmatrix}
@@ -478,7 +491,7 @@ Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformati
             \dot{\mathbf{s}}
         \end{pmatrix} \\
         \operatorname{FD}(\mathcal{M}, \Qu, \Nu, \Torques, \forcesix_\mathcal{L}^{ext}) \\
-        \operatorname{vec}(\dot{\mathbf{U}})
+        \operatorname{vec}(\dot{\mathbf{M}})
     \end{bmatrix} =
     f\left(\mathbf{x}(t), \mathbf{u}(t)\right)
     .
@@ -486,7 +499,7 @@ Its dynamics can be obtained from Equations~\eqref{equation:tangential_deformati
 %
 This final non-linear system, albeit being quite stiff when new contacts are made or broken, does not present any discontinuity.
 
-In the considered locomotion setting, considering the decomposition of the external forces of Equation~\eqref{eq:decomposition_external_forces} and the assumption of knowing the terrain profile\footnote{The terrain profile could also be estimated by introducing perception algorithms.}, the input vector of Equation~\eqref{eq:input_and_state_vectors} can be simplified as follows:
+The decomposition of the external forces of Equation~\eqref{eq:decomposition_external_forces} with the assumption of knowing the terrain profile (\eg estimated by introducing perception algorithms) allows to simplify the input vector of Equation~\eqref{eq:input_and_state_vectors} as follows:
 %
 \begin{equation*}
     \mathbf{u}(t) = \left( \Torques,\, \forcesix_\mathcal{L}^{user} \right)
@@ -502,6 +515,7 @@ since the forces exchanged with the terrain can be computed from the kinematics 
 %
 where $\mathcal{H}: (x, y) \mapsto z$ returns the terrain height and $\mathcal{S}: (x, y) \mapsto \hat{\mathbf{n}}$ returns the terrain normal.
 
+\newpage
 \section{Integrators}
 \label{sec:integrators}
 
@@ -566,11 +580,20 @@ weighted with $b_1 = b_4 = \frac{1}{6}$ and $b_2 = b_3 = \frac{2}{6}$.
 It can be seen that $(\mathbf{k}_1, \mathbf{k}_4)$ are the slopes evaluated at the extremes of the integration interval, and $(\mathbf{k}_2, \mathbf{k}_3)$ at the midpoint.
 In the average, a higher weight is given to the slopes at the midpoint.
 
+\newpage
 \section{Validation}
 
 In this section, we validate the properties of the system through simple simulations of a rigid body interacting with the terrain.
 A single rigid body is equivalent to the multibody system defined Equation~\eqref{equation:floatig_base_dynamics_with_contacts_state_space} having only variables related to the base and contacts.
-In all experiments, the soft-contact model is configured with $k = k_t = 10^6$, $\lambda = \lambda_t = 2000$, and $\mu=0.5$.
+In all experiments, the soft-contact model is configured with $k = k_t = 10^6$, $\lambda = \lambda_t = 2000$, and $\mu=0.5$, and the simulation is configured with a standard gravity of $g = 9.8 \, m/s^2$.
+
+We start the validation of the contact model on flat terrain by performing two experiments.
+In the first one, we calculate the mechanical energy of a bouncing ball, validating that it changes only upon impact due to the damping of the contact model.
+Given the continuous nature of the contact model, all the quantities should vary continuously.
+In the second experiment, we apply a step-wise force with increasing magnitude to the \ac{CoM} of a box resting on a flat surface.
+The box should start accelerating only when the applied force is able to overcome the opposing effects due to friction.
+We conclude this section by validating the contact model on non-flat terrain.
+We simulate a falling box over an inclined plane characterised by different coefficients of friction, and compare its trajectory with the Mujoco simulator~\parencite{todorov_mujoco_2012}.
 
 \subsection{Bouncing Ball}
 
@@ -624,7 +647,7 @@ Possible solutions to mitigate this effect consists of either tuning the terrain
     \label{fig:bouncing_ball}
 \end{figure}
 
-\subsection{Sliding Box}
+\subsection{Sliding Box on Flat Terrain}
 
 We consider a model composed of a single box-shaped link.
 The box has a mass of $1 \, Kg$ and $(x, y, z)$ dimensions equal to $(1.5, 1, 0.5) \, m$.
@@ -633,7 +656,6 @@ Its collision shape is approximated considering the 8 points corresponding to it
 The box is positioned on a flat ground surface at rest.
 We simulate this setting for $4 \, s$ using the \ac{RK4} integration scheme with a step size of $1 \, ms$.
 In this window, considering the frame of \ac{CoM} $G = (\pos[W]_{CoM}, [B])$, we apply to the \ac{CoM} of the box an external linear force $\forcelin[G]_{CoM} = (f_{CoM}, 0, 0) \in \realn^3$ with a profile reported in Figure~\ref{fig:sliding_box}.
-The simulation is configured with a standard gravity of $g = 9.8 \, m/s$.
 
 In this setting, the threshold of the friction cone separating the sticking and the slipping regimes is $\mu f_\perp = 4.9 \, N$, averaged over the four contacts points of the bottom box surface.
 Figure~\ref{fig:sliding_box} reports the plots of the $x$ components of the \ac{CoM}'s position and linear velocity.
@@ -651,6 +673,92 @@ They can be explained by the modelled dynamics of the material that can generate
     \label{fig:sliding_box}
 \end{figure}
 
+\subsection{Sliding Box on Inclined Plane}
+
+\begin{figure}
+    \centering
+    \subfloat[]{
+        \includegraphics{images/contributions/chapter_7/box_falling_inclined_mu_2.0}
+        \label{fig:box_inclined_mu_2.0}
+    }
+    \\
+    \subfloat[]{
+        \includegraphics{images/contributions/chapter_7/box_falling_inclined_mu_0.0}
+        \label{fig:box_inclined_mu_0.0}
+    }
+    \\
+    \subfloat[]{
+        \includegraphics{images/contributions/chapter_7/box_falling_inclined_mu_0.5}
+        \label{fig:box_inclined_mu_0.5}
+    }
+    \caption{Comparison of the box's \ac{CoM} trajectory simulated with the proposed soft-contact model and the Mujoco simulator, considering a coefficient of friction (a) $\mu=2$, (b) $\mu=0$, (c) $\mu=0.5$.}
+    \label{fig:box_inclined_mu}
+\end{figure}
+
+We consider a model composed of a single box-shaped link.
+The box has a mass of $1 \, Kg$ and $(x, y, z)$ dimensions equal to $(0.15, 0.1, 0.05) \, m$.
+Its collision shape is approximated considering the 8 points corresponding to its corners.
+
+\begin{table}
+    \small
+    \centering
+    \begin{tblr}{
+        colspec={Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries\footnotesize},
+    }
+        \toprule
+        Property & Value \\
+        \midrule
+        \texttt{timestep} & $0.001$ \\
+        \texttt{integrator} & \texttt{RK4} \\
+        \texttt{solver} & \texttt{Newton} \\
+        \texttt{iterations} & $50$ \\
+        \texttt{cone} & \texttt{elliptic} \\
+        \texttt{friction} & $(\mu,\, 0,\, 0)$ \\
+        \texttt{solref} & $(-1e6,\, -2000)$ \\
+        \texttt{condim} & $3$ \\
+        \bottomrule
+    \end{tblr}
+    \caption{Mujoco configuration considered in the experiments of the sliding box on inclined surface matching as close as possible the setting and properties of our soft-contact model. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
+    \label{tab:mujoco_parameters}
+\end{table}
+
+The box starts floating in the air having its \ac{CoM} positioned in $\pos[W]_G = (0, 0, 1.0) \, m$.
+Then, we let the box fall due to gravity over a plane inclined by $20\degree$ so that the box slides down in the direction of the $x$ axis.
+In this setting, we perform three experiment each characterised by a different coefficient of friction $\mu$.
+We simulate this setting for $2.5 \, s$ using the \ac{RK4} integration scheme with a step size of $1 \, ms$.
+For validation purpose, we simulate the same setting with the Mujoco simulator configured with comparable physics parameters, reported in Table~\ref{tab:mujoco_parameters}.
+In particular, Mujoco provides a similar spring-damper soft-contact model that we can consider as ground truth.
+
+In the first experiment, we consider an extremely large $\mu = 2.0$ so that we can assess how the selected stiffness $k$ and damping $\lambda$ affect the landing over the inclined plane without accounting for major sliding effects.
+From Figure~\ref{fig:box_inclined_mu_2.0}, it can be noticed that the falling trajectories due to gravity overlap perfectly until the impact.
+After the impact, the $y$ position of both boxes always remains constant, showing that in both cases the generated tangential forces do not have any $y$ component.
+In our soft-contact model this means that no material deformation occurs in this direction, as expected.
+The $x$ and $z$ components, although not matching perfectly due to the different formulation of the soft contacts --mainly due to Equation~\eqref{eq:soft_contact_normal_force}-- are sufficiently close and show the same qualitative behaviour.
+
+In the second experiment, we consider a friction-less simulation with $\mu = 0$.
+In this setting, our soft-contact model only produces normal forces proportional to the penetration depth.
+The friction cone cannot be evaluated and no tangential forces are produced, therefore the only possible regime is sliding.
+Figure~\ref{fig:box_inclined_mu_0.0} reports the trajectories of the two falling boxes, showing in this case almost a perfect match between our soft-contacts model and Mujoco.
+
+In the third experiment, we consider a realistic coefficient of friction $\mu = 0.5$.
+The combination of this coefficient of friction with the inclination of the terrain has been selected for reaching a steady sticking regime after an initial sliding regime right after the impact.
+Figure~\ref{fig:box_inclined_mu_0.5} shows the trajectories of the two boxes.
+Also in this case, after the impact, both simulations correctly do not produce tangential forces in the $y$ direction.
+The $x$ and $z$ components, similarly to the $\mu = 2.0$ case, do not match perfectly but also in this case show the same qualitative behaviour where the box transitions from the sliding to a steady sticking regime approximately at $t=1.2~s$.
+
+All three experiments show that the proposed contact model behaves similarly to the ground truth represented by the soft-contact model implemented in the Mujoco simulator.
+The qualitative behaviour always look alike, although the trajectories do not necessarily match quantitatively.
+The main reason for the numerical mismatch is twofold.
+First, the formulation used to compute the normal force differs from Equation~\eqref{eq:soft_contact_normal_force}.
+This difference propagates also to the tangential component since the sticking-slipping boundary is a function of the normal force.
+Furthermore, the methodology to compute the contact force is completely different.
+In fact, we use a continuous contact model that introduces an additional state to the \ac{ODE} describing the dynamics of the multi-body system.
+Mujoco, instead, at each time step solves a constrained quadratic optimisation problem.
+Further details on the internal details of Mujoco contacts can be found in \parencite{todorov_convex_2014, vousten_simulating_2022, yoon_comparative_2023}.
+
+\newpage
 \section{Conclusions}
 
 In this chapter, we described how to model a floating-base multibody system interacting with a non-flat surface.
@@ -659,9 +767,10 @@ We introduced a point-surface soft-contact model to compute the forces exchanged
 This assumption simplifies the collision detection process, requiring just trivial geometrical assessments.
 The main benefit of our collisions and contacts modelling is the possibility of obtaining an extended state-space representation that includes both the dynamics of the multibody system and the dynamics of the contacts.
 The contact-aware evolution of the system can be derived by any numerical integration scheme.
-We validated the dynamical system in a simplified setting in which single bodies interact with a flat terrain, showing the continuity of the soft-contact model and the switching between the sticking and slipping regimes.
+We validated the dynamical system in two simplified settings.
+In the first one, we considered single bodies interacting with a flat terrain, showing the continuity of the soft-contacts model and the switching between the sticking and slipping regimes.
+In the second one, we considered non-flat terrain, showing the trajectory of a box falling over an inclined plane characterised by different coefficients of friction.
 While sphere and box collisions might seem trivial examples, they often represent the typical collision shapes adopted to simulate robot's feet.
-The shown results remain valid also in case of a smooth uneven terrain supported by the contact-model, where a comparable behaviour occurs in a different plane.
 
 The final contact-aware dynamical system combined with the point-surface collision detection logic presents different limitations, especially when compared to implementations provided by general-purpose simulators.
 Our solution does not support detecting collisions between different bodies and does not consider joint limits and other types of constraints.

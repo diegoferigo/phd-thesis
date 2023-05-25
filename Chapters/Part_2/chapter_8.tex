@@ -587,20 +587,21 @@ Considering the state-space system introduced in Equation~\eqref{equation:floati
 \end{algorithm}
 
 \subsection{Soft-contacts Algorithm}
+\label{sec:soft_contacts_algorithm}
 
 Most of the algorithms listed in this chapter accept a matrix $\forcesix[W]^{ext}_\mathcal{L} \in \realn^{N_B^\mathcal{M}\times6}$ containing the 6D forces applied to each link of the model.
 These external forces are the sum of two components: the forces that could be applied to the links by the user, and the forces corresponding to active contacts with the terrain surface.
 
 Algorithm~\ref{algo:soft_contacts} provides the implementation of the soft-contacts model introduced in Section~\ref{section:contact_model} to compute the contact force corresponding to each collidable point of $\mathcal{M}$.
-Assuming the knowledge of the location of each collidable point \wrt the frame of their associated link, we can compute their position $\pos[W]_{cp}$ and inertial-fixed linear velocity $\vellin[W]_{W,C}$ with forward kinematics from the pair $(\Qu, \Nu)$.
+Assuming the knowledge of the location of each collidable point \wrt the frame of their associated link, we can compute their position $\pos[W]_{cp}$ and mixed linear velocity $\vellin[{C[W]}]_{W,C}$ with forward kinematics from the pair $(\Qu, \Nu)$.
 The algorithm takes the following inputs:
 %
 \begin{itemize}
     \item $\pos[W]_{cp} \in \realn^3$: the position of the contact point in world coordinates;
-    \item $\vellin[W]_{W,C} \in \realn^3$: the linear velocity expressed in world coordinates of the frame $C = (\pos_{cp}, [W])$ associated to the contact point;
-    \item ${}^W \mathbf{u} \in \realn^3$: the tangential deformation of the terrain associated to the contact point;
+    \item $\posd[W]_C \in \realn^3$: the linear velocity of the contact point, that matches the linear component of the mixed velocity $\velsix[{C[W]}]_{W,C} \in \realn^6$ of frame $C$;
+    \item ${}^W \mathbf{m} \in \realn^3$: the compounded tangential deformation of the terrain associated to the contact point;
     \item $K, D \in \realn^+$: the parameters of the spring-damper model used for both the normal and tangential force calculation;
-    \item $\mu \in \realn^+$: the static friction coefficient of the contact point;
+    \item $\mu \in \realn^+$: the coefficient of friction of the contact point;
     \item $\mathcal{H}: \realn^2 \to \realn$: a function returning the terrain height $z_T$ at given $(x, y)$ coordinates;
     \item $\mathcal{S}: \realn^2 \to \realn^3$: a function returning the normal of the surface $\hat{\mathbf{n}}$ at given $(x, y)$ coordinates\footnote{Under the assumption of smooth terrain, an approximation of $\mathcal{S}$ could be calculated from $\mathcal{H}$, \ie $\mathcal{S}(x, y) = f\left(\mathcal{H}(x, y)\right)$};
 \end{itemize}
@@ -609,7 +610,7 @@ and provides the following outputs:
 %
 \begin{itemize}
     \item $\forcesix[W]_{cp} \in \realn^6$: the 6D force computed by the soft-contacts model;
-    \item ${}^W \dot{\mathbf{u}} \in \realn^3$: the derivative of the tangential deformation of the terrain associated to the contact point.
+    \item ${}^W \dot{\mathbf{m}} \in \realn^3$: the derivative of the tangential deformation of the terrain material associated to the contact point.
 \end{itemize}
 %
 In order to optimise performance, the algorithm can be vectorised to process all the collidable points belonging to the model.
@@ -620,48 +621,55 @@ In order to optimise performance, the algorithm can be vectorised to process all
 \begin{algorithmic}[1]
 \small
 
-\State \textbf{inputs} $\left( \pos[W]_{cp}, \vellin[W]_{W,C}, {}^W \mathbf{u}, K, D, \mu, \mathcal{H}, \mathcal{S} \right)$
+\State \textbf{inputs} $\left( \pos[W]_{cp}, \posd[W]_C, {}^W \mathbf{m}, K, D, \mu, \mathcal{H}, \mathcal{S} \right)$
 
 \State $x_{cp}, y_{cp}, z_{cp} = \pos[W]_{cp}$
 \State $z_T = \mathcal{H}(x_{cp}, y_{cp})$
-\State ${}^W \dot{\mathbf{u}} = -(K / D) {}^W \mathbf{u}$
+\State ${}^W \dot{\mathbf{m}} = -(K / D) {}^W \mathbf{m}$
 \Comment{Material relaxation dynamics}
 \State $\forcesix[W]_{cp} = \zeros_6$
 
-\If{$z_{cp} < z_T$}
-    \LComment{Compute normal force}
-    \State $\mathbf{h} = \left[0, 0, z_T - z_{cp}\right]^\top$
-    \State $\hat{\mathbf{n}} = \mathcal{S}(x_{cp}, y_{cp})$
+% \If{$z_{cp} < z_T$}
+\LComment{Compute normal force}
+\State $\hat{\mathbf{n}} = \mathcal{S}(x_{cp}, y_{cp})$
+\State $\mathbf{h} = \left[0, 0, z_T - z_{cp}\right]^\top$
 
-    \State $\delta = \max(0, -\mathbf{h} \cdot \hat{\mathbf{n}})$
-    \State $\dot{\delta} = -\vellin[W]_{W,C} \cdot \hat{\mathbf{n}}$
-    
-    \State $\forcelin_\perp = \sqrt{\delta} \left( K \delta + D \dot{\delta} \right) \hat{\mathbf{n}}$
-    
-    \LComment{Compute tangential force}
-    \State $\forcelin_\parallel = \zeros_3$
-    \If{$\mu \neq 0$}
-        \State $\vellin^\perp = (\vellin[W]_{W,C} \cdot \hat{\mathbf{n}}) \hat{\mathbf{n}}$
-        \State $\vellin^\parallel = \vellin[W]_{W,C} - \vellin^\perp$
+\State $\delta = \max(0, \mathbf{h} \cdot \hat{\mathbf{n}})$
+\State $\dot{\delta} = -\posd[W]_C \cdot \hat{\mathbf{n}}$
 
-        \State $\forcelin_\parallel = -\sqrt{\delta}(K {}^W \mathbf{u} + D  \vellin^\parallel)$
-        \Comment{Compute sticking force}
-        \State ${}^W \dot{\mathbf{u}} = \vellin_\parallel$
-    
-        \State $f_{cone} = \mu \norm{\forcelin_\perp}$
+\State $\forcelin_\perp = \sqrt{\delta} \left( K \delta + D \dot{\delta} \right) \hat{\mathbf{n}}$
+
+\LComment{Compute tangential force}
+\State $\forcelin_\parallel = \zeros_3$
+% \State ${}^W \dot{\mathbf{m}} = \vellin_\parallel$
+\If{$\mu \neq 0$ and $z_{cp} > z_T$}
+    % \If{$z_{cp} > z_T$}
+    % \Comment{Contact not active or deactivated}
         
-        \If{$\norm{\forcelin_\parallel} > f_{cone}$}
-            \Comment{Compute slipping force}
-            \State $\forcelin_\parallel = \left(f_{cone} / \norm{\forcelin_\parallel}\right) \forcelin_\parallel$
-            \State ${}^W \dot{\mathbf{u}} = -(\forcelin_\parallel + K \sqrt{\delta} {}^W \mathbf{u}) / (D \sqrt{\delta})$
-        \EndIf
-    \EndIf
+    % \Else
+    % \Comment{Contact active}
+    \State $\vellin^\perp = (\posd[W]_C \cdot \hat{\mathbf{n}}) \hat{\mathbf{n}}$
+    \State $\vellin^\parallel = \posd[W]_C - \vellin^\perp$
+
+    \State $\forcelin_\parallel = -\sqrt{\delta}(K {}^W \mathbf{m} + D  \vellin^\parallel)$
+    \Comment{Compute sticking force}
+    \State ${}^W \dot{\mathbf{m}} = \vellin_\parallel$
+
+    \State $f_{cone} = \mu \norm{\forcelin_\perp}$
     
-    \LComment{Compute 6D contact force in the world frame}
-    \State $\forcesix[W]_{cp} = \transfor[W]^C [(\forcelin_\perp + \forcelin_\parallel)^\top, \zeros^\top_3]^\top$
+    \If{$\norm{\forcelin_\parallel} > f_{cone}$}
+        \Comment{Compute slipping force}
+        \State $\forcelin_\parallel = \left(f_{cone} / \norm{\forcelin_\parallel}\right) \forcelin_\parallel$
+        \State ${}^W \dot{\mathbf{m}} = -(\forcelin_\parallel + K \sqrt{\delta} {}^W \mathbf{m}) / (D \sqrt{\delta})$
+    \EndIf
+    % \EndIf
 \EndIf
 
-\State \textbf{outputs} $\left(\forcesix[W]_{cp}, {}^W \dot{\mathbf{u}}\right)$
+\LComment{Compute 6D contact force in the world frame}
+\State $\forcesix[W]_{cp} = \transfor[W]^C [(\forcelin_\perp + \forcelin_\parallel)^\top, \zeros^\top_3]^\top$
+% \EndIf
+
+\State \textbf{outputs} $\left(\forcesix[W]_{cp}, {}^W \dot{\mathbf{m}}\right)$
 
 \end{algorithmic}
 \end{algorithm}
