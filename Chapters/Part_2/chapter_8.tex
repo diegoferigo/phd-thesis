@@ -625,11 +625,10 @@ In order to optimise performance, the algorithm can be vectorised to process all
 
 \State $x_{cp}, y_{cp}, z_{cp} = \pos[W]_{cp}$
 \State $z_T = \mathcal{H}(x_{cp}, y_{cp})$
-\State ${}^W \dot{\mathbf{m}} = -(K / D) {}^W \mathbf{m}$
+\State ${}^W \dot{\mathbf{m}} = -(K / D) \, {}^W \mathbf{m}$
 \Comment{Material relaxation dynamics}
 \State $\forcesix[W]_{cp} = \zeros_6$
 
-% \If{$z_{cp} < z_T$}
 \LComment{Compute normal force}
 \State $\hat{\mathbf{n}} = \mathcal{S}(x_{cp}, y_{cp})$
 \State $\mathbf{h} = \left[0, 0, z_T - z_{cp}\right]^\top$
@@ -641,17 +640,12 @@ In order to optimise performance, the algorithm can be vectorised to process all
 
 \LComment{Compute tangential force}
 \State $\forcelin_\parallel = \zeros_3$
-% \State ${}^W \dot{\mathbf{m}} = \vellin_\parallel$
-\If{$\mu \neq 0$ and $z_{cp} > z_T$}
-    % \If{$z_{cp} > z_T$}
-    % \Comment{Contact not active or deactivated}
-        
-    % \Else
-    % \Comment{Contact active}
-    \State $\vellin^\perp = (\posd[W]_C \cdot \hat{\mathbf{n}}) \hat{\mathbf{n}}$
+
+\If{$\mu \neq 0$ and $z_{cp} < z_T$}
+    \State $\vellin^\perp = \left( \posd[W]_C \cdot \hat{\mathbf{n}} \right) \hat{\mathbf{n}}$
     \State $\vellin^\parallel = \posd[W]_C - \vellin^\perp$
 
-    \State $\forcelin_\parallel = -\sqrt{\delta}(K {}^W \mathbf{m} + D  \vellin^\parallel)$
+    \State $\forcelin_\parallel = -\sqrt{\delta}(K \, {}^W \mathbf{m} + D  \vellin^\parallel)$
     \Comment{Compute sticking force}
     \State ${}^W \dot{\mathbf{m}} = \vellin_\parallel$
 
@@ -660,14 +654,12 @@ In order to optimise performance, the algorithm can be vectorised to process all
     \If{$\norm{\forcelin_\parallel} > f_{cone}$}
         \Comment{Compute slipping force}
         \State $\forcelin_\parallel = \left(f_{cone} / \norm{\forcelin_\parallel}\right) \forcelin_\parallel$
-        \State ${}^W \dot{\mathbf{m}} = -(\forcelin_\parallel + K \sqrt{\delta} {}^W \mathbf{m}) / (D \sqrt{\delta})$
+        \State ${}^W \dot{\mathbf{m}} = -(\forcelin_\parallel + K \sqrt{\delta} \, {}^W \mathbf{m}) / (D \sqrt{\delta})$
     \EndIf
-    % \EndIf
 \EndIf
 
 \LComment{Compute 6D contact force in the world frame}
 \State $\forcesix[W]_{cp} = \transfor[W]^C [(\forcelin_\perp + \forcelin_\parallel)^\top, \zeros^\top_3]^\top$
-% \EndIf
 
 \State \textbf{outputs} $\left(\forcesix[W]_{cp}, {}^W \dot{\mathbf{m}}\right)$
 
@@ -718,7 +710,9 @@ However, at the current stage of development, the \ac{AD} support of the algorit
 %
 \end{remark*}
 
-\begin{sidewaystable}
+\begin{landscape}
+% \begin{sidewaystable}
+\begin{table}
     \centering
     \small
     \caption{Comparison of modern physics engines similar to \jaxsim. ${[*]}$ \jaxsim is developed with a differentiable framework, but this functionality has to be finalised.}
@@ -741,7 +735,9 @@ However, at the current stage of development, the \ac{AD} support of the algorit
         \textbf{\jaxsim} & Python & Reduced & \ck & \ck & \ck & $[*]$ & \ck & & \ck & \ck \\
         \bottomrule
     \end{tblr}
-\end{sidewaystable}
+\end{table}
+% \end{sidewaystable}
+\end{landscape}
 
 \subsection{Benchmarks}
 
@@ -909,7 +905,260 @@ The peak \ac{RTF} of this high-end \ac{GPU} is about 200.
     \label{fig:jaxsim_benchmark_parallel}
 \end{figure}
 
-\pagebreak
+\newpage
+\section{Validation}
+\label{sec:jaxsim_validation}
+
+In this section, we perform a validation of \jaxsim for generating synthetic data for robot learning.
+We develop an environment exposing the \texttt{gym.Env} interface with \jaxsim, and show the sampling performance that can be reached by stepping a large number of parallel environments on a laptop \ac{GPU}.
+We then plug the vectorized environment in a \ac{RL} pipeline for training a policy with the \ac{PPO} algorithm.
+Finally, for presenting evidence that the data generated through the methods proposed in this thesis can be used in an out-of-distribution setting, we execute and evaluate the policy on a comparable dynamics simulated this time with Mujoco.
+
+The out-of-distribution validation is also known in the literature as sim-to-sim~\parencite{salvato_crossing_2021, muratore_robot_2022, bellegarda_robust_2021, du_auto-tuned_2021}.
+Given that one of the assumptions for an effective transfer is the availability of a robust policy trained in the original setting, we consider as target task to learn the swing-up of an underactuated cartpole.
+This task is similar to the canonical benchmark of cartpole balancing~\parencite{brockman_openai_2016}, in which the pole starts from an almost balanced configuration and the actions space is discrete (selecting either a positive of negative constant force to apply to the cart).
+This cartpole balancing, however, is excessively simple, and it is not really representative of the typical problems in robotics, usually characterised by continuous action spaces.
+The swing-up task makes the policy learning much more difficult by starting the episodes with an arbitrary pole position (also pointing down).
+This diversity makes a big difference since it requires the policy to be considerably long-sighted, to the extent to learn to perform some initial swing to build up momentum before attempting to perform a proper balancing.
+
+All experiments presented in this section have been executed on a laptop whose specifications are reported in Table~\ref{tab:laptop_specifications_validation}.
+
+\begin{table}
+    \small
+    \centering
+    \begin{tblr}{
+        colspec={Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries\footnotesize},
+    }
+        \toprule
+        Specification & Value \\
+        \midrule
+        Intel CPU & i7-10750H \\
+        Nvidia GPU & GeForce GTX 1650 Ti Mobile \\
+        CUDA cores & 1024 \\
+        Operating system & Ubuntu 22.04 \\
+        Nvidia driver & 530.41.03 \\
+        CUDA & 11.2.2 \\
+        cuDNN & 8.8.0.121 \\
+        \jax & 0.3.15 \\
+        Mujoco & 2.3.5 \\
+        \bottomrule
+    \end{tblr}
+    \caption{Specifications of the machine used to execute the validation experiments.}
+    \label{tab:laptop_specifications_validation}
+\end{table}
+
+\subsection{Sampling Experience for Robot Learning}
+
+The cartpole is a fixed-base model composed by a pole (shaped as a long and thin cylinder) connected through an un-actuated revolute joint to a cart (shaped as a box).
+The cart can move along a track, whose displacement is simulated as a prismatic joint.
+The linear force corresponding to this prismatic joint is the control input of the system.
+Figure~\ref{fig:cartpole_swingup} reports a visualisation of the cartpole model.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/contributions/chapter_8/cartpole.png}
+    \caption{Illustration of the cartpole model in the $\theta = d = 0$ configuration.}
+    \label{fig:cartpole_swingup}
+\end{figure}
+
+\begin{table}
+    \small
+    \centering
+    \begin{tblr}{
+        colspec={Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries\footnotesize},
+    }
+        \toprule
+        Property & Value \\
+        \midrule
+        Integrator & Semi-implicit Euler \\
+        Integrator step & $0.0005\,$~s \\
+        Environment step & $0.050\,$~s \\
+        Control frequency & $20\,$Hz \\
+        Action dimension & 1 \\
+        Observation dimension & 4 \\
+        Action space & $[-50,\, 50]\,$~N \\
+        {Maximum episode steps} & $200$ \\
+        Parallel environments & $512$ \\
+        Equivalent \ac{RTF} & $24.38$ \\
+        \bottomrule
+    \end{tblr}
+    \caption{Properties of the environment implementing the cartpole swing-up task.}
+    \label{tab:environment_properties_cartpole}
+\end{table}
+
+\begin{table}
+    \small
+    \centering
+    \begin{tblr}{
+        colspec={Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries\footnotesize},
+    }
+        \toprule
+        Parameter & Value \\
+        \midrule
+        Discount rate $\gamma$ & $0.95$ \\
+        Clip parameter $\epsilon$ & $0.1$ \\
+        Target \acs{KL} divergence & $0.025$ \\
+        Learning rate $\alpha$ & $0.0003$ \\
+        \acs{GAE} parameter $\lambda$ & $0.9$ \\
+        Batch size & $2560$ \\
+        Minibatch size & $256$ \\
+        Number of \small{SGD} epochs & $10$ \\
+        \bottomrule
+    \end{tblr}
+    \caption{PPO parameters for the the cartpole swing-up environment.}
+    \label{tab:ppo_parameters_cartpole}
+\end{table}
+
+\begin{description}
+%
+\item[Observation]
+The observation of the system is composed of the position and velocity of both joints.
+If $\theta \in [-\pi,\, \pi]\,$rad is the angle of the un-actuated revolute joint (where $\theta = 0$ is a balanced pole), $d \in [-2.5,\, 2.5]\,$m the displacement of the prismatic joint, and $\omega = \dot{\theta}$ the pole velocity, we can define the observation as $\mathbf{o} = ( d, \dot{d}, \theta, \omega) \in \realn^4$.
+%
+\item[Action]
+The action of the system is the linear force $a = f \in [-50,\, 50]\,\text{N}$ corresponding to the joint moving the cart.
+It's worth noting that the action is continuous and its magnitude is not large enough to accelerate the cart and bring the pole in vertical position without swinging first.
+%
+\item[Environment details]
+The environment simulates the physics with \jaxsim.
+We use a semi-implicit Euler integrator with a step of $500\,\mu$s.
+After the agent sets an action through the exposed \texttt{gym.Env} interface, we step the environment for $0.050\,$s, therefore performing $100$ physics steps each time.
+The resulting control frequency, that is the update rate at which the policy applies its actions, results equal to $20\,$Hz.
+The environment is implemented as a continuous control task with termination only occurring if the observation is outside its space.
+In absence of termination, episodes are truncated after $200$ steps.
+All environment properties are reported in Table~\ref{tab:environment_properties_cartpole}.
+%
+\item[Reward]
+The reward function used to learn the swing-up task is the following:
+%
+\begin{align*}
+    &r_t(s_t, a_t, s_{t+1}) = \\
+    &\quad r_{\text{alive}} + r_{\text{balance}} - 0.001 \, c_{\text{action}} - 0.1 \, c_{\text{vel}} - 0.5 \, c_{\text{displacement}}
+    ,
+\end{align*}
+%
+where $r_{\text{alive}}$ is set to $1.0$ when the environment is not terminal and $0$ otherwise, $r_{\text{balance}} = \cos{\theta}$ rewards the pole to be in a balanced state (characterised by $\theta=0)$, $c_{\text{action}} = \lVert \tau \rVert$ penalises large actuated forces, $c_{\text{vel}} = \lVert \Shaped \rVert$ penalises large joint velocities, and $c_{\text{displacement}} = \abs{d}$ penalises the cart to be far from the middle point of the track.
+%
+\item[Agent Networks]
+We want to train a policy with \ac{RL} capable of bringing the pole to a balancing position from any state belonging to the observation space, and maintain the balance as long as possible.
+The agent is composed of two neural networks corresponding to the actor --the policy-- and the critic --the return--, having two hidden layers with $512$ neurons each with {\small ReLU} activation function.
+The input layer of both networks has a size of $4$ (the observation dimension).
+The critic network has an output layer with just one dimension corresponding to the return, correctly bootstrapped from the value function is case of episode truncation.
+The actor network encodes a univariate Gaussian distribution (the environment action is a scalar), therefore it has one output corresponding to the distribution mean and has a free parameter part of the optimisation parameters corresponding to the logarithm of the distribution's variance.
+The variance is initialised with the value of $\log \sigma = \log(0.05)$.
+The neural networks are optimised with Adam~\parencite{kingma_adam_2017} using a learning rate $\alpha = 0.0003$.
+%
+\item[Algorithm]
+For the same reasons explained in Chapter~\ref{ch:learning_from_scratch}, we train the policy with the \ac{PPO} algorithm introduced in Section~\ref{sec:ppo}, configured with the clip parameter $\epsilon=0.1$.
+We estimate the return from the advantage computed with \ac{GAE}, introduced in Section~\ref{sec:gae} as $R_t = \hat{A}^\text{GAE}_t + V_t$, configured with $\lambda=0.9$ and a discount rate $\gamma = 0.95$.
+We use the \ac{PPO} implementation of \texttt{stable-baselines3}~\parencite{raffin_stable-baselines3_2021} that, instead of using a \ac{KL} penalty, stops the training epochs when the approximated \ac{KL} divergence exceeds a given value.
+All the \ac{PPO} parameters are reported in Table~\ref{tab:ppo_parameters_cartpole}.
+%
+\item[Sampling]
+We optimise the policy by acquiring five samples from $512$ parallelised environments running on \ac{GPU}, resulting to an equivalent \ac{RTF} of about $25$ on the machine used to run the experiments.
+The number of environments has been selected by choosing the best equivalent \ac{RTF} of the \ac{JIT}-compiled vectorized \texttt{gym.Env.step} through a grid-search in the $N_\text{envs} = 2^p,\, p \in \{1,\, 2,\, 3,\, \dots, 12\}$ range.
+The collected batch of trajectories, containing a total of $2560$ samples and equivalent to about 2 minutes of experience, is then split in $10$ minibatches of $256$ samples.
+We perform $10$ optimisation epochs on the same batch of trajectories, that can be interrupted earlier in case the approximated \ac{KL} divergence \wrt the distribution corresponding to the previous policy exceeds $0.025$.
+Before optimising the \acp{NN} of the agent, the collected observations and rewards are normalized by computing a running mean and standard variance.
+Finally, in order to obtain a more robust policy, we inject some Gaussian noise with zero mean and $\sigma=0.05$ to the actions before being applied to the environment.
+%
+\end{description}
+
+\begin{figure}
+    \centering
+    \resizebox{0.75\textwidth}{!}{
+    \includegraphics{images/contributions/chapter_8/learning_curves.tikz}}
+    \caption{Learning curves of the cartpole swing-up task. The plot reports the mean and standard deviation of the average rewards $\hat{r}_t^{(k)}$ computed over $k=10$ different training executions. For each individual training, the average reward $\hat{r}_t$ in the considered parallel setting is computed by averaging at each time step the $512$ rewards received from the vectorized \texttt{gym.Env.step}.}
+    \label{fig:learning_curve_cartpole_swingup}
+\end{figure}
+
+\newpage
+Figure~\ref{fig:learning_curve_cartpole_swingup} shows the learning curve of 10 trainings initialised with different seeds.
+The policy is able to learn effective swing-up and balancing behaviours in $500000$ steps, corresponding to about $7$ hours of equivalent experience.
+On the machine used to run this experiment, each training runs for approximately $15$ minutes.
+The reward grows mostly monotonically with a limited variance, showing that the chosen parameters ensure stable policy updates, preventing optimisation steps too large that would destroy the previously obtained performance.
+
+\subsection{Sim-to-sim Policy Transfer}
+
+\begin{table}
+    \small
+    \centering
+    \begin{tblr}{
+        colspec={Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries\footnotesize},
+    }
+        \toprule
+        Property & Value \\
+        \midrule
+        \texttt{timestep} & $0.001$ \\
+        \texttt{integrator} & \texttt{RK4} \\
+        \texttt{solver} & \texttt{Newton} \\
+        \texttt{iterations} & $100$ \\
+        \texttt{contype} & $0$ \\
+        \bottomrule
+    \end{tblr}
+    \caption{Mujoco properties used for the sim-to-sim evaluation of the trained cartpole swing-up policy. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
+    \label{tab:mujoco_parameters}
+\end{table}
+
+In this section, we attempt to evaluate the trained policy in an out-of-distribution setting.
+This setting could represent any environment that differs from the one where the policy has been trained.
+It serves as evidence that it's possible to deploy a policy obtained from training over synthetic data generated efficiently by a parallel simulator into an equivalent environment running on a different runtime.
+In particular, this experiment can be seen as a sim-to-sim policy transfer.
+
+Similarly to Section~\ref{sec:sliding_box_inclined_plane}, we use the Mujoco simulator as out-of-distribution setting.
+We translated the \ac{URDF} of the cartpole model loaded in \jaxsim in the training environment to an equivalent \ac{MJCF} that can be imported in Mujoco.
+Then, we included in the same file the configuration of the physics engine, whose parameters are reported in Table~\ref{tab:mujoco_parameters}.
+The chosen parameters expose a simulation characterised by the same control rate ($20\,$Hz), but in this case the physics is simulated in a different simulator using an integrator of a different family and different constraint solver.
+
+The Mujoco environment is only used for producing the state-action trajectory $\tau$ from a given initial observation $\mathbf{o}_0$, where the action is obtained by performing inference of the trained policy.
+In order to perform a proper exploitation of the policy, we sample deterministically by taking the inferred mean of the Gaussian distribution described by the policy, \ie $a_t = \mu_{\boldsymbol{\theta}}(\mathbf{o}_t)$.
+
+The first evaluation we perform in this setting is a comparison between the swing-up trajectory obtained by running the policy in the training environment simulated with \jaxsim and the out-of-distribution environment simulated with Mujoco.
+In order to obtain a meaningful comparison, we consider as initial observation the cart resting in the center of its track and the pole pointing down, both with zero velocity, \ie $\mathbf{o}_0 = (0, 0, \pi, 0)$.
+The two trajectories are shown in Figure~\ref{fig:cartpole_trajectory_jaxsim_vs_mujoco}, where it can be noticed that the policy performance are comparable in both simulators.
+The policy is able to succeed in the swing-up task and the resulting trajectories in both simulators are almost identical.
+
+As second evaluation, starting from the same initial observation $\mathbf{o}_0$ considered in the first evaluation, we assess the policy swing-up performance on different variations of the cartpole environment simulated with the out-of-distribution Mujoco.
+In particular, we modify some physical parameters and evaluate whether the learned policy is robust enough to succeed in the task.
+In the first variation, we double the mass of both the cart and the pole, taking care to compute the new $3\times 3$ inertia matrices corresponding to the primitive shape of the bodies.
+In the second variation, in addition to the increased masses, we include joint damping, \ie a frictional force proportional to the joint velocity that opposes the motion direction.
+For a revolute joint, its contribution is $\tau_\text{damping} = - k_v \dot{\theta}$.
+Figure~\ref{fig:cartpole_mujoco_change_parameters} reports the curves simulated in the out-of-distribution Mujoco simulator using out-of-distribution model parameters.
+Despite the out-of-distribution environment, it can be seen that the policy learned in a highly parallel setting simulated with \jaxsim on \ac{GPU} succeeds in swing-up task.
+As it can be expected, the performance are affected by the change of parameters.
+For example, the policy is able to reach the balancing state by using only one swing in the setting with nominal parameters.
+Instead, in the two variations, the policy needs two swings.
+
+It's worth noting that the policy has been trained only using the nominal parameters.
+Often, in order to obtain more robust policies, the inertial parameters of the simulated model become part of domain randomization.
+In our case, we did not randomize any parameter.
+
+\begin{figure}
+    \centering
+    \resizebox{0.99\textwidth}{!}{
+    \includegraphics{images/contributions/chapter_8/cartpole_jaxsim_vs_mujoco}
+    }
+    \caption{Sim-to-sim comparison of the trajectories obtained by exploiting the swing-up policy learned in a \jaxsim environment. The \jaxsim curves correspond to an in-distribution setting, where the policy is evaluated in the same simulator that generated training data. Instead, the Mujoco curves correspond to an out-of-distribution setting, where the policy is evaluate in a simulator different from the one that generated training data. Note that $\theta$, due to its range, is projected in the $[-\pi,\, \pi]$ range.}
+    \label{fig:cartpole_trajectory_jaxsim_vs_mujoco}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \resizebox{0.99\textwidth}{!}{
+    \includegraphics{images/contributions/chapter_8/cartpole_benchmark_mujoco}
+    }
+    \caption{Trajectories of the cartpole swing-up policy acting on the out-of-distribution environment simulated in Mujoco. The \emph{nominal} curves are obtained by running the policy on a cartpole model having nominal masses of both the cart and the pole, and with no joint damping. The \emph{mass} curves show the obtained trajectories with the model having the masses of both bodies multiplied by $2x$. The \emph{mass+damping} curves are generated in a setting that extends the \emph{mass} one by also considering for both joints a damping with $k_v=0.015$. Note that in this case, we removed the bounds of the pole angle, showing more clearly the number of swings used by the policy to reach the balancing state.}
+    \label{fig:cartpole_mujoco_change_parameters}
+\end{figure}
+
 \section{Conclusions}
 
 In this chapter, we proposed \jaxsim, a new physics engine capable of executing multibody simulations on modern hardware accelerators.
@@ -923,11 +1172,16 @@ We have shown that it can reach a \ac{RTF} of 20 on a laptop and 200 on a workst
 Applications requiring sampling experience with high throughput such as those characterising \ac{RL} research, would benefit the most from these performances.
 Furthermore, generating physics data directly in the same device where function approximators are optimised would remove any overhead related to the data transfer from the \ac{CPU}.
 We intend to investigate these directions in future activities.
+Finally, we trained a policy to solve a continuous control problem simulated with \jaxsim, providing details on the parallelization level that can be reached for sampling synthetic data in a characteristic robot learning application.
+Then, to provide evidence that it's possible to deploy policies obtained from training by sampling from highly parallel simulators, we performed a sim-to-sim transfer and evaluated the policy performance on a out-of-distribution simulator and physical parameters.
+The obtained \ac{RL} setting is much simpler compared to one adopted in Chapter~\ref{ch:learning_from_scratch}.
+The possibility to parallelize sampling on hardware accelerators removes the need to rely on distributed settings running on a cluster of machines, that is difficult to create, maintain, and handle.
+A single-process application can deploy both sampling and \acp{NN} on the same \ac{GPU}, with no overhead related to network transport.
+Beyond being easier to deploy in a {\small HPC} setting, this approach may lead to a faster development and prototyping.
 
 \jaxsim still presents multiple limitations in this first version.
-Firstly, the shown performances were obtained in a setting where no exteroception was necessary.
-Integrating basic rendering functionality would surely affect performance.
+Firstly, the shown performance were obtained in a setting where no exteroception was necessary.
+Integrating basic rendering functionality would surely negatively affect them.
 Furthermore, collisions between links are not yet supported, limiting the adoption for robot manipulation.
 Finally, it does not yet allow enforcing additional dynamic constraints like joint limits, and closed kinematic chains.
-
 To conclude, although the automatic differentiation capability provided by the \jax framework has not yet been thoroughly tested with the \jaxsim algorithms, its combination with the smooth dynamics given by the contact-aware state-space representation opens up exciting research directions that will be explored in the future.

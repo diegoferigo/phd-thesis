@@ -125,10 +125,11 @@ Furthermore, \jax also supports multi-\ac{GPU} configurations, but setting them 
 To conclude the discussion on the features related to \jax, our algorithms are not yet compatible with its \ac{AD} capability.
 The activities to assess the support and implement \ac{AD} support are ongoing, and we expect they will enable us to start investigating all the new emerging methodologies involving differentiable simulations.
 
-Other activities planned for the near future involve the \ac{RL} stack built over \jaxsim.
-The combination of an environment interfacing with \jaxsim and \ac{RL} algorithms implemented in \jax would result in a single application whose data never leaves the hardware accelerator.
+Other activities planned for the near future involve enhancing the \ac{RL} stack built over \jaxsim.
+The combination of an environment interfacing with \jaxsim and \ac{RL} algorithms implemented in \jax results in a single application whose data never leaves the hardware accelerator.
 Therefore, beyond the sampling performance of parallel simulations, the complete pipeline would also prevent the data transfer overhead that is always present when some computation has to happen on \acp{CPU}.
-We already implemented a \jax version of \ac{PPO} and tested on the canonical examples of inverted pendulum and cartpole swing-up, but the results are too preliminary and have not been included in this thesis.
+In Section~\ref{sec:jaxsim_validation}, we provided a continuous control validation by sampling from a cartpole environment simulated entirely on \ac{GPU}.
+However, we used an existing \ac{PPO} implementation not developed in \jax, therefore it was not possible to compile in \ac{JIT} the entire collection of the batch but only an individual parallelized sample.
 Future work will continue this activity, extending the investigation to contact-rich locomotion problems.
 Finally, we would like to embed these environments in Gym-Ignition, creating a new \jaxsim \scenario component, so that all the benefits of future real-time backends could be applicable on \jaxsim experiments.
 Towards this goal, Gym-Ignition should switch to the upcoming functional version of \verb|gym.Env| that has been recently proposed upstream. 
