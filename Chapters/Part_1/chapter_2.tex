@@ -942,17 +942,20 @@ Considering Assumption~\ref{assumption:subspace_independent_configuration} and R
 where $\ddot{s} \in \realn$ is the joint acceleration.
 
 \begin{table}
-    \centering
-    \begin{tabular}{lc}
-        Joint type & Motion subspace \\
-        \hline\hline
-        \addlinespace[1mm]
-        Revolute & $\subspace = \begin{bmatrix}\zeros_3 \\ \mathbf{a}\end{bmatrix}$ \\
-        \addlinespace[1mm]
-        Prismatic & $\subspace = \begin{bmatrix}\mathbf{a} \\ \zeros_3 \end{bmatrix}$
-    \end{tabular}
-    \caption{List of motion subspaces for the supported 1 \ac{DoF} joints.}
-    \label{tab:motion_subspaces}
+\centering
+\caption{List of motion subspaces for the supported 1 \ac{DoF} joints.}
+\label{tab:motion_subspaces}
+\begin{tblr}{
+    colspec={Q[l, m]Q[c, m]},
+    row{1} = {font=\bfseries},
+}
+    \toprule
+    Joint type & Motion subspace \\
+    \midrule
+    Revolute & $\subspace = \begin{bmatrix}\zeros_3 \\ \mathbf{a}\end{bmatrix}$ \\
+    Prismatic & $\subspace = \begin{bmatrix}\mathbf{a} \\ \zeros_3 \end{bmatrix}$ \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 \subsubsection{Kinematics and dynamics propagation}

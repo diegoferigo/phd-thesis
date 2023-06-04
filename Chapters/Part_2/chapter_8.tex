@@ -711,7 +711,6 @@ However, at the current stage of development, the \ac{AD} support of the algorit
 \end{remark*}
 
 \begin{landscape}
-% \begin{sidewaystable}
 \begin{table}
     \centering
     \small
@@ -736,7 +735,6 @@ However, at the current stage of development, the \ac{AD} support of the algorit
         \bottomrule
     \end{tblr}
 \end{table}
-% \end{sidewaystable}
 \end{landscape}
 
 \subsection{Benchmarks}
@@ -924,29 +922,29 @@ This diversity makes a big difference since it requires the policy to be conside
 All experiments presented in this section have been executed on a laptop whose specifications are reported in Table~\ref{tab:laptop_specifications_validation}.
 
 \begin{table}
-    \small
-    \centering
-    \begin{tblr}{
-        colspec={Q[c, m]Q[c, m]},
-        row{even} = {bg=gray9},
-        row{1} = {font=\bfseries\footnotesize},
-    }
-        \toprule
-        Specification & Value \\
-        \midrule
-        Intel CPU & i7-10750H \\
-        Nvidia GPU & GeForce GTX 1650 Ti Mobile \\
-        CUDA cores & 1024 \\
-        Operating system & Ubuntu 22.04 \\
-        Nvidia driver & 530.41.03 \\
-        CUDA & 11.2.2 \\
-        cuDNN & 8.8.0.121 \\
-        \jax & 0.3.15 \\
-        Mujoco & 2.3.5 \\
-        \bottomrule
-    \end{tblr}
-    \caption{Specifications of the machine used to execute the validation experiments.}
-    \label{tab:laptop_specifications_validation}
+\small
+\centering
+\caption{Specifications of the machine used to execute the validation experiments.}
+\label{tab:laptop_specifications_validation}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries\footnotesize},
+}
+    \toprule
+    Specification & Value \\
+    \midrule
+    Intel CPU & i7-10750H \\
+    Nvidia GPU & GeForce GTX 1650 Ti Mobile \\
+    CUDA cores & 1024 \\
+    Operating system & Ubuntu 22.04 \\
+    Nvidia driver & 530.41.03 \\
+    CUDA & 11.2.2 \\
+    cuDNN & 8.8.0.121 \\
+    \jax & 0.3.15 \\
+    Mujoco & 2.3.5 \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 \subsection{Sampling Experience for Robot Learning}
@@ -964,55 +962,53 @@ Figure~\ref{fig:cartpole_swingup} reports a visualisation of the cartpole model.
 \end{figure}
 
 \begin{table}
-    \small
-    \centering
-    \begin{tblr}{
-        colspec={Q[c, m]Q[c, m]},
-        row{even} = {bg=gray9},
-        row{1} = {font=\bfseries\footnotesize},
-    }
-        \toprule
-        Property & Value \\
-        \midrule
-        Integrator & Semi-implicit Euler \\
-        Integrator step & $0.0005\,$~s \\
-        Environment step & $0.050\,$~s \\
-        Control frequency & $20\,$Hz \\
-        Action dimension & 1 \\
-        Observation dimension & 4 \\
-        Action space & $[-50,\, 50]\,$~N \\
-        {Maximum episode steps} & $200$ \\
-        Parallel environments & $512$ \\
-        Equivalent \ac{RTF} & $24.38$ \\
-        \bottomrule
-    \end{tblr}
-    \caption{Properties of the environment implementing the cartpole swing-up task.}
-    \label{tab:environment_properties_cartpole}
+\centering
+\caption{Properties of the environment implementing the cartpole swing-up task.}
+\label{tab:environment_properties_cartpole}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries},
+}
+    \toprule
+    Property & Value \\
+    \midrule
+    Integrator & Semi-implicit Euler \\
+    Integrator step & $0.0005\,$~s \\
+    Environment step & $0.050\,$~s \\
+    Control frequency & $20\,$Hz \\
+    Action dimension & 1 \\
+    Observation dimension & 4 \\
+    Action space & $[-50,\, 50]\,$~N \\
+    {Maximum episode steps} & $200$ \\
+    Parallel environments & $512$ \\
+    Equivalent \ac{RTF} & $24.38$ \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 \begin{table}
-    \small
-    \centering
-    \begin{tblr}{
-        colspec={Q[c, m]Q[c, m]},
-        row{even} = {bg=gray9},
-        row{1} = {font=\bfseries\footnotesize},
-    }
-        \toprule
-        Parameter & Value \\
-        \midrule
-        Discount rate $\gamma$ & $0.95$ \\
-        Clip parameter $\epsilon$ & $0.1$ \\
-        Target \acs{KL} divergence & $0.025$ \\
-        Learning rate $\alpha$ & $0.0003$ \\
-        \acs{GAE} parameter $\lambda$ & $0.9$ \\
-        Batch size & $2560$ \\
-        Minibatch size & $256$ \\
-        Number of \small{SGD} epochs & $10$ \\
-        \bottomrule
-    \end{tblr}
-    \caption{PPO parameters for the the cartpole swing-up environment.}
-    \label{tab:ppo_parameters_cartpole}
+\centering
+\caption{PPO parameters for the the cartpole swing-up environment.}
+\label{tab:ppo_parameters_cartpole}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries},
+}
+    \toprule
+    Parameter & Value \\
+    \midrule
+    Discount rate $\gamma$ & $0.95$ \\
+    Clip parameter $\epsilon$ & $0.1$ \\
+    Target \acs{KL} divergence & $0.025$ \\
+    Learning rate $\alpha$ & $0.0003$ \\
+    \acs{GAE} parameter $\lambda$ & $0.9$ \\
+    Batch size & $2560$ \\
+    Minibatch size & $256$ \\
+    Number of \small{SGD} epochs & $10$ \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 \begin{description}
@@ -1087,25 +1083,25 @@ The reward grows mostly monotonically with a limited variance, showing that the 
 \subsection{Sim-to-sim Policy Transfer}
 
 \begin{table}
-    \small
-    \centering
-    \begin{tblr}{
-        colspec={Q[c, m]Q[c, m]},
-        row{even} = {bg=gray9},
-        row{1} = {font=\bfseries\footnotesize},
-    }
-        \toprule
-        Property & Value \\
-        \midrule
-        \texttt{timestep} & $0.001$ \\
-        \texttt{integrator} & \texttt{RK4} \\
-        \texttt{solver} & \texttt{Newton} \\
-        \texttt{iterations} & $100$ \\
-        \texttt{contype} & $0$ \\
-        \bottomrule
-    \end{tblr}
-    \caption{Mujoco properties used for the sim-to-sim evaluation of the trained cartpole swing-up policy. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
-    \label{tab:mujoco_parameters}
+\small
+\centering
+\caption{Mujoco properties used for the sim-to-sim evaluation of the trained cartpole swing-up policy. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
+\label{tab:mujoco_parameters_cartpole}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries\footnotesize},
+}
+    \toprule
+    Property & Value \\
+    \midrule
+    \texttt{timestep} & $0.001$ \\
+    \texttt{integrator} & \texttt{RK4} \\
+    \texttt{solver} & \texttt{Newton} \\
+    \texttt{iterations} & $100$ \\
+    \texttt{contype} & $0$ \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 In this section, we attempt to evaluate the trained policy in an out-of-distribution setting.
@@ -1115,7 +1111,7 @@ In particular, this experiment can be seen as a sim-to-sim policy transfer.
 
 Similarly to Section~\ref{sec:sliding_box_inclined_plane}, we use the Mujoco simulator as out-of-distribution setting.
 We translated the \ac{URDF} of the cartpole model loaded in \jaxsim in the training environment to an equivalent \ac{MJCF} that can be imported in Mujoco.
-Then, we included in the same file the configuration of the physics engine, whose parameters are reported in Table~\ref{tab:mujoco_parameters}.
+Then, we included in the same file the configuration of the physics engine, whose parameters are reported in Table~\ref{tab:mujoco_parameters_cartpole}.
 The chosen parameters expose a simulation characterised by the same control rate ($20\,$Hz), but in this case the physics is simulated in a different simulator using an integrator of a different family and different constraint solver.
 
 The Mujoco environment is only used for producing the state-action trajectory $\tau$ from a given initial observation $\mathbf{o}_0$, where the action is obtained by performing inference of the trained policy.

@@ -1,5 +1,9 @@
 \begin{tikzpicture}
 
+\definecolor{indianred2048062}{RGB}{204,80,62}
+\definecolor{seagreen1513384}{RGB}{15,133,84}
+\definecolor{teal29105150}{RGB}{29,105,150}
+
 \begin{semilogyaxis}[
     title=\textbf{iCub - 32 DoFs},
     axis lines*=left,
@@ -29,9 +33,9 @@ RNEA 6.33           198             2850
 ABA  20.5           256             4000
 }\dataicub
 
-\addplot table [x=Algo, y=Mean_Pinocchio] {\dataicub}; \addlegendentry{Pinocchio}
-\addplot table [x=Algo, y=Mean_Jaxsim_CPU] {\dataicub}; \addlegendentry{JaxSim CPU}
-\addplot table [x=Algo, y=Mean_Jaxsim_GPU] {\dataicub}; \addlegendentry{JaxSim GPU}
+\addplot[indianred2048062, fill=indianred2048062!60] table [x=Algo, y=Mean_Pinocchio] {\dataicub}; \addlegendentry{Pinocchio}
+\addplot[seagreen1513384, fill=seagreen1513384!60] table [x=Algo, y=Mean_Jaxsim_CPU] {\dataicub}; \addlegendentry{JaxSim CPU}
+\addplot[teal29105150, fill=teal29105150!60] table [x=Algo, y=Mean_Jaxsim_GPU] {\dataicub}; \addlegendentry{JaxSim GPU}
 
 \end{semilogyaxis}
 

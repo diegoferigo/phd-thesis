@@ -12,6 +12,7 @@ Then, based on these properties, we proceed by selecting, describing, and catego
 Finally, we propose a new framework for developing robotic environments, starting with a description of the design goals, and continuing with the implemented software architecture.
 This new framework will be validated in the next chapter, where it is used to learn a push-recovery policy for balancing a simulated humanoid robot.
 
+\newpage
 \section{Frameworks providing robotic environments}
 
 \subsection{Properties}
@@ -136,33 +137,35 @@ Rendering capabilities are limited and the execution of environments provided in
 
 \end{description}
 
-\begin{sidewaystable}
+\begin{landscape}
+\begin{table}
     \centering
     \caption{Comparison of frameworks that provide robotic environments compatible with OpenAI Gym.}
     \label{tab:comparison}
     \newcommand{\x}{\ensuremath{\times}}
     \newcommand{\ck}{\checkmark}
-    \newcolumntype{Y}{>{\centering\arraybackslash}X}
-    \centerline{
-    \small
-    \begin{tabularx}{\textwidth}{lYYYYYYYYY}
+    \begin{tblr}{
+        colspec={Q[l,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+        }
         \toprule
-        Software & Reproducible & Multiple Physics Engines & Photorealistic Rendering & Accelerated & Parallel & Real-Time Compatible & Modular & Open Source \\
-        \midrule \rowcolor{black!20}
+        Software & Reproducible & {Multiple \\Physics Engines} & {Photorealistic\\ Rendering} & Accelerated & Parallel & {Real-Time\\ Compatible} & Modular & Open Source \\
+        \midrule
         OpenAI Robotic Envs         &     &     &        & \ck & \ck &     & \ck    & \ck \\
-        Bullet3 Environments        & \ck & \ck &        & \ck & \ck &     & $\sim$ & \ck    \\ \rowcolor{black!20}
+        Bullet3 Environments        & \ck & \ck &        & \ck & \ck &     & $\sim$ & \ck \\
         Unity ML-Agents             & \ck & \ck & \ck    & \ck & \ck &     &        & \ck \\
-        RaiSim                      & \ck &     & \ck    & \ck & \ck &     &        &        \\ \rowcolor{black!20}
-        Jiminy                      & \ck &     &        & \ck & \ck &     &        & \ck    \\
-        PyRep                       & \ck & \ck & \ck    & \ck & \ck &     &        & \ck    \\ \rowcolor{black!20}
-        robo-gym                    &     & \ck &        & \ck &     & \ck &        & \ck    \\
-        Nvidia Isaac Gym            & \ck & \ck & \ck    & \ck & \ck & \ck &        &        \\ \rowcolor{black!20}
-        Brax                        & \ck &     &        & \ck & \ck &     &        & \ck    \\
-        Gym-Ignition                & \ck & \ck & $\sim$ & \ck & \ck & \ck & \ck    & \ck    \\
+        RaiSim                      & \ck &     & \ck    & \ck & \ck &     &        &     \\
+        Jiminy                      & \ck &     &        & \ck & \ck &     &        & \ck \\
+        PyRep                       & \ck & \ck & \ck    & \ck & \ck &     &        & \ck \\
+        robo-gym                    &     & \ck &        & \ck &     & \ck &        & \ck \\
+        Nvidia Isaac Gym            & \ck & \ck & \ck    & \ck & \ck & \ck &        &     \\
+        Brax                        & \ck &     &        & \ck & \ck &     &        & \ck \\
+        Gym-Ignition                & \ck & \ck & $\sim$ & \ck & \ck & \ck & \ck    & \ck \\
         \bottomrule
-    \end{tabularx}
-    }
-\end{sidewaystable}
+    \end{tblr}
+\end{table}
+\end{landscape}
 
 \section{Design Goals}
 
@@ -339,6 +342,7 @@ The generation of random quantities can be controlled by passing through a \ac{R
 Our framework also helps enforce reproducible results in presence of randomness by storing a single generator in the \verb|Runtime|, shared with all \verb|Task|s and \verb|Randomizer|s.
 Under the assumption that the environment logic's execution order does not change, multiple experiments sharing the same seed number produce the same sampled trajectories.
 
+\newpage
 \section{Conclusions}
 
 This chapter presented a novel framework to create reproducible robotic environments for \acl{RL} applications.

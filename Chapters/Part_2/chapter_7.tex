@@ -702,28 +702,28 @@ The box has a mass of $1 \, Kg$ and $(x, y, z)$ dimensions equal to $(0.15, 0.1,
 Its collision shape is approximated considering the 8 points corresponding to its corners.
 
 \begin{table}
-    \small
-    \centering
-    \begin{tblr}{
-        colspec={Q[c, m]Q[c, m]},
-        row{even} = {bg=gray9},
-        row{1} = {font=\bfseries\footnotesize},
-    }
-        \toprule
-        Property & Value \\
-        \midrule
-        \texttt{timestep} & $0.001$ \\
-        \texttt{integrator} & \texttt{RK4} \\
-        \texttt{solver} & \texttt{Newton} \\
-        \texttt{iterations} & $50$ \\
-        \texttt{cone} & \texttt{elliptic} \\
-        \texttt{friction} & $(\mu,\, 0,\, 0)$ \\
-        \texttt{solref} & $(-1e6,\, -2000)$ \\
-        \texttt{condim} & $3$ \\
-        \bottomrule
-    \end{tblr}
-    \caption{Mujoco configuration considered in the experiments of the sliding box on inclined surface matching as close as possible the setting and properties of our soft-contact model. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
-    \label{tab:mujoco_parameters}
+\small
+\centering
+\caption{Mujoco configuration considered in the experiments of the sliding box on inclined surface matching as close as possible the setting and properties of our soft-contact model. Refer to the official documentation at \url{https://mujoco.readthedocs.io} for a detailed explanation of the options.}
+\label{tab:mujoco_parameters}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries\footnotesize},
+}
+    \toprule
+    Property & Value \\
+    \midrule
+    \texttt{timestep} & $0.001$ \\
+    \texttt{integrator} & \texttt{RK4} \\
+    \texttt{solver} & \texttt{Newton} \\
+    \texttt{iterations} & $50$ \\
+    \texttt{cone} & \texttt{elliptic} \\
+    \texttt{friction} & $(\mu,\, 0,\, 0)$ \\
+    \texttt{solref} & $(-1e6,\, -2000)$ \\
+    \texttt{condim} & $3$ \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 The box starts floating in the air having its \ac{CoM} positioned in $\pos[W]_G = (0, 0, 1.0) \, m$.

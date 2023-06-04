@@ -13,6 +13,7 @@ This approach allows utilising the widely used family of model-free \ac{RL} algo
 The priors act only as exploration hints, therefore, the model description does not need to be excessively accurate.
 We also apply domain randomization over the model description used in simulation, resulting in differences between the simulated robot's dynamics and the model's dynamic from which the reward-shaping priors are computed.
 
+\newpage
 \section{Training Environment}
 
 \begin{figure}
@@ -54,24 +55,27 @@ The integration process, instead, enables to use a policy that generates discont
 \subsection{State}
 
 \begin{table}
-    \small
-    \center
+    \centering
     \caption{Observation components.}
     \label{tab:observation}
-    \begin{tabular}{llcc}
+    \begin{tblr}{
+        colspec={Q[l, m]Q[l, m]Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+    }
         \toprule
         Name & Value & Set & Range \\
-        \midrule \rowcolor{black!10}
+        \midrule
         Joint positions & $\mathbf{o}_s = \boldsymbol{s}$ & $\mathbb{R}^n$ & $[\boldsymbol{s}_{lb}, \boldsymbol{s}_{ub}]$ \\
-        Joint velocities & $\mathbf{o}_{\dot{s}} = \dot{\boldsymbol{s}}$ & $\mathbb{R}^n $ & $[-\pi, \pi]$ \\ \rowcolor{black!10}
+        Joint velocities & $\mathbf{o}_{\dot{s}} = \dot{\boldsymbol{s}}$ & $\mathbb{R}^n $ & $[-\pi, \pi]$ \\
         Base height & $\mathbf{o}_h = \boldsymbol{p}_B^z$ & $\mathbb{R}$ & $[0, 0.78]$ \\
-        Base orientation & $\mathbf{o}_R = (\rho, \phi)_B$ & $\mathbb{R}^2$ & $[-2\pi, 2\pi]$ \\ \rowcolor{black!10}
+        Base orientation & $\mathbf{o}_R = (\rho, \phi)_B$ & $\mathbb{R}^2$ & $[-2\pi, 2\pi]$ \\
         Contact configuration & $\mathbf{o}_c = (c_L, c_R)$ & $\{0, 1\}^2$ & - \\
-        \ac{CoP} forces & $ \mathbf{o}_f = (f^{CoP}_L, f^{CoP}_R)$ & $\mathbb{R}^2$ & $[0, mg]$ \\ \rowcolor{black!10}
+        \ac{CoP} forces & $ \mathbf{o}_f = (f^{CoP}_L, f^{CoP}_R)$ & $\mathbb{R}^2$ & $[0, mg]$ \\
         Feet positions & $\mathbf{o}_F = ({}^B \boldsymbol{p}_L, {}^B \boldsymbol{p}_R)$ & $\mathbb{R}^6$ & $[0, 0.78]$ \\
         \ac{CoM} velocity & $\mathbf{o}_v = {}^{G}\boldsymbol{v}_{CoM}$ & $\mathbb{R}^3$ & $[0, 3]$ \\
         \bottomrule
-    \end{tabular}
+    \end{tblr}
 \end{table}
 
 Since no perception is involved, the state of the \ac{MDP} contains information about the robot's kinematics and dynamics.
@@ -151,26 +155,28 @@ Finally, since the simulation does not include the real dynamics of the actuator
 \section{Agent}
 
 \begin{table}
-    \small
-    \center
-    \caption{PPO, policy, and training parameters.}
-    \label{tab:training_parameters}
-    \newcommand{\ck}{\checkmark}
-    \begin{tabular}{cc}
-        \toprule
-        Parameter & \multicolumn{1}{c}{Value} \\
-        \midrule \rowcolor{black!10}
-        Discount rate $\gamma$ & 0.95 \\
-        Clip parameter $\epsilon$ & 0.3 \\ \rowcolor{black!10}
-        Learning rate $\alpha$ & 0.0001 \\ 
-        GAE parameter $\lambda$ & 1.0 \\ \rowcolor{black!10}
-        Batch size & 10000 \\ 
-        Minibatch size & 512 \\ \rowcolor{black!10}
-        Number of SGD epochs & 32 \\ 
-        Number or parallel workers & 32 \\ \rowcolor{black!10}
-        Value function clip parameter & 1000 \\ 
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{PPO, policy, and training parameters.}
+\label{tab:training_parameters}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries},
+}
+    \toprule
+    Parameter & \multicolumn{1}{c}{Value} \\
+    \midrule
+    Discount rate $\gamma$ & 0.95 \\
+    Clip parameter $\epsilon$ & 0.3 \\
+    Learning rate $\alpha$ & 0.0001 \\
+    GAE parameter $\lambda$ & 1.0 \\
+    Batch size & 10000 \\
+    Minibatch size & 512 \\
+    Number of SGD epochs & 32 \\
+    Number or parallel workers & 32 \\
+    Value function clip parameter & 1000 \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 The agent receives the observation $\boldsymbol{o}$ from the environment and returns the action $\mathbf{a}$ defining the reference velocities of the controlled joints.
@@ -201,34 +207,9 @@ Each trial is stopped once it reaches 20~M agent steps, roughly equivalent to 7~
 Worker nodes run only on \ac{CPU} resources, while the trainer has access to the \ac{GPU} for accelerating the optimisation process.
 We use the RLlib~\parencite{liang_rllib_2018} framework, OpenAI Gym, and distributed training.
 
+\newpage
 \section{Reward Shaping}
 \label{sec:reward_shaping}
-
-\begin{sidewaystable}
-    \center
-    \caption{Reward function details. Terms with a defined cutoff are processed by the RBF kernel.}
-    \label{tab:reward}
-    \newcommand{\ck}{\checkmark}
-    \setlength\extrarowheight{2pt}
-    \begin{tabular}{lcrccrlrr}
-        \toprule
-        Name & Symbol(s) & Weight & Value $\mathbf{x}$ & Target $\mathbf{x}^*$ & \multicolumn{2}{c}{Cutoff $x_c$}  & SS & DS \\
-        \midrule \rowcolor{black!10}
-        Joint torques & $r_\tau$ & 5 & $\Vert \boldsymbol{\tau}_{step} \Vert $ & $\boldsymbol{0}_n$ & 10.0 & Nm & \ck & \ck \\
-        Joint velocities & $r_{\dot{s}}$ & 2 & $\boldsymbol{a}$ & $\boldsymbol{0}_n$ & 1.0 & rad/s & \ck & \ck \\ \rowcolor{black!10}
-        Postural & $r_{s}$ & 10 & $\boldsymbol{s}$ & $\boldsymbol{s}_0$ & 7.5 & deg & & \ck \\
-        CoM $z$ velocity & $r_{v}^z$ & 2 & $\boldsymbol{v}^{xy}_{G}$ & $0$ & 1.0 & m/s & \ck & \ck \\ \rowcolor{black!10}
-        CoM $xy$ velocity & $r_{v}^{xy}$ & 2 & $\boldsymbol{v}^{z}_{G}$ & $\omega_0 (\boldsymbol{p}^{xy}_{G} - \boldsymbol{\bar{p}}^{xy}_{hull})$ & 0.5 & m/s & & \ck \\
-        Feet contact forces & $\{r_{f}^L, r_{f}^R\}$ & 4 & $\{f^{CoP}_L, f^{CoP}_R\}$ & $m g / 2$ & $m g / 2$ & N & \ck & \ck \\ \rowcolor{black!10}
-        Centroidal momentum & $r_h$ & 1 & $\Vert {}_{G} \mathbf{h}_l \Vert^2 + \Vert {}_{G} \mathbf{h}_\omega \Vert^2$ & 0 & 50.0 & kg m$^2$/s & \ck & \ck \\
-        Feet CoPs & $\{r_{p}^L, r_{p}^R\}$ & 20 & $\{\boldsymbol{p}_{L, CoP}, \boldsymbol{p}_{R, CoP}\}$ & $\{\bar{\boldsymbol{p}}^{xy}_{L, hull}, \bar{\boldsymbol{p}}^{xy}_{R, hull}\}$ & 0.3 & m & \ck & \ck \\ \rowcolor{black!10}
-        Feet orientation & $\{r_{o}^L, r_{o}^R\}$ & 3 & $\{\mathbf{r}^{(z)}_L \cdot \mathbf{e}_z, \mathbf{r}^{(z)}_R \cdot \mathbf{e}_z\}$ & $1$ & 0.01 & - & \ck & \ck \\
-        CoM projection & $r_{G}$ & 10 & $\boldsymbol{p}^{xy}_{G}$ & in the CH of support polygon & \multicolumn{1}{r}{-} & - & & \ck \\ \rowcolor{black!10}
-        Feet in contact & $r_{c}$ & 2 & $c_L \land c_R$ & 1 & \multicolumn{1}{r}{-} & - & \ck & \ck \\
-        Links in contact & $r_l$ & -10 & $c_{l}$ & $0$ & \multicolumn{1}{r}{-} & - & \ck & \ck \\
-        \bottomrule
-    \end{tabular}
-\end{sidewaystable}
 
 \subsection{RBF Kernel}
 
@@ -365,6 +346,36 @@ If ${}^W R_{foot} = [\mathbf{r}^{(x)}, \mathbf{r}^{(y)}, \mathbf{r}^{(z)}]$ is t
 
 \end{description}
 
+\begin{landscape}
+\begin{table}
+    \centering
+    \caption{Reward function details. Terms with a defined cutoff are processed by the RBF kernel.}
+    \label{tab:reward}
+    \newcommand{\ck}{\checkmark}
+    \begin{tblr}{
+        colspec={Q[l,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+        }
+        \toprule
+        Name & Symbol(s) & Weight & Value $\mathbf{x}$ & Target $\mathbf{x}^*$ & \multicolumn{2}{c}{Cutoff $x_c$} & SS & DS \\
+        \midrule
+        Joint torques & $r_\tau$ & 5 & $\Vert \boldsymbol{\tau}_{step} \Vert $ & $\boldsymbol{0}_n$ & 10.0 & Nm & \ck & \ck \\
+        Joint velocities & $r_{\dot{s}}$ & 2 & $\boldsymbol{a}$ & $\boldsymbol{0}_n$ & 1.0 & rad/s & \ck & \ck \\
+        Postural & $r_{s}$ & 10 & $\boldsymbol{s}$ & $\boldsymbol{s}_0$ & 7.5 & deg & & \ck \\
+        CoM $z$ velocity & $r_{v}^z$ & 2 & $\boldsymbol{v}^{xy}_{G}$ & $0$ & 1.0 & m/s & \ck & \ck \\
+        CoM $xy$ velocity & $r_{v}^{xy}$ & 2 & $\boldsymbol{v}^{z}_{G}$ & $\omega_0 (\boldsymbol{p}^{xy}_{G} - \boldsymbol{\bar{p}}^{xy}_{hull})$ & 0.5 & m/s & & \ck \\
+        Feet contact forces & $\{r_{f}^L, r_{f}^R\}$ & 4 & $\{f^{CoP}_L, f^{CoP}_R\}$ & $m g / 2$ & $m g / 2$ & N & \ck & \ck \\
+        Centroidal momentum & $r_h$ & 1 & $\Vert {}_{G} \mathbf{h}_l \Vert^2 + \Vert {}_{G} \mathbf{h}_\omega \Vert^2$ & 0 & 50.0 & kg m$^2$/s & \ck & \ck \\
+        Feet CoPs & $\{r_{p}^L, r_{p}^R\}$ & 20 & $\{\boldsymbol{p}_{L, CoP}, \boldsymbol{p}_{R, CoP}\}$ & $\{\bar{\boldsymbol{p}}^{xy}_{L, hull}, \bar{\boldsymbol{p}}^{xy}_{R, hull}\}$ & 0.3 & m & \ck & \ck \\
+        Feet orientation & $\{r_{o}^L, r_{o}^R\}$ & 3 & $\{\mathbf{r}^{(z)}_L \cdot \mathbf{e}_z, \mathbf{r}^{(z)}_R \cdot \mathbf{e}_z\}$ & $1$ & 0.01 & - & \ck & \ck \\
+        CoM projection & $r_{G}$ & 10 & $\boldsymbol{p}^{xy}_{G}$ & in the CH of support polygon & \multicolumn{1}{r}{-} & - & & \ck \\
+        Feet in contact & $r_{c}$ & 2 & $c_L \land c_R$ & 1 & \multicolumn{1}{r}{-} & - & \ck & \ck \\
+        Links in contact & $r_l$ & -10 & $c_{l}$ & $0$ & \multicolumn{1}{r}{-} & - & \ck & \ck \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+\end{landscape}
 
 \section{Results}
 
