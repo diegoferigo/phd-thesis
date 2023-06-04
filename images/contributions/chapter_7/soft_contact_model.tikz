@@ -105,19 +105,22 @@ color(100bp)=(transparent!10) }
 % Text Node
 \draw (288,46.6) node [anchor=south east] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 65; green, 70; blue, 203 }  ,opacity=1 ]  {$\mathbf{p}_{cp}( t)$};
 % Text Node
-\draw (190,213.4) node [anchor=north] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 189; green, 16; blue, 224 }  ,opacity=1 ]  {$\boldsymbol{v}_{W,cp}$};
+\draw (190,213.4) node [anchor=north] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 189; green, 16; blue, 224 }  ,opacity=1 ]  {$\posd[W]_C$};
+% {$\boldsymbol{v}_{W,C}$}
 % Text Node
-\draw (221,111.6) node [anchor=south west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 234; green, 81; blue, 100 }  ,opacity=1 ]  {$\mathbf{u}$};
+\draw (221,111.6) node [anchor=south west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 234; green, 81; blue, 100 }  ,opacity=1 ]  {$\mathbf{m}$};
 % Text Node
 \draw (242,156.6) node [anchor=south west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 67; green, 207; blue, 175 }  ,opacity=1 ]  {$\delta $};
 % Text Node
-\draw (178,190) node [anchor=east] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 99; green, 159; blue, 30 }  ,opacity=1 ]  {$\boldsymbol{v}_{W,cp}^{\parallel }$};
+\draw (178,190) node [anchor=east] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 99; green, 159; blue, 30 }  ,opacity=1 ]  {$\vellin_C^\parallel$};
+% {$\boldsymbol{v}_{W,C}^{\parallel }$}
 % Text Node
-\draw (232,190) node [anchor=west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\boldsymbol{v}_{W,cp}^{\perp }$};
+\draw (232,190) node [anchor=west] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 74; green, 144; blue, 226 }  ,opacity=1 ]  {$\vellin_C^\perp$};
+% {$\boldsymbol{v}_{W,C}^{\perp }$};
 % Text Node
 \draw (298,146.6) node [anchor=south east] [inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 0; green, 0; blue, 0 }  ,opacity=1 ]  {$W$};
 % Text Node
-\draw (218,166.6) node [anchor=south east] [inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 0; green, 0; blue, 0 }  ,opacity=1 ]  {$C[ W]$};
+\draw (218,166.6) node [anchor=south east] [inner sep=0.75pt]  [font=\tiny,color={rgb, 255:red, 0; green, 0; blue, 0 }  ,opacity=1 ]  {$C$};
 % Text Node
 \draw (148,140) node [anchor=east] [inner sep=0.75pt]  [font=\scriptsize,color={rgb, 255:red, 139; green, 87; blue, 42 }  ,opacity=1 ]  {$h$};
 % Text Node

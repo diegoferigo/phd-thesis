@@ -34,24 +34,35 @@
 \pgfplotsset{compat=newest}
 \usepgfplotslibrary{groupplots}
 
-%********************************************************************
+% Cache TIKZ images. Requires custom latexmkrc.
+% \usetikzlibrary{external}
+% \tikzexternalize[prefix=tikzexternalize/]
+
+% =======================================
 % Note: Make all your adjustments in here
-%*******************************************************
+% =======================================
+
 \input{classicthesis-config}
 
-%********************************************************************
+% ==============
 % Bibliographies
-%*******************************************************
+% ==============
+
 \addbibresource{zotero.bib}
 
-%********************************************************************
+% ===========
 % Hyphenation
-%*******************************************************
+% ===========
+
 %\hyphenation{put special hyphenation here}
 
-% ********************************************************************
+% Sequential numbering document-wise of footnotes
+\counterwithout{footnote}{chapter}
+
+% ==================
 % GO!GO!GO! MOVE IT!
-%*******************************************************
+% ==================
+
 \begin{document}
 \frenchspacing
 \raggedbottom
@@ -62,9 +73,9 @@
 \pagenumbering{arabic}
 \pagestyle{plain}
 
-%********************************************************************
+% ===========
 % Frontmatter
-%*******************************************************
+% ===========
 
 %\include{FrontBackmatter/dirty_titlepage}
 \include{FrontBackmatter/titlepage}
@@ -78,9 +89,9 @@
 \clearpage\include{FrontBackmatter/copyright}
 % \cleardoublepage\include{FrontBackmatter/acknowledgments}
 
-%********************************************************************
+% ==========
 % Mainmatter
-%*******************************************************
+% ==========
 
 \cleardoublepage
 \pagestyle{scrheadings}
@@ -102,9 +113,9 @@
 \include{Chapters/Part_2/chapter_7}
 \include{Chapters/Part_2/chapter_8}
 
-% ********************************************************************
+% ==========
 % Backmatter
-%*******************************************************
+% ==========
 
 \cleardoublepage\include{Chapters/epilogue}
 \cleardoublepage\include{FrontBackmatter/bibliography}
@@ -116,9 +127,8 @@
 \part{Appendix}
 \include{Chapters/appendix}
 
-% ********************************************************************
+% =====================================
 % Game Over: Restore, Restart, or Quit?
-%*******************************************************
+% =====================================
 
 \end{document}
-% ********************************************************************

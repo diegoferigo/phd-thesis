@@ -2,7 +2,6 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\tocEntry{Prologue}}
 
-\acresetall
 \chapter*{Prologue}
 \chaptermark{Prologue}
 
@@ -32,7 +31,7 @@ Actions like interacting with a constantly-changing environment, predicting peop
 Machine intelligence is among the most fascinating problems currently researched by our society.
 \ac{DL}, which consists of the recent combination of \ac{ML} with deep \acp{NN} recently enabled by the computational power of modern computing, revolutionised domains like computer vision and natural language processing.
 Under the assumption of large enough datasets, the most advanced algorithms belonging to the Supervised Learning family have been demonstrated to be capable of training systems that have often shown super-human performance.
-One could think of applying similar techniques to the field of robotics to obtaining comparable success without realising the inherent challenges posed by this domain.
+One could think of applying similar techniques to the field of robotics to obtain comparable success without realising the inherent challenges posed by this domain.
 Robots are physical systems.
 Generating datasets as large as those that characterise the most recent research in computer vision and language processing would either take too long or not even be possible, without even considering the wear and tear of the hardware and the operational and maintenance cost.
 Furthermore, regardless of the feasibility of data collection, robotics is an interactive domain, and data sampled from robots has a sequential conformation.
@@ -44,18 +43,18 @@ The technological progress triggered by the advent of \ac{DL} had a strong impac
 The transfer to robotics was inevitable.
 However, \ac{RL} methods learn sequentially following a process similar to trial-and-error.
 When applied to robotics, during their training phase, these methods could generate control actions that may damage either the robot or its surroundings. 
-For this reason, the accomplishments in the past decade of \ac{RL} applied to robotics have been demonstrated mainly in simulations rather than with real-world robots.
+For this reason, the accomplishments in the past decade of \ac{RL} applied to robotics have been demonstrated mainly in simulation rather than with real-world robots.
 Generating synthetic data from simulators is cheap and effective, can be scaled to dozens or hundreds of concurrent instances, and there is no risk of damage.
 
 Undeniably, synthetic data can only capture physical effects that can be described through equations executed by a computer program, and similarly to other domains, also robotic simulations suffer from the trade-off between accuracy and speed.
-Particularly, contact dynamics have always been challenging to capture with high fidelity, and usually simulators neglect non-ideal effects like motor dynamics, actuation delays, and backlash.
-However, the past decades have shown that advances in computing hardware and software methodologies have always had a substantial impact on reducing the effects of this trade-off, also called \emph{reality gap}, and we believe that also research in robotic simulations will continue in this direction.
+Particularly, contact dynamics has always been challenging to capture with high fidelity, and usually simulators neglect non-ideal effects like motor dynamics, actuation delays, and backlash.
+However, the past decades have shown that advances in computing hardware and software methodologies have always had a substantial impact on reducing the effects of this trade-off --also called \emph{reality gap}-- and we believe that also research in robotic simulations will continue in this direction.
 
 In the 2010s, the \ac{RL} community has been particularly prolific, producing a considerable number of new algorithms.
 Despite their improved properties like increased sample efficiency, faster and more stable convergence, \etc they always rely on a given amount of trial-and-error experience, with no exception.
-If, on the one hand, better algorithms are lower-bounded by the least amount of data describing the decision-making logic to learn, on the other, the amount of synthetic data that simulators can generate has no theoretical upper bound.
+If, on the one hand, better algorithms are lower-bounded by the least amount of data describing the decision-making logic to learn, on the other hand, the amount of synthetic data that simulators can generate has no theoretical upper bound.
 The rapid adoption of \ac{RL} in the robotics domain forced practitioners to use the simulation technology from either robotics or gaming available at that time, which was never optimised for maximising execution speed.
-In fact, a single simulation instance executing in real-time has always been more than enough for the original applications.
+In fact, a single simulation instance executing in real-time has always been more than enough for the original purpose.
 It is not uncommon to find \ac{RL} experiments that require days, weeks, or even months worth of data, giving those with access to large computational resources a significant advantage.
 The robot learning community is aware of this limitation to the extent that today's research on domain-specific simulators that can be massively scaled on modern hardware accelerators, not necessarily as fully-fledged as in the past, is surging.
 
@@ -72,13 +71,13 @@ In the continuation of this section, we provide a short outline describing the s
 
 \subsubsection{Part I: Background and Fundamentals}
 
-This part introduces the reader to the fundamental concepts behind the contributions of this thesis, reviews the state-of-the-art of corresponding domains, and provides a detailed overview of the contributions to knowledge.
+This part introduces the reader to the fundamental concepts behind the contributions of this thesis, reviews the state-of-the-art of corresponding domains, and provides a detailed overview of research output supporting the contributions to knowledge.
 
 \begin{itemize}
     \item Chapter~\ref{ch:introduction} introduces robotic simulators, defining their main components and properties. It also describes the enabling technologies that made the work of this thesis possible, such as the Gazebo Sim simulator and the \jax framework.
     \item Chapter~\ref{ch:robot_modelling} introduces the notation and the equations governing rigid multibody dynamics, and how relevant dynamics and kinematics quantities could be computed and propagated through the model of a robotic mechanical structure.
     \item Chapter~\ref{ch:reinforcement_learning} introduces the main concepts and notation of \ac{RL}. It formulates the structure of the \ac{RL} problem, describes the main families of algorithms that could be used to compute a solution, and develops the theory behind policy optimisation, reaching the formulation of the \acl{PPO} algorithm.
-    \item Chapter~\ref{ch:sota} reviews the state-of-the-art of the domains of \acl{RL} applied to robot locomotion, simulators for robot learning, and methodologies for push recovery. It also details open problems that characterise these domains, and how the contributions to knowledge of this thesis aims to solve them.
+    \item Chapter~\ref{ch:sota} reviews the state-of-the-art of the domains of \acl{RL} applied to robot locomotion, simulators for robot learning, and methodologies for push recovery. It also details open problems that characterise these domains, and how the contributions to knowledge of this thesis aim to solve them.
 \end{itemize}
 
 \subsubsection{Part II: Contributions}
@@ -95,7 +94,7 @@ This part presents the contributions to knowledge provided by this thesis, whose
     %
     \item Chapter~\ref{ch:contact_aware_dynamics} starts addressing the problem of optimising the generation of synthetic experience for robot locomotion, whose performance was a bottleneck in the experiment presented in the previous chapter. This chapter provides a state-space representation that models the dynamics of a floating-base robot that can be integrated numerically to simulate its evolution. It formulates a soft-contacts model to compute the interaction forces between the robot and the terrain surface, supporting both static (sticking) and dynamic (slipping) regimes, having a friction cone boundary without approximations. The dynamics of the contact model are then included in an extended state-space representation, obtaining a system of differential equations that describe the contact-aware dynamics of a floating-base robot.
     %
-    \item Chapter~\ref{ch:scaling_rigid_body_simulations}, by exploiting the contact-aware state-space representation formulated in the previous chapter, presents a new physics engine in reduced coordinates that can be executed on hardware accelerators like \acsp{GPU} and \acsp{TPU} for maximising sampling throughput. To this end, with the notation introduced in Chapter~\ref{ch:robot_modelling}, this chapter also formulates canonical \aclp{RBDA} that can be executed in this accelerated context. The physics engine performance is finally benchmarked, assessing the accuracy and speed of its algorithms and the scaling properties when executed in a highly parallel setting integrating hundreds or thousands of robot models concurrently.
+    \item Chapter~\ref{ch:scaling_rigid_body_simulations}, by exploiting the contact-aware state-space representation formulated in the previous chapter, presents a new physics engine in reduced coordinates that can be executed on hardware accelerators like \acsp{GPU} and \acsp{TPU} for maximising sampling throughput. To this end, with the notation introduced in Chapter~\ref{ch:robot_modelling}, this chapter also formulates canonical \aclp{RBDA} that can be executed in this accelerated context. The physics engine performance is then benchmarked, assessing the accuracy and speed of its algorithms and the scaling properties when executed in a highly parallel setting integrating hundreds or thousands of robot models concurrently. Finally, we validate the performance of the proposed physics engine by training a policy by sampling experience from hundreds of parallel environments running on \ac{GPU} and evaluate its performance in a sim-to-sim setting representing an out-of-distribution environment.
 \end{itemize}
 
 \section*{Research Publications}
@@ -164,7 +163,6 @@ Conference on Humanoid Robots (Humanoids)}, 2019
     \textit{International Journal of Advanced Robotic Systems}, 2020
 \end{quote}
 
-\newpage
 \begin{quote}
     \textbf{Towards Partner-Aware Humanoid Robot Control Under Physical Interactions} \\
     Yeshasvi Tirupachuri, Gabriele Nava, Claudia Latella, Diego Ferigo, Lorenzo Rapetti, Luca Tagliapietra, Francesco Nori, Daniele Pucci \\
@@ -189,17 +187,18 @@ Conference on Humanoid Robots (Humanoids)}, 2019
     \textit{Cognitive Robotics, Chapter 7}, 2022
 \end{quote}
 
+\newpage
 \section*{Software Projects}
 
 The results of the research conducted for this thesis produced the following software projects that I developed and I am maintaining:
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{scenario}} is an abstraction layer providing \acp{API} to interact with simulated and real robots. The goal of the project is to allow developing high-level code that can target all the available implementations using the same function calls. Currently, it provides a complete implementation for interfacing with robots simulated using the Gazebo Sim general-purpose simulator. The \acp{API} are developed and available in \cpp. Python bindings are also provided. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \url{https://github.com/robotology/gym-ignition/tree/master/scenario}.
+\textbf{\texttt{scenario}} is an abstraction layer providing \acp{API} to interact with simulated and real robots. The goal of the project is to allow developing high-level code that can target all the available implementations using the same function calls. Currently, it provides a complete implementation for interfacing with robots simulated using the Gazebo Sim general-purpose simulator. The \acp{API} are developed and available in \cpp. Python bindings are also provided. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition/tree/master/scenario}.
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \url{https://github.com/robotology/gym-ignition}.
+\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from the setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition}.
 
 \vspace{3mm}
 \noindent
@@ -207,4 +206,4 @@ The results of the research conducted for this thesis produced the following sof
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{jaxsim}} is a scalable physics engine in reduced coordinates implemented with \jax. It is developed in Python and supports most of the \jax features, including \ac{JIT} compilation and auto-vectorization. Simulations can be executed on all the hardware supported by \jax, including \acp{CPU}, \acp{GPU}, and \acp{TPU}. The library is open-source, released under the \emph{BSD-3-Clause}, and it is available at \url{https://github.com/ami-iit/jaxsim}.
+\textbf{\texttt{jaxsim}} is a scalable physics engine in reduced coordinates implemented with \jax. It is developed in Python and supports most of the \jax features, including \ac{JIT} compilation and auto-vectorization. Simulations can be executed on all the hardware supported by \jax, including \acp{CPU}, \acp{GPU}, and \acp{TPU}. The library is open-source, released under the \emph{BSD-3-Clause}, and it is available at \linebreak \url{https://github.com/ami-iit/jaxsim}.

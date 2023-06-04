@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Learning from scratch exploiting Robot Models}
 \label{ch:learning_from_scratch}
 
@@ -9,15 +8,12 @@ Framing the control objective as a \ac{RL} problem, we aim to train with the \ac
 The resulting control action, simultaneously operating on both the upper- and lower-body joints, encodes multiple whole-body push-recovery strategies involving the usage of ankles, hips, momentum, and stepping strategies.
 The policy automatically selects and blends all these different strategies upon need.
 
-% TODO: move to context of contribution?
-% Motion control on humanoid robots, compared to other robot categories, is particularly challenging due to their narrow support surface, sparse mass distribution, redundancy due to the number of \acp{DoF}, and underactuation of their floating base.
-% In this setting, the agent during the \ac{RL} training needs to navigate its state space properly balancing the exploration and the exploitation trade-off, preventing to obtain sub-optimal policies due to local minima.
-
 The presented architecture adopts a \emph{reward shaping} methodology that exploits as prior information quantities computed from the robot description, such as whole-body momentum and data related to the robot's \ac{CoM}.
 This approach allows utilising the widely used family of model-free \ac{RL} algorithms while exploiting priors without changing the overall learning framework.
 The priors act only as exploration hints, therefore, the model description does not need to be excessively accurate.
 We also apply domain randomization over the model description used in simulation, resulting in differences between the simulated robot's dynamics and the model's dynamic from which the reward-shaping priors are computed.
 
+\newpage
 \section{Training Environment}
 
 \begin{figure}
@@ -27,22 +23,24 @@ We also apply domain randomization over the model description used in simulation
     \label{fig:hierarchical}
 \end{figure}
 
-The decision-making task is structured as a continuous control task with early termination conditions.
+The decision-making logic is structured as a continuous control task with early termination conditions.
 Its dynamics runs in the Gazebo Sim simulator embedded into the Gym-Ignition framework presented in Section~\ref{sec:gym_ignition}, exposing a \ac{RL} environment compatible with \verb|gym.Env|~\parencite{brockman_openai_2016}.
 The enabled physics engine is DART~\parencite{lee_dart_2018}.
 We selected iDynTree~\parencite{nori_icub_2015} for calculating rigid-body dynamics quantities that model the floating-base multibody system as described in Section~\ref{sec:multibody_dynamics}, whose dynamics is described by the following equation:
 %
 \begin{equation}
-    M(\Qu) \Nud + h(\Qu, \Nu) = B \Torques + \sum_{\mathcal{L}} J^\top(\Qu) \forcesix_L^{ext}
-    ,
+    M(\Qu) \Nud + h(\Qu, \Nu) = B \Torques + \sum_{L \in \mathcal{L}} J_{W,L}^\top(\Qu) \forcesix_L^{ext}
+    .
 \end{equation}
 %
-where we grouped the Coriolis and gravity terms into a new term $h(\Qu, \Nu) = C(\Qu, \Nu) \Nu + g(\Qu)$ for compactness.
+The iDynTree library allows to load a model description encoded in \ac{URDF} and provides all the terms forming this Lagrangian representation of the floating-base \acp{EoM} together with additional quantities that will be included in the reward computation described in Section~\ref{sec:reward_shaping}.
 
-The environment receives actions and provides observations and rewards at 25~Hz.
+Figure~\ref{fig:hierarchical} reports a high-level overview of the proposed control system.
+The environment receives actions from the agent, here represented as its underlying \ac{NN}, and produces observations and rewards at 25~Hz.
 The physics and the low-level \pid controllers run at 1000~Hz.
 During training, some properties of the environment are randomised (see Sec.~\ref{sec:env-other}).
 
+\pagebreak
 \subsection{Action}
 
 The separation between agent and environment is defined by the  action selection.
@@ -51,37 +49,48 @@ The controlled joints belong to the legs, torso, and arms.
 Hands, wrists, and neck, which arguably play a minor role in balancing, are locked in their natural positions.
 The policy computes target joint velocities bounded in $[-180,180]$~deg/s at $25$~Hz.
 Commanding joint velocities rather than joint positions prevents target joint positions from being too distant from each other in consecutive steps.
-Especially at training onset, this would lead to jumpy references that the \pid controllers cannot track, affecting the discovery of the relation between $\mathbf{x}_t$ and $\mathbf{x}_{t+1}$.
+Especially at training onset, this would lead to jumpy references that the \pid controllers cannot track, affecting the discovery of the relation between the states $\mathbf{x}_t$ and $\mathbf{x}_{t+1}$.
 The integration process, instead, enables to use a policy that generates discontinuous actions while maintaining continuous \pid inputs with no need for additional filters.
 
 \subsection{State}
 
 \begin{table}
-    \small
-    \center
+    \centering
     \caption{Observation components.}
     \label{tab:observation}
-    \begin{tabular}{llcc}
+    \begin{tblr}{
+        colspec={Q[l, m]Q[l, m]Q[c, m]Q[c, m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+    }
         \toprule
         Name & Value & Set & Range \\
-        \midrule \rowcolor{black!10}
+        \midrule
         Joint positions & $\mathbf{o}_s = \boldsymbol{s}$ & $\mathbb{R}^n$ & $[\boldsymbol{s}_{lb}, \boldsymbol{s}_{ub}]$ \\
-        Joint velocities & $\mathbf{o}_{\dot{s}} = \dot{\boldsymbol{s}}$ & $\mathbb{R}^n $ & $[-\pi, \pi]$ \\ \rowcolor{black!10}
+        Joint velocities & $\mathbf{o}_{\dot{s}} = \dot{\boldsymbol{s}}$ & $\mathbb{R}^n $ & $[-\pi, \pi]$ \\
         Base height & $\mathbf{o}_h = \boldsymbol{p}_B^z$ & $\mathbb{R}$ & $[0, 0.78]$ \\
-        Base orientation & $\mathbf{o}_R = (\rho, \phi)_B$ & $\mathbb{R}^2$ & $[-2\pi, 2\pi]$ \\ \rowcolor{black!10}
+        Base orientation & $\mathbf{o}_R = (\rho, \phi)_B$ & $\mathbb{R}^2$ & $[-2\pi, 2\pi]$ \\
         Contact configuration & $\mathbf{o}_c = (c_L, c_R)$ & $\{0, 1\}^2$ & - \\
-        \ac{CoP} forces & $ \mathbf{o}_f = (f^{CoP}_L, f^{CoP}_R)$ & $\mathbb{R}^2$ & $[0, mg]$ \\ \rowcolor{black!10}
+        \ac{CoP} forces & $ \mathbf{o}_f = (f^{CoP}_L, f^{CoP}_R)$ & $\mathbb{R}^2$ & $[0, mg]$ \\
         Feet positions & $\mathbf{o}_F = ({}^B \boldsymbol{p}_L, {}^B \boldsymbol{p}_R)$ & $\mathbb{R}^6$ & $[0, 0.78]$ \\
         \ac{CoM} velocity & $\mathbf{o}_v = {}^{G}\boldsymbol{v}_{CoM}$ & $\mathbb{R}^3$ & $[0, 3]$ \\
         \bottomrule
-    \end{tabular}
+    \end{tblr}
 \end{table}
 
 Since no perception is involved, the state of the \ac{MDP} contains information about the robot's kinematics and dynamics.
-It is defined as the tuple $\mathbf{x} := \langle \mathbf{q}, \mathbf{\boldsymbol{\nu}}, \mathbf{f}_L, \mathbf{f}_R \rangle \in \mathcal{X}$.
-The observation, computed from the state $\mathbf{x}$, is defined as the tuple $\boldsymbol{o} := \langle \mathbf{o}_s, \mathbf{o}_{\dot{s}}, \mathbf{o}_h, \mathbf{o}_R, \mathbf{o}_c, \mathbf{o}_f, \mathbf{o}_F, \mathbf{o}_v \rangle \in \mathcal{O}$, where $\mathcal{O} := \mathbb{R}^{62}$.
+It is defined as the tuple $\mathbf{x} := \langle \mathbf{q}, \mathbf{\boldsymbol{\nu}}, \mathbf{f}_L, \mathbf{f}_R \rangle \in \mathcal{X}$, where $(\mathbf{f}_L, \mathbf{f}_R)$ are the 6D forces exchanged between the feet and the terrain.
+The observation, computed from the state $\mathbf{x}$ and the robot model $\mathcal{M}$, is defined as the tuple
 %
-The observation consists of the following terms:
+\begin{equation*}
+    \boldsymbol{o} =
+    \boldsymbol{o}(\mathbf{x}, \mathcal{M}) :=
+    \langle \mathbf{o}_s, \mathbf{o}_{\dot{s}}, \mathbf{o}_h, \mathbf{o}_R, \mathbf{o}_c, \mathbf{o}_f, \mathbf{o}_F, \mathbf{o}_v \rangle \in \mathcal{O}
+\end{equation*}
+%
+where $\mathcal{O} := \mathbb{R}^{62}$.
+%
+The observation consists of the following terms, each of them re-scaled\footnote{We also call the re-scaling operation of a bounded variable as \emph{normalization}.} into a given interval for better properties when used as \ac{NN} inputs:
 %
 \begin{itemize}
 %
@@ -99,7 +108,7 @@ The observation consists of the following terms:
 %
 \item $\mathbf{o}_F$ is a tuple containing the positions of the feet \wrt the base frame, normalised in $[0, 0.78]$~m;
 %
-\item $\mathbf{o}_v$ is the linear velocity of the \ac{CoM} expressed in $G$, normalised in $[0, 3]$~m/s.
+\item $\mathbf{o}_v$ is the linear velocity of the \ac{CoM} expressed in the \ac{CoM} frame $G = (\pos_{CoM}, [B])$, normalised in $[0, 3]$~m/s.
 %
 \end{itemize}
 %
@@ -115,14 +124,14 @@ We select minimal state components encoding the environment dynamics without aff
 
 \paragraph{Initial State Distribution}
 
-The initial state distribution $\rho(\mathbf{x}_0): \mathcal{X} \mapsto \mathcal{O}$ defines the value of the observation in which the agent begins each episode.
+The initial state distribution $\rho(\mathbf{x}_0): \mathcal{X} \to \mathcal{O}$ defines the value of the observation in which the agent begins each episode.
 Sampling the initial state from a distribution with small variance, particularly regarding joint positions and velocities, positively affects exploration without degrading the learning performance.
-At the beginning of each episode, for each joint $j$ we sample its position $s_{j,0}$ from $\mathcal{N}(\mu=s_0, \sigma=10 \, \text{deg})$, where $s_{0}$ represents the fixed initial reference, and its velocity $\dot{s}_{j,0}$ from $\mathcal{N}(\mu=0, \sigma=90 \, \text{deg/s})$.
+At the beginning of each episode, for each joint $j \in \mathcal{J}$ we sample its position $s_{j,0}$ from $\mathcal{N}(\mu=s_0, \sigma=10 \, \text{deg})$, where $s_{0}$ represents the fixed initial reference, and its velocity $\dot{s}_{j,0}$ from $\mathcal{N}(\mu=0, \sigma=90 \, \text{deg/s})$.
 As a result, the robot may or may not start with the feet in contact with the ground, encouraging the agent to learn how to land and deal with impacts.
 
 \paragraph{Exploration}
 
-In order to promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame.
+In order to promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame located over its pelvis.
 The applied force vector has a fixed magnitude of 200~N and is applied for 200~ms.
 Considering the weight of the iCub, approximately 33~kg, the normalised impulse sums up to 1.21~Ns/Kg.
 We sample the direction of the applied force from a uniform spherical distribution.
@@ -141,31 +150,33 @@ We detect the falling condition when any link but the feet touches the ground pl
 During the training process, the environment performs a domain randomisation step at the beginning of each new episode.
 The masses of the robot's links are sampled from a normal distribution $\mathcal{N}(\mu=m_0, \sigma=0.2 m_0)$, where $m_0$ is the nominal mass of the link defined in the model description.
 To avoid making assumptions about the feet's and ground's material properties, we randomise the Coulomb friction $\mu_c$ of the feet by sampling it from $\mathcal{U}(0.5, 3)$.
-Finally, since the simulation does not include the real dynamics of the actuators, to increase robustness, we apply a delay to the position references fed to the \pid controllers, sampled from $\mathcal{U}(0, 20)$~ms.
+Finally, since the simulation does not include the real dynamics of the actuators, to increase robustness, we apply a delay to the position references fed to the \pid controllers, sampled from $\mathcal{U}(0, 20)$~ms, and kept constant during the entire episode (until termination).
 
 \section{Agent}
 
 \begin{table}
-    \small
-    \center
-    \caption{PPO, policy, and training parameters.}
-    \label{tab:training_parameters}
-    \newcommand{\ck}{\checkmark}
-    \begin{tabular}{cc}
-        \toprule
-        Parameter & \multicolumn{1}{c}{Value} \\
-        \midrule \rowcolor{black!10}
-        Discount rate $\gamma$ & 0.95 \\
-        Clip parameter $\epsilon$ & 0.3 \\ \rowcolor{black!10}
-        Learning rate $\alpha$ & 0.0001 \\ 
-        GAE parameter $\lambda$ & 1.0 \\ \rowcolor{black!10}
-        Batch size & 10000 \\ 
-        Minibatch size & 512 \\ \rowcolor{black!10}
-        Number of SGD epochs & 32 \\ 
-        Number or parallel workers & 32 \\ \rowcolor{black!10}
-        Value function clip parameter & 1000 \\ 
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{PPO, policy, and training parameters.}
+\label{tab:training_parameters}
+\begin{tblr}{
+    colspec={Q[c, m]Q[c, m]},
+    row{even} = {bg=gray9},
+    row{1} = {font=\bfseries},
+}
+    \toprule
+    Parameter & \multicolumn{1}{c}{Value} \\
+    \midrule
+    Discount rate $\gamma$ & 0.95 \\
+    Clip parameter $\epsilon$ & 0.3 \\
+    Learning rate $\alpha$ & 0.0001 \\
+    GAE parameter $\lambda$ & 1.0 \\
+    Batch size & 10000 \\
+    Minibatch size & 512 \\
+    Number of SGD epochs & 32 \\
+    Number or parallel workers & 32 \\
+    Value function clip parameter & 1000 \\
+    \bottomrule
+\end{tblr}
 \end{table}
 
 The agent receives the observation $\boldsymbol{o}$ from the environment and returns the action $\mathbf{a}$ defining the reference velocities of the controlled joints.
@@ -173,7 +184,9 @@ The agent parameters are reported in Table~\ref{tab:training_parameters} and fur
 
 \paragraph{Learning Algorithm}
 
-We select \ac{PPO} as the candidate learning algorithm, in the variant using the losses of both the gradient clipping and the minimisation of the \ac{KL} divergence, introduced in Section~\ref{sec:ppo}.
+We select \ac{PPO} as the candidate learning algorithm, in the variant that includes both the clipped surrogate and \ac{KL} penalty objectives introduced in Section~\ref{sec:ppo}.
+We selected this algorithm since it provides a simple but effective implementation of policy optimization, widely used in comparable studies\footnote{This chapter is mainly focused on the reward shaping process, not on the specific algorithm used to train the agent.}.
+A practical benefit of \ac{PPO} is its small number of parameters (only the clip parameter $\epsilon$ if the \ac{KL} penalty coefficient is adjusted dynamically) that does not excessively overload the parameter tuning process.
 
 \paragraph{Policy and Value Function}
 
@@ -194,54 +207,21 @@ Each trial is stopped once it reaches 20~M agent steps, roughly equivalent to 7~
 Worker nodes run only on \ac{CPU} resources, while the trainer has access to the \ac{GPU} for accelerating the optimisation process.
 We use the RLlib~\parencite{liang_rllib_2018} framework, OpenAI Gym, and distributed training.
 
+\newpage
 \section{Reward Shaping}
-
-\begin{sidewaystable}
-    \center
-    \caption{Reward function details. Terms with a defined cutoff are processed by the RBF kernel.}
-    \label{tab:reward}
-    \newcommand{\ck}{\checkmark}
-    \setlength\extrarowheight{2pt}
-    \begin{tabular}{lcrccrlrr}
-        \toprule
-        Name & Symbol(s) & Weight & Value $\mathbf{x}$ & Target $\mathbf{x}^*$ & \multicolumn{2}{c}{Cutoff $x_c$}  & SS & DS \\
-        \midrule \rowcolor{black!10}
-        Joint torques & $r_\tau$ & 5 & $\Vert \boldsymbol{\tau}_{step} \Vert $ & $\boldsymbol{0}_n$ & 10.0 & Nm & \ck & \ck \\
-        Joint velocities & $r_{\dot{s}}$ & 2 & $\boldsymbol{a}$ & $\boldsymbol{0}_n$ & 1.0 & rad/s & \ck & \ck \\ \rowcolor{black!10}
-        Postural & $r_{s}$ & 10 & $\boldsymbol{s}$ & $\boldsymbol{s}_0$ & 7.5 & deg & & \ck \\
-        CoM $z$ velocity & $r_{v}^z$ & 2 & $\boldsymbol{v}^{xy}_{G}$ & $0$ & 1.0 & m/s & \ck & \ck \\ \rowcolor{black!10}
-        CoM $xy$ velocity & $r_{v}^{xy}$ & 2 & $\boldsymbol{v}^{z}_{G}$ & $\omega_0 (\boldsymbol{p}^{xy}_{G} - \boldsymbol{\bar{p}}^{xy}_{hull})$ & 0.5 & m/s & & \ck \\
-        Feet contact forces & $\{r_{f}^L, r_{f}^R\}$ & 4 & $\{f^{CoP}_L, f^{CoP}_R\}$ & $m g / 2$ & $m g / 2$ & N & \ck & \ck \\ \rowcolor{black!10}
-        Centroidal momentum & $r_h$ & 1 & $\Vert {}_{G} \mathbf{h}_l \Vert^2 + \Vert {}_{G} \mathbf{h}_\omega \Vert^2$ & 0 & 50.0 & kg m$^2$/s & \ck & \ck \\
-        Feet CoPs & $\{r_{p}^L, r_{p}^R\}$ & 20 & $\{\boldsymbol{p}_{L, CoP}, \boldsymbol{p}_{R, CoP}\}$ & $\{\bar{\boldsymbol{p}}^{xy}_{L, hull}, \bar{\boldsymbol{p}}^{xy}_{R, hull}\}$ & 0.3 & m & \ck & \ck \\ \rowcolor{black!10}
-        Feet orientation & $\{r_{o}^L, r_{o}^R\}$ & 3 & $\{\mathbf{r}^{(z)}_L \cdot \mathbf{e}_z, \mathbf{r}^{(z)}_R \cdot \mathbf{e}_z\}$ & $1$ & 0.01 & - & \ck & \ck \\
-        CoM projection & $r_{G}$ & 10 & $\boldsymbol{p}^{xy}_{G}$ & $\in$ CH of support polygon & \multicolumn{1}{r}{-} & - & & \ck \\ \rowcolor{black!10}
-        Feet in contact & $r_{c}$ & 2 & $c_L \land c_R$ & 1 & \multicolumn{1}{r}{-} & - & \ck & \ck \\
-        Links in contact & $r_l$ & -10 & $c_{l}$ & $0$ & \multicolumn{1}{r}{-} & - & \ck & \ck \\
-        \bottomrule
-    \end{tabular}
-\end{sidewaystable}
-
-The reward is a weighted sum of terms we categorised as regularisers, steady-state, and transient.
-\emph{Regularisers} are terms often used in optimal control for minimising the control action and the joint torques.
-\emph{Steady-state} components help to obtain the balancing behaviour in the absence of external perturbations, and are active only in \ac{DS}.
-Finally, the \emph{transient} components favour the emergence of push-recovery whole-body strategies.
-
-The total reward comprises a weighted sum of scalar components $\sum_i \omega_i r_i$, where $r_i$ is the reward term and $w_i$ its weight.
-In order to provide a similar scale for each of them and therefore improve the interpretability of the total reward, we process the real and vector components with a \ac{RBF} kernel~\parencite{yang_emergence_2017} with a dimension given by a cutoff parameter calculated from the desired sensitivity.
-Table~\ref{tab:reward} includes the weights of each reward component and the kernel parameters, if active.
+\label{sec:reward_shaping}
 
 \subsection{RBF Kernel}
 
-Radial basis function (RBF) kernels are widely employed functions in machine learning, defined as
+\ac{RBF} kernels are widely employed functions in machine learning, defined as
 $$
 K(\mathbf{x}, \mathbf{x}^*) = \exp \left( -\tilde\gamma ||\mathbf{x} - \mathbf{x}^*||^2  \right) \quad \in [0, 1] ,
 $$
 where $\tilde\gamma$ is the kernel bandwidth hyperparameter.
-The RBF kernel measures similarities between input vectors.
+The \ac{RBF} kernel measures similarities between input vectors.
 This can be useful for defining scaled reward components.
 In particular, if $\mathbf{x}$ is the current measurement and $\mathbf{x}^*$ is the target, the kernel provides a normalised estimate of their similarity.
-$\tilde\gamma$ can be used to tune the bandwidth of the kernel, i.e.\ its sensitivity.
+The variable $\tilde\gamma$ can be used to tune the bandwidth of the kernel, i.e.\ its sensitivity.
 In particular, we use $\tilde\gamma$ to select the threshold from which the kernel tails begin to grow.
 Introducing the pair $(x_c, \epsilon)$, with $x_c, \epsilon \in \mathbb{R}^+$ and $|\epsilon| \ll 1$, we can parameterise $\tilde\gamma = -\ln(\epsilon) / x_c^2$.
 This formulation results in the following properties:
@@ -256,15 +236,33 @@ In practice, $\epsilon$ can be kept constant for each reward component.
 The sensitivity of individual components is tuned by adjusting $x_c$.
 We refer to $x_c$ as \emph{cutoff} value of the kernel, since each norm of the distance in the input space bigger than $x_c$ yields output values smaller than $\epsilon$.
 This formulation eases the composition of the total reward $r_t$ when reward components are calculated from measurements of different dimensionalities and scales.
-In fact, once the sensitivities have been properly tuned for each component, they can simply be weighted differently as 
-$
-r_t = \sum_i w_i K(\mathbf{x}^{(i)}_t, \mathbf{x}^*) \in \mathbb{R}
-$
-where $\mathbf{x}^{(i)}_t$ is the $i$-th measurement sampled at time $t$, and $w_i \in \mathbb{R}$ the weight corresponding to the $i$-th reward component.
+In fact, once the sensitivities have been properly tuned for each component, they can simply be weighted differently as:
+%
+\begin{equation}
+    \label{eq:weighted_reward_kernel}
+    r_t = \sum_i w_i K \left( \mathbf{x}_i(t), \mathbf{x}_i^*(t) \right) \in \mathbb{R}
+    ,
+\end{equation}
+%
+where $\mathbf{x}_{i}(t)$ is the $i$-th measurement sampled at time $t$, and $w_i \in \mathbb{R}$ the weight corresponding to the $i$-th reward component.
 
 \subsection{Reward}
 
-\subsubsection{Regularises}
+This section describes all reward terms forming the instantaneous reward generated by the environment.
+Given their number, we divided the terms in three categories: \emph{regularisers} are terms often used in optimal control for minimising the control action and the joint torques; \emph{steady-state terms} help obtain the balancing behaviour in the absence of external perturbations, and are active only in \ac{DS}; \emph{transient terms} favour the emergence of push-recovery whole-body strategies..
+The logic of the task computes all reward terms at each environment step.
+Then, all terms are processed with a \ac{RBF} kernel, weighted, and summed together using Equation~\eqref{eq:weighted_reward_kernel}, obtaining the final instantaneous reward $r_t$ returned to the agent for its maximisation during the training phase.
+
+The situation in which all individual reward terms $r_i$ share the same range thanks to the filtering effect of the applied kernel simplifies the process of parameters tuning.
+Each reward term introduces two parameters: its weight $\omega_i$ and the kernel cutoff $x_c$, where we assumed to keep the $\epsilon$ kernel parameter fixed.
+Instead of applying grid-like search methods, that would require an excessively large number of permutations, we proceeded with an heuristic tuning by observing after each training the learning curve of each reward term independently.
+Firstly, we tuned the cutoff parameter (\ie the sensitivity associated to the reward term) so that the agent could receive a perceivable increased reward to promote the desired exploration direction.
+This process could be thought as tuning the variance of a Gaussian curve having mean over the target value.
+Secondly, the reward terms with their tuned kernels are composed together by a weighted sum.
+We started the tuning process from a weight of $1.0$ for all reward terms, and increased individual weights heuristically in case we wanted to adjust their relative importance.
+Table~\ref{tab:reward} reports all the parameters of the reward function. 
+
+\subsubsection{Regularisers}
 
 \begin{description}
 
@@ -330,7 +328,7 @@ This term minimises the sum of the norms of the linear and angular components of
 
 \item[Feet contact forces]\!($r_f$)\;
 %
-This reward term pushes the transient towards a steady-state pose in which the vertical forces at feet's \acp{CoP} $(f^{CoP}_L, f^{CoP}_R)$ assume the value of half of the robot's weight, distributing it equally on the two feet.
+This reward term pushes the transient towards a steady-state pose in which the vertical forces at feet's \acp{CoP} $(f^{CoP}_L, f^{CoP}_R)$ (see Appendix~\ref{appendix:center_of_pressure}) assume the value of half of the robot's weight, distributing it equally on the two feet.
 
 \item[Feet CoP]\!($r_p$)\;
 %
@@ -348,6 +346,36 @@ If ${}^W R_{foot} = [\mathbf{r}^{(x)}, \mathbf{r}^{(y)}, \mathbf{r}^{(z)}]$ is t
 
 \end{description}
 
+\begin{landscape}
+\begin{table}
+    \centering
+    \caption{Reward function details. Terms with a defined cutoff are processed by the RBF kernel.}
+    \label{tab:reward}
+    \newcommand{\ck}{\checkmark}
+    \begin{tblr}{
+        colspec={Q[l,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+        }
+        \toprule
+        Name & Symbol(s) & Weight & Value $\mathbf{x}$ & Target $\mathbf{x}^*$ & \multicolumn{2}{c}{Cutoff $x_c$} & SS & DS \\
+        \midrule
+        Joint torques & $r_\tau$ & 5 & $\Vert \boldsymbol{\tau}_{step} \Vert $ & $\boldsymbol{0}_n$ & 10.0 & Nm & \ck & \ck \\
+        Joint velocities & $r_{\dot{s}}$ & 2 & $\boldsymbol{a}$ & $\boldsymbol{0}_n$ & 1.0 & rad/s & \ck & \ck \\
+        Postural & $r_{s}$ & 10 & $\boldsymbol{s}$ & $\boldsymbol{s}_0$ & 7.5 & deg & & \ck \\
+        CoM $z$ velocity & $r_{v}^z$ & 2 & $\boldsymbol{v}^{xy}_{G}$ & $0$ & 1.0 & m/s & \ck & \ck \\
+        CoM $xy$ velocity & $r_{v}^{xy}$ & 2 & $\boldsymbol{v}^{z}_{G}$ & $\omega_0 (\boldsymbol{p}^{xy}_{G} - \boldsymbol{\bar{p}}^{xy}_{hull})$ & 0.5 & m/s & & \ck \\
+        Feet contact forces & $\{r_{f}^L, r_{f}^R\}$ & 4 & $\{f^{CoP}_L, f^{CoP}_R\}$ & $m g / 2$ & $m g / 2$ & N & \ck & \ck \\
+        Centroidal momentum & $r_h$ & 1 & $\Vert {}_{G} \mathbf{h}_l \Vert^2 + \Vert {}_{G} \mathbf{h}_\omega \Vert^2$ & 0 & 50.0 & kg m$^2$/s & \ck & \ck \\
+        Feet CoPs & $\{r_{p}^L, r_{p}^R\}$ & 20 & $\{\boldsymbol{p}_{L, CoP}, \boldsymbol{p}_{R, CoP}\}$ & $\{\bar{\boldsymbol{p}}^{xy}_{L, hull}, \bar{\boldsymbol{p}}^{xy}_{R, hull}\}$ & 0.3 & m & \ck & \ck \\
+        Feet orientation & $\{r_{o}^L, r_{o}^R\}$ & 3 & $\{\mathbf{r}^{(z)}_L \cdot \mathbf{e}_z, \mathbf{r}^{(z)}_R \cdot \mathbf{e}_z\}$ & $1$ & 0.01 & - & \ck & \ck \\
+        CoM projection & $r_{G}$ & 10 & $\boldsymbol{p}^{xy}_{G}$ & in the CH of support polygon & \multicolumn{1}{r}{-} & - & & \ck \\
+        Feet in contact & $r_{c}$ & 2 & $c_L \land c_R$ & 1 & \multicolumn{1}{r}{-} & - & \ck & \ck \\
+        Links in contact & $r_l$ & -10 & $c_{l}$ & $0$ & \multicolumn{1}{r}{-} & - & \ck & \ck \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+\end{landscape}
 
 \section{Results}
 
@@ -375,7 +403,7 @@ A larger variety of push-recovery strategies are displayed in the following vide
 
 \subsection{Deterministic planar forces}
 
-We evaluate the push-recovery performance from horizontal forces.
+We evaluate the push-recovery performance by assessing the resilience from the application of external forces to the horizontal transverse plane of the robot.
 Forces are applied for 0.2~s after 3~s from the simulation start, when the robot is stably standing still and front-facing.
 Success is defined if the robot is still standing after 7~s, defining as a standing state the configuration in which only the feet can be in contact with the ground.
 In Fig.~\ref{fig:force_polar}, success rates for forces pointing in 12 directions are reported.
@@ -459,8 +487,8 @@ Depending on the magnitude of the disturbance, and the state of the system, the 
 The learning pipeline described in this chapter presents different limitations and shortcomings.
 First, the training process to obtain a single policy requires an experience equivalent to approximately 7 simulated days, which is not surprising considering the low sample-efficiency typical of model-free \ac{RL} algorithms based on policy gradient.
 Two possible ways to mitigate this problem are either switching to algorithms with better sample-efficiency, or optimising the performance of the experience generation.
-The execution of the 7 simulated days, on a powerful workstation able to run 32 parallel simulations, lasts more than 2 real-world days, resulting to a long and extenuating parameters tuning process.
-A second limitation comes from the chosen low-level control architecture, composed by independent \pid controllers.
+The execution of the 7 simulated days, on a powerful workstation able to run 32 parallel simulations, lasts more than 2 real-world days, resulting in a long and extenuating parameters tuning process.
+A second limitation comes from the chosen low-level control architecture, composed of independent \pid controllers.
 Despite the benefits of their simplicity, they introduce in the system a stiffness that can prevent the emergence of natural and more human-like motions.
 Finally, the applicability to real robots has yet to be assessed, since the simulation does not take into account second-order dynamic effects characterising real systems.
 We tried to increase the robustness of the resulting policy by introducing multiple domain randomisation effects, but their effectiveness in the real world has not been assessed.

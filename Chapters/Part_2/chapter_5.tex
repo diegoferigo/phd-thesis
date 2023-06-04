@@ -1,4 +1,3 @@
-\acresetall
 \chapter{Reinforcement Learning Environments for Robotics}
 \label{ch:rl_env_for_robotics}
 
@@ -13,6 +12,7 @@ Then, based on these properties, we proceed by selecting, describing, and catego
 Finally, we propose a new framework for developing robotic environments, starting with a description of the design goals, and continuing with the implemented software architecture.
 This new framework will be validated in the next chapter, where it is used to learn a push-recovery policy for balancing a simulated humanoid robot.
 
+\newpage
 \section{Frameworks providing robotic environments}
 
 \subsection{Properties}
@@ -34,9 +34,8 @@ Reproducibility, in this case, can be enforced only with careful handling and pr
 \item[Modularity]
 %
 \acl{RL} is one of the most generic learning frameworks.
-Its definition, a learning agent that interacts with an environment, facilitates the separation of the components in a \ac{RL} framework.
-In a sense, most of the learning-from-interaction processes can be represented by such scheme.
-In the field of robotics, however, we might benefit from a more fine-grained abstraction of the environment.
+Its structure is composed of a learning agent interacting with an environment, as illustrated in Figure~\ref{fig:rl_setting}.
+While most of the related software architectures already map their component based on this high-level structure, specific implementations for robotics might benefit from a more fine-grained abstraction, particularly regarding the environment.
 For instance, we might want to achieve the same learning goal on robots with different mechanical structures.
 In order to promote code reuse and minimise system integration effort, a modular design that abstracts the robot and the logic of the learned task is a valuable addition.
 %
@@ -105,7 +104,7 @@ However, custom actions and observations require the ad-hoc development of the d
 Its main advantage is an efficient contact solver that greatly speeds up the simulation.
 Due to its very recent release, there are not many examples available.
 Like other frameworks, its closed-source nature might limit applications.
-It includes the Python framework RaisimGymTorch that allows creating \ac{RL} environment.
+It includes the Python framework RaisimGymTorch\footnote{\url{https://raisim.com/sections/RaisimGymTorch.html}} that allows creating \ac{RL} environment.
 
 \item[PyRoboLearn]\!\parencite{delhaisse_pyrobolearn_2019} is another framework containing both robotic environments and RL algorithms.
 It focuses on modularity and flexibility to promote code reuse.
@@ -128,43 +127,45 @@ As a drawback, the usage of network transport does not guarantee reproducibility
 
 \item[Nvidia Isaac Gym]\!\parencite{makoviychuk_isaac_2021}
 is the RL component of Isaac, the new Nvidia toolbox for AI applications in robotics.
-Simulations can be executed in either their PhysX engine and they provide state-of-the-art photorealistic rendering.
+Simulations can be executed in their PhysX engine and they provide state-of-the-art photorealistic rendering.
 Nvidia Isaac\footnote{\url{https://developer.nvidia.com/isaac-sdk}} is one of the most promising projects that will provide a unified framework for robotics and AI, but unfortunately its closed source nature might limit the possibility of extending and customising it.
 
 \item[Brax]\!\parencite{freeman_brax_2021} is a differentiable physics engine that simulates rigid bodies in maximal coordinates.
-It is written in JAX and is designed for use on acceleration hardware, enabling massively parallel simulations on multiple devices.
+It is written in \jax and is designed for use on acceleration hardware, enabling massively parallel simulations on multiple devices.
 The physics engine, beyond the drawbacks in joint constraints enforcement due to the maximal coordinates, neglects some dynamical effects and therefore the simulation is approximate.
 Rendering capabilities are limited and the execution of environments provided in the framework is constrained to a simulated setting.
 
 \end{description}
 
-\begin{sidewaystable}
+\begin{landscape}
+\begin{table}
     \centering
     \caption{Comparison of frameworks that provide robotic environments compatible with OpenAI Gym.}
     \label{tab:comparison}
     \newcommand{\x}{\ensuremath{\times}}
     \newcommand{\ck}{\checkmark}
-    \newcolumntype{Y}{>{\centering\arraybackslash}X}
-    \centerline{
-    \small
-    \begin{tabularx}{\textwidth}{lYYYYYYYYY}
+    \begin{tblr}{
+        colspec={Q[l,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]Q[c,m]},
+        row{even} = {bg=gray9},
+        row{1} = {font=\bfseries},
+        }
         \toprule
-        Software & Reproducible & Multiple Physics Engines & Photorealistic Rendering & Accelerated & Parallel & Real-Time Compatible & Modular & Open Source \\
-        \midrule \rowcolor{black!20}
+        Software & Reproducible & {Multiple \\Physics Engines} & {Photorealistic\\ Rendering} & Accelerated & Parallel & {Real-Time\\ Compatible} & Modular & Open Source \\
+        \midrule
         OpenAI Robotic Envs         &     &     &        & \ck & \ck &     & \ck    & \ck \\
-        Bullet3 Environments        & \ck & \ck &        & \ck & \ck &     & $\sim$ & \ck    \\ \rowcolor{black!20}
+        Bullet3 Environments        & \ck & \ck &        & \ck & \ck &     & $\sim$ & \ck \\
         Unity ML-Agents             & \ck & \ck & \ck    & \ck & \ck &     &        & \ck \\
-        RaiSim                      & \ck &     & \ck    & \ck & \ck &     &        &        \\ \rowcolor{black!20}
-        Jiminy                      & \ck &     &        & \ck & \ck &     &        & \ck    \\
-        PyRep                       & \ck & \ck & \ck    & \ck & \ck &     &        & \ck    \\ \rowcolor{black!20}
-        robo-gym                    &     & \ck &        & \ck &     & \ck &        & \ck    \\
-        Nvidia Isaac Gym            & \ck & \ck & \ck    & \ck & \ck & \ck &        &        \\ \rowcolor{black!20}
-        Brax                        & \ck &     &        & \ck & \ck &     &        & \ck    \\
-        Gym-Ignition                & \ck & \ck & $\sim$ & \ck & \ck & \ck & \ck    & \ck    \\
+        RaiSim                      & \ck &     & \ck    & \ck & \ck &     &        &     \\
+        Jiminy                      & \ck &     &        & \ck & \ck &     &        & \ck \\
+        PyRep                       & \ck & \ck & \ck    & \ck & \ck &     &        & \ck \\
+        robo-gym                    &     & \ck &        & \ck &     & \ck &        & \ck \\
+        Nvidia Isaac Gym            & \ck & \ck & \ck    & \ck & \ck & \ck &        &     \\
+        Brax                        & \ck &     &        & \ck & \ck &     &        & \ck \\
+        Gym-Ignition                & \ck & \ck & $\sim$ & \ck & \ck & \ck & \ck    & \ck \\
         \bottomrule
-    \end{tabularx}
-    }
-\end{sidewaystable}
+    \end{tblr}
+\end{table}
+\end{landscape}
 
 \section{Design Goals}
 
@@ -199,12 +200,12 @@ The resulting environment should expose the \verb|gym.Env| interface to be seaml
 Having specified the design goals and the related considerations, we structured the framework in two different components: \emph{\scenario} and \emph{Gym-Ignition}.
 Considering that most of the robotics libraries and simulators are available in \cpp, we designed the low-level unified scene interfaces in this language.
 \scenario (\spacedlowsmallcaps{SCEN}e interf\spacedlowsmallcaps{A}ces for \spacedlowsmallcaps{R}obot \spacedlowsmallcaps{I}nput/\spacedlowsmallcaps{O}utput) defines the \verb|World|, \verb|Model|, \verb|Link|, and \verb|Joint| abstractions, and allows to implement them either in C++ or, through a set of bindings, in Python.
-Instead, the most popular language is Python for the \ac{RL} logic.
+Instead, the most popular language for the \ac{RL} logic is Python.
 Gym-Ignition is a pure Python package that provides the \verb|Runtime| and \verb|Task| interfaces, together with high-level helpers to compute model-based quantities based on the iDynTree~\parencite{nori_icub_2015} library.
 
 \section{ScenarIO: SCENe interfAces for Robot Input/Output}
 
-\scenario\footnote{\url{https://github.com/robotology/gym-ignition/tree/master/scenario}} is a \cpp library acting as a Hardware Abstraction Layer over either simulated or real robots.
+\scenario\footnote{\url{https://github.com/robotology/gym-ignition/tree/master/scenario}} is a \cpp library acting as a \ac{HAL} over either simulated or real robots.
 The abstraction of the scene is structured in different interfaces:
 %
 \begin{description}
@@ -226,13 +227,13 @@ It also returns the pose and, in different representations, the velocity and the
 Furthermore, it allows querying the location of active contact points with their corresponding 6D contact force.
 %
 \item[\texttt{\MakeUppercase{J}oint}]
-This interface returns all the parameters of the joint, including the number of \acp{DoF}, the type, the friction parameters, the position, velocity, and force limits, \etc It is also the entry point to get the joint variables like position, velocity, and acceleration, and set the corresponding targets used for motion control.
+This interface returns all the parameters of the joint, including the number of \acp{DoF}, the type, the friction parameters, the position, velocity, force limits, \etc It is also the entry point to get joint variables like position, velocity, and acceleration, and set the corresponding targets used for motion control.
 The joint interface also controls the actuation type, exposing either a position or velocity PID controller with its parameters.
 %
 \end{description}
 
 Beyond these scene interfaces, \scenario also includes the \verb|Controller| interfaces, allowing development of runtime-agnostic whole-body controllers that can be enabled at the \verb|Model| level.
-They can be used as a replacement for the low-level PID controllers associated with each of the model's joints.
+They can be used as a replacement for the default low-level PID controllers associated with each of the model's joints.
 
 The abstraction layer provided by \scenario enables to develop either \cpp or Python code agnostic of the actual setting where the scene and its robots operate.
 For both robot control and \ac{RL} research, we implemented the \scenario interfaces to communicate with the Gazebo Sim simulator, obtaining the \emph{\scenario Gazebo} library.
@@ -270,7 +271,7 @@ Being able to read, write, and step the simulator programmatically ensures the c
 These two features are particularly beneficial in the robot learning setting.
 The plugin-based architecture of physics engines allows running simulated environments transparently in any of the supported physics backends.
 It enables to add in the domain randomization set not only physics parameters, but also the entire physics engine, preventing policy overfitting to subtle implementation details.
-Furthermore, ensuring reproducibility already at the simulation level is necessary condition to inherit this feature by simulated \ac{RL} environments.
+Furthermore, ensuring reproducibility already at the simulation level is a necessary condition to inherit this feature by simulated \ac{RL} environments.
 %
 Other key features of Gazebo Sim are the following:
 %
@@ -300,7 +301,8 @@ Future releases of the simulator will include official Python bindings.}.
     \resizebox{0.75\textwidth}{!}{
     \includegraphics{images/contributions/chapter_5/scenario_and_gym_ignition.tikz}
     }
-    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acp{API} to interact with the robots part of the environment.}
+    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acp{API} to interact with the robots part of the environment.\\
+    A typical data flow starts with the agent setting the action with \texttt{gym.Env.step}. The processing of the action is a combination of logic inside the active runtime and the active task. In particular, the runtime receives the action and directly forwards it to the task for being processed. The task, by operating transparently over the \scenario \acp{API}, applies the action to the robot, and then waits the runtime to perform the time stepping. After this phase, the task computes the reward, packs the observation, detects if the environment reached the terminal state, and returns all this data back to the agent passing through the \texttt{gym.Env} \acp{API}.}
     \label{fig:scenario_and_gym_ignition}
 \end{figure}
 
@@ -340,6 +342,7 @@ The generation of random quantities can be controlled by passing through a \ac{R
 Our framework also helps enforce reproducible results in presence of randomness by storing a single generator in the \verb|Runtime|, shared with all \verb|Task|s and \verb|Randomizer|s.
 Under the assumption that the environment logic's execution order does not change, multiple experiments sharing the same seed number produce the same sampled trajectories.
 
+\newpage
 \section{Conclusions}
 
 This chapter presented a novel framework to create reproducible robotic environments for \acl{RL} applications.
