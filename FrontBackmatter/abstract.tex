@@ -53,7 +53,7 @@ Motivated by the advancements in hardware accelerators that are revolutionising 
 In this context, we first introduce a software architecture allowing to structure learning environments for robotics that can be adopted to train and run \ac{RL} policies regardless of the simulated or real-world setting.
 With its underlying simulation technology and exploiting a scheme based on reward shaping, we validate the architecture by
 training with \ac{RL} a push-recovery controller capable of synthesising whole-body references for the humanoid robot iCub.
-Then, motivated by overcoming the bottlenecks related to the poor sampling performance of traditional rigid-body simulators, we present a new physics engine in reduced coordinates that can simulate robots interacting with a ground surface on hardware accelerators like \ac{GPU} and \ac{TPU}.
+Then, motivated by overcoming the bottlenecks related to the poor sampling performance of traditional rigid-body simulators, we present a new physics engine in reduced coordinates that can simulate robots interacting with a ground surface on hardware accelerators like \acp{GPU} and \acp{TPU}.
 To this end, we present a contact-aware continuous state-space representation describing the dynamical evolution of floating-base robots that can be numerically integrated for simulation purposes.
 We adopt the new general-purpose Gazebo Sim simulator as our first solution to sample synthetic data, and exploit \jax and its hardware support to scale the sampling performance for highly parallel problems.
 Furthermore, we implement and benchmark common \acp{RBDA} part of the proposed physics engine on hardware accelerators and assess their scalability properties on different \acp{GPU}.

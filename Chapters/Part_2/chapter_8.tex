@@ -861,7 +861,7 @@ Instead, the \ac{GPU} execution of a single instance of the algorithms exceeds 1
     \subfloat[]{
         \includegraphics[width=0.95\textwidth]{images/contributions/chapter_8/jaxsim_benchmark_algo_icub.tikz}
     }
-    \caption{Benchmark of the \acp{RBDA} implemented in \jaxsim against those implemented in Pinocchio. (a) shows the results of the 9-\acp{DoF} fixed-base Panda manipulator from Franka Emika, (b) the results of the 12-\acp{DoF} quadruped ANYmal~C from ANYbotics, and (c) the results of the 32-\acp{DoF} humanoid iCub from IIT. The execution of \jaxsim's algorithms run on average 10 times slower than Pinocchio when executed on \acs{CPU}, and 100 times when executed on \acs{GPU}.}
+    \caption{Benchmark of the \acsp{RBDA} implemented in \jaxsim against those implemented in Pinocchio. (a) shows the results of the 9-\acsp{DoF} fixed-base Panda manipulator from Franka Emika, (b) the results of the 12-\acsp{DoF} quadruped ANYmal~C from ANYbotics, and (c) the results of the 32-\acsp{DoF} humanoid iCub from IIT. The execution of \jaxsim's algorithms run on average 10 times slower than Pinocchio when executed on \acs{CPU}, and 100 times when executed on \acs{GPU}.}
     \label{fig:jaxsim_benchmark_algos}
 \end{figure}
 
@@ -899,7 +899,7 @@ The peak \ac{RTF} of this high-end \ac{GPU} is about 200.
     \resizebox{\textwidth}{!}{
         \includegraphics{images/contributions/chapter_8/jaxsim_benchmark_parallel.tikz}
     }
-    \caption{Comparison of parallelization performance of a simulation step executed on \acs{CPU} and \acp{GPU}. The simulated models are 23~\acp{DoF} replicas of the iCub humanoid robot, and the simulation step length is $1~ms$ with a forward Euler scheme. The time taken by the \acs{CPU} scales mostly linearly with the number of simulated models, while the \acp{GPU} are able to exploit the parallel capability almost up to their CUDA cores (640 on the laptop, 4608 on the workstation). For each sample, we show the equivalent \acs{RTF}. The \ac{CPU} cannot scale well over the number of models when integrating more than 16 replicas. Instead, the \acp{GPU} show an interval that depends on their parallellization capabilities in which the execution time is not affected significantly by the number of integrated models. Also on \acp{GPU}, however, the performance start degrading when the number of integrated models exceeds the available CUDA cores.}
+    \caption{Comparison of parallelization performance of a simulation step executed on \acs{CPU} and \acsp{GPU}. The simulated models are 23~\acsp{DoF} replicas of the iCub humanoid robot, and the simulation step length is $1~ms$ with a forward Euler scheme. The time taken by the \acs{CPU} scales mostly linearly with the number of simulated models, while the \acsp{GPU} are able to exploit the parallel capability almost up to their CUDA cores (640 on the laptop, 4608 on the workstation). For each sample, we show the equivalent \acs{RTF}. The \acs{CPU} cannot scale well over the number of models when integrating more than 16 replicas. Instead, the \acsp{GPU} show an interval that depends on their parallellization capabilities in which the execution time is not affected significantly by the number of integrated models. Also on \acsp{GPU}, however, the performance start degrading when the number of integrated models exceeds the available CUDA cores.}
     \label{fig:jaxsim_benchmark_parallel}
 \end{figure}
 
