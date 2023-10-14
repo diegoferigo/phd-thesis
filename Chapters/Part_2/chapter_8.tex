@@ -633,10 +633,10 @@ In order to optimise performance, the algorithm can be vectorised to process all
 \State $\hat{\mathbf{n}} = \mathcal{S}(x_{cp}, y_{cp})$
 \State $\mathbf{h} = \left[0, 0, z_T - z_{cp}\right]^\top$
 
-\State $\delta = \max(0, \mathbf{h} \cdot \hat{\mathbf{n}})$
+\State $\delta = \max(0,\, \mathbf{h} \cdot \hat{\mathbf{n}})$
 \State $\dot{\delta} = -\posd[W]_C \cdot \hat{\mathbf{n}}$
 
-\State $\forcelin_\perp = \sqrt{\delta} \left( K \delta + D \dot{\delta} \right) \hat{\mathbf{n}}$
+\State $\forcelin_\perp = \max\left(0,\, \sqrt{\delta} \left( K \delta + D \dot{\delta} \right) \right) \hat{\mathbf{n}}$
 
 \LComment{Compute tangential force}
 \State $\forcelin_\parallel = \zeros_3$
