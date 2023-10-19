@@ -2,6 +2,17 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\tocEntry{Prologue}}
 
+\begin{flushright}
+    \textsl{\onehalfspacing
+    In theory, there is no difference between practice and theory.\\
+    In practice, there is.}\\
+    --- Benjamin Brewster
+\end{flushright}
+
+% \let\clearpage\relax
+\let\cleardoublepage\relax
+% \let\cleardoublepage\relax
+
 \chapter*{Prologue}
 \chaptermark{Prologue}
 
@@ -97,24 +108,22 @@ This part presents the contributions to knowledge provided by this thesis, whose
     \item Chapter~\ref{ch:scaling_rigid_body_simulations}, by exploiting the contact-aware state-space representation formulated in the previous chapter, presents a new physics engine in reduced coordinates that can be executed on hardware accelerators like \acsp{GPU} and \acsp{TPU} for maximising sampling throughput. To this end, with the notation introduced in Chapter~\ref{ch:robot_modelling}, this chapter also formulates canonical \aclp{RBDA} that can be executed in this accelerated context. The physics engine performance is then benchmarked, assessing the accuracy and speed of its algorithms and the scaling properties when executed in a highly parallel setting integrating hundreds or thousands of robot models concurrently. Finally, we validate the performance of the proposed physics engine by training a policy by sampling experience from hundreds of parallel environments running on \ac{GPU} and evaluate its performance in a sim-to-sim setting representing an out-of-distribution environment.
 \end{itemize}
 
+\newpage
 \section*{Research Publications}
 
 The content of Chapter~\ref{ch:rl_env_for_robotics} appears in
 
 \begin{quote}
-    \textbf{Gym-
-Ignition: Reproducible Robotic Simulations for Reinforcement
-Learning} \\
-    Diego Ferigo, Silvio Traversaro, Daniele Pucci \\
-    \textit{Robotics: Science and Systems (RSS) - Workshop on
-Closing the Reality Gap in Sim2real Transfer for Robotic Manipulation}, 2019
+    \onehalfspacing
+    \textbf{Gym-Ignition: Reproducible Robotic Simulations for Reinforcement Learning} \\[0.75mm]
+    Diego Ferigo, Silvio Traversaro, Daniele Pucci \\[0.75mm]
+    \textit{Robotics: Science and Systems (RSS) - Workshop on Closing the Reality Gap in Sim2real Transfer for Robotic Manipulation}, 2019
 \end{quote}
 
 \begin{quote}
-    \textbf{Gym-
-Ignition: Reproducible Robotic Simulations for Reinforcement
-Learning} \\
-    Diego Ferigo, Silvio Traversaro, Giorgio Metta, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{Gym-Ignition: Reproducible Robotic Simulations for Reinforcement Learning} \\[0.75mm]
+    Diego Ferigo, Silvio Traversaro, Giorgio Metta, Daniele Pucci \\[0.75mm]
     \textit{International Symposium on System Integration (SII)}, 2020
 \end{quote}
 
@@ -122,9 +131,9 @@ Learning} \\
 The content of Chapter~\ref{ch:learning_from_scratch} appears in
 
 \begin{quote}
-    \textbf{On the Emergence of Whole-body Strategies from
-Humanoid Robot Push-recovery Learning} \\
-    Diego Ferigo, Raffaello Camoriano, Paolo Maria Viceconte, Daniele Calandriello, Silvio Traversaro, Lorenzo Rosasco, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{On the Emergence of Whole-body Strategies from Humanoid Robot Push-recovery Learning} \\[0.75mm]
+    Diego Ferigo, Raffaello Camoriano, Paolo Maria Viceconte, Daniele Calandriello, Silvio Traversaro, Lorenzo Rosasco, Daniele Pucci \\[0.75mm]
     \textit{Robotics and Automation Letters}, 2021
 \end{quote}
 
@@ -132,58 +141,65 @@ Humanoid Robot Push-recovery Learning} \\
 Beyond the previous main contributions directly supporting the contents of this thesis, during the research project I also contributed to other works whose content has not been included:
 
 \begin{quote}
-    \textbf{Simultaneous Floating-Base Estimation of Human Kinematics and Joint Torques} \\
-     Claudia Latella, Silvio Traversaro, Diego Ferigo, Yeshasvi Tirupachuri, Lorenzo Rapetti, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{Simultaneous Floating-Base Estimation of Human Kinematics and Joint Torques} \\[0.75mm]
+     Claudia Latella, Silvio Traversaro, Diego Ferigo, Yeshasvi Tirupachuri, Lorenzo Rapetti, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\[0.75mm]
     \textit{Sensors}, 2019
 \end{quote}
 
 \begin{quote}
-    \textbf{A Human Wearable Framework for Physical Human-Robot Interaction} \\
-     Claudia Latella, Yeshasvi Tirupachuri, Lorenzo Rapetti, Diego Ferigo, Silvio Traversaro, Ines Sorrentino, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{A Human Wearable Framework for Physical Human-Robot Interaction} \\[0.75mm]
+     Claudia Latella, Yeshasvi Tirupachuri, Lorenzo Rapetti, Diego Ferigo, Silvio Traversaro, Ines Sorrentino, Francisco Javier Andrade Chavez, Francesco Nori, Daniele Pucci \\[0.75mm]
     \textit{I-RIM}, 2019
 \end{quote}
 
 \begin{quote}
-    \textbf{Learning to Sequence Multiple Tasks with Competing Constraints} \\
-     Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\
-    \textit{International Conference on Intelligent Robots and
-Systems (IROS)}, 2019
+    \onehalfspacing
+    \textbf{Learning to Sequence Multiple Tasks with Competing Constraints} \\[0.75mm]
+     Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\[0.75mm]
+    \textit{International Conference on Intelligent Robots and Systems (IROS)}, 2019
 \end{quote}
 
 \begin{quote}
-    \textbf{Whole-Body Geometric Retargeting for Humanoid Robots} \\
-    Kourosh Darvish, Yeshasvi Tirupachuri, Giulio Romualdi, Lorenzo Rapetti, Diego Ferigo, Francisco Javier Andrade Chavez, Daniele Pucci \\
-    \textit{International
-Conference on Humanoid Robots (Humanoids)}, 2019
+    \onehalfspacing
+    \textbf{Whole-Body Geometric Retargeting for Humanoid Robots} \\[0.75mm]
+    Kourosh Darvish, Yeshasvi Tirupachuri, Giulio Romualdi, Lorenzo Rapetti, Diego Ferigo, Francisco Javier Andrade Chavez, Daniele Pucci \\[0.75mm]
+    \textit{International Conference on Humanoid Robots (Humanoids)}, 2019
 \end{quote}
 
 \begin{quote}
-    \textbf{A generic synchronous dataflow architecture to rapidly prototype and deploy robot controllers} \\
-    Diego Ferigo, Silvio Traversaro, Francesco Romano, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{A generic synchronous dataflow architecture to rapidly prototype and deploy robot controllers} \\[0.75mm]
+    Diego Ferigo, Silvio Traversaro, Francesco Romano, Daniele Pucci \\[0.75mm]
     \textit{International Journal of Advanced Robotic Systems}, 2020
 \end{quote}
 
 \begin{quote}
-    \textbf{Towards Partner-Aware Humanoid Robot Control Under Physical Interactions} \\
-    Yeshasvi Tirupachuri, Gabriele Nava, Claudia Latella, Diego Ferigo, Lorenzo Rapetti, Luca Tagliapietra, Francesco Nori, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{Towards Partner-Aware Humanoid Robot Control Under Physical Interactions} \\[0.75mm]
+    Yeshasvi Tirupachuri, Gabriele Nava, Claudia Latella, Diego Ferigo, Lorenzo Rapetti, Luca Tagliapietra, Francesco Nori, Daniele Pucci \\[0.75mm]
     \textit{Advances in Intelligent Systems and Computing}, 2020
 \end{quote}
 
 \begin{quote}
-    \textbf{Learning to Avoid Obstacles With Minimal Intervention Control} \\
-    Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{Learning to Avoid Obstacles With Minimal Intervention Control} \\[0.75mm]
+    Anqing Duan, Raffaello Camoriano, Diego Ferigo, Yanlong Huang, Daniele Calandriello, Lorenzo Rosasco, Daniele Pucci \\[0.75mm]
     \textit{Frontiers in Robotics and AI}, 2020
 \end{quote}
 
 \begin{quote}
-    \textbf{ADHERENT: Learning Human-like Trajectory Generators for Whole-body Control of Humanoid Robots} \\
-    Paolo Maria Viceconte, Raffaello Camoriano, Giulio Romualdi, Diego Ferigo, Stefano Dafarra, Silvio Traversaro, Giuseppe Oriolo, Lorenzo Rosasco, Daniele Pucci \\
+    \onehalfspacing
+    \textbf{ADHERENT: Learning Human-like Trajectory Generators for Whole-body Control of Humanoid Robots} \\[0.75mm]
+    Paolo Maria Viceconte, Raffaello Camoriano, Giulio Romualdi, Diego Ferigo, Stefano Dafarra, Silvio Traversaro, Giuseppe Oriolo, Lorenzo Rosasco, Daniele Pucci \\[0.75mm]
     \textit{Robotics and Automation Letters}, 2022
 \end{quote}
 
 \begin{quote}
-    \textbf{Robot Platforms and Simulators} \\
-    Diego Ferigo, Alberto Parmiggiani, Elena Rampone, Vadim Tikhanoff, Silvio Traversaro, Daniele Pucci, Lorenzo Natale \\
+    \onehalfspacing
+    \textbf{Robot Platforms and Simulators} \\[0.75mm]
+    Diego Ferigo, Alberto Parmiggiani, Elena Rampone, Vadim Tikhanoff, Silvio Traversaro, Daniele Pucci, Lorenzo Natale \\[0.75mm]
     \textit{Cognitive Robotics, Chapter 7}, 2022
 \end{quote}
 
@@ -194,11 +210,11 @@ The results of the research conducted for this thesis produced the following sof
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{scenario}} is an abstraction layer providing \acp{API} to interact with simulated and real robots. The goal of the project is to allow developing high-level code that can target all the available implementations using the same function calls. Currently, it provides a complete implementation for interfacing with robots simulated using the Gazebo Sim general-purpose simulator. The \acp{API} are developed and available in \cpp. Python bindings are also provided. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition/tree/master/scenario}.
+\textbf{\texttt{scenario}} is an abstraction layer providing \acsp{API} to interact with simulated and real robots. The goal of the project is to allow developing high-level code that can target all the available implementations using the same function calls. Currently, it provides a complete implementation for interfacing with robots simulated using the Gazebo Sim general-purpose simulator. The \acsp{API} are developed and available in \cpp. Python bindings are also provided. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition/tree/master/scenario}.
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \ac{RL} research. It exposes an abstraction layer providing \acp{API} that enable the development of \ac{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from the setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition}.
+\textbf{\texttt{gym-ignition}} is a Python framework to create reproducible robotics environment for \acs{RL} research. It exposes an abstraction layer providing \acsp{API} that enable the development of \acs{RL} environment compatible with \texttt{gym.Env}. The resulting environments, if they exploit \texttt{scenario},  become agnostic from the setting in which they execute (either simulated or in real-time). The project also provides helpful utilities to compute common quantities commonly used by robotic environments, includes support of environment randomization, and handles the correct propagation of randomness. The library is open-source, released under the \emph{LGPL v2.1 or any later version}, and it is available at \linebreak \url{https://github.com/robotology/gym-ignition}.
 
 \vspace{3mm}
 \noindent
@@ -206,4 +222,4 @@ The results of the research conducted for this thesis produced the following sof
 
 \vspace{3mm}
 \noindent
-\textbf{\texttt{jaxsim}} is a scalable physics engine in reduced coordinates implemented with \jax. It is developed in Python and supports most of the \jax features, including \ac{JIT} compilation and auto-vectorization. Simulations can be executed on all the hardware supported by \jax, including \acp{CPU}, \acp{GPU}, and \acp{TPU}. The library is open-source, released under the \emph{BSD-3-Clause}, and it is available at \linebreak \url{https://github.com/ami-iit/jaxsim}.
+\textbf{\texttt{jaxsim}} is a scalable physics engine in reduced coordinates implemented with \jax. It is developed in Python and supports most of the \jax features, including \acs{JIT} compilation and auto-vectorization. Simulations can be executed on all the hardware supported by \jax, including \acsp{CPU}, \acsp{GPU}, and \acsp{TPU}. The library is open-source, released under the \emph{BSD-3-Clause}, and it is available at \linebreak \url{https://github.com/ami-iit/jaxsim}.

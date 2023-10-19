@@ -1,0 +1,61 @@
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay,line width=0mm]
+
+\tikzmath{
+%
+\hrow1=-10;
+\hcentral=-16.7;
+\linerelpos=0.6;
+\hfooter=4;
+\hstripe=0.2;
+%
+}
+
+% ======
+% HEADER
+% ======
+
+\filldraw[color=mypurple,fill=mypurple]
+(current page.north west) rectangle ($(current page.north west)+(\paperwidth,\hrow1)$);
+
+\node[inner sep=0pt] (uomlogo) at ($(current page.north west)+(0.2*\paperwidth,0.3*\hrow1)$)
+{\includegraphics[height=1.5cm]{images/frontmatter/logo-uom.png}};
+
+\node[inner sep=0pt] (iitlogo) at ($(current page.north west)+(0.8*\paperwidth,0.3*\hrow1)$)
+{\includegraphics[height=1.5cm]{images/frontmatter/logo-iit.png}};
+
+\node[align=center,color=myyellow] at ($(current page.north west)+(0.5*\paperwidth,0.7*\hrow1)$) (subtitle)
+{\Large\textsc{A thesis submitted to the University of Manchester for the degree of}\\[0mm]\Large\textsc{Doctor of Philosophy}\\[0mm]\Large\textsc{in the Faculty of Science and Engineering}};
+
+\filldraw[color=myyellow,fill=myyellow]
+($(current page.north west)+(0,\hrow1)$) rectangle ($(current page.north west)+(\paperwidth,\hrow1+\hstripe)$);
+
+% =======
+% CENTRAL
+% =======
+
+\node[align=center,color=mypurple] at ($(current page.north west)+(0.5*\paperwidth,\hrow1+0.35*\hcentral)$) (title)
+{\Huge\textsc{Simulation Architectures}\\[3mm]\Large\textsc{for}\\[3mm]\Huge\textsc{Reinforcement Learning applied to Robotics}};
+
+\draw[line width=0.3mm,color=myyellow]
+($(current page.north west)+(0.3*\paperwidth,\hrow1+\linerelpos*\hcentral)$) -- ($(current page.north west)+(0.7*\paperwidth,\hrow1+\linerelpos*\hcentral)$);
+
+\node[align=center,below,color=color3] at ($(current page.north west)+(0.5*\paperwidth,\hrow1+0.74*\hcentral)$) (studentname)
+{\Large\textsc{Diego Ferigo}};
+
+\filldraw[color=myyellow,fill=myyellow]
+($(current page.south west)+(0,\hfooter)$) rectangle ($(current page.south west)+(\paperwidth,\hfooter+\hstripe)$);
+
+% ======
+% FOOTER
+% ======
+
+\draw [draw=mygrey,fill=color3]
+(current page.south west) rectangle ($(current page.south west)+(\paperwidth,\hfooter)$);
+
+\node[align=center,color=mygrey] at ($(current page.south west)+(0.5*\paperwidth,0.70*\hfooter)$) (date) {\large\spacedallcaps{2022}};
+\node[align=center,color=mygrey] at ($(current page.south west)+(0.5*\paperwidth,0.45*\hfooter)$) (school) {\spacedallcaps{School of Engineering}};
+\node[align=center,color=mygrey] at ($(current page.south west)+(0.5*\paperwidth,0.30*\hfooter)$) (department) {\spacedallcaps{Department of Computer Science}};
+
+\end{tikzpicture}
+\end{titlepage}

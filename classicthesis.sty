@@ -379,7 +379,9 @@
     \def\ctparttext@print{\ctparttext@keep \gdef\ctparttext@keep{}}
     \titleformat{\part}[display]
     {\normalfont\ct@altfont\centering\large}%
-    {\thispagestyle{empty}\partname~\MakeTextUppercase{\thepart}}{1em}%
+    % UoM guidelines need all pages to be numbered, including parts
+    %{\thispagestyle{empty}\partname~\MakeTextUppercase{\thepart}}{1em}%
+    {\partname~\MakeTextUppercase{\thepart}}{1em}%
     {\color{CTtitle}\spacedallcaps}[\bigskip\normalfont\normalsize\color{Black}\begin{quote}\ctparttext@print\end{quote}]
 }{\relax}
 % chapters

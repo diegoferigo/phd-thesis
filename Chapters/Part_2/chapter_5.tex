@@ -12,9 +12,12 @@ Then, based on these properties, we proceed by selecting, describing, and catego
 Finally, we propose a new framework for developing robotic environments, starting with a description of the design goals, and continuing with the implemented software architecture.
 This new framework will be validated in the next chapter, where it is used to learn a push-recovery policy for balancing a simulated humanoid robot.
 
+\begin{addmargin}{-2mm}
+\setstretch{1.4}
 \newpage
 \section{Frameworks providing robotic environments}
 
+\vspace*{-0.3mm}
 \subsection{Properties}
 
 In this section, we define the properties characterising frameworks that provide robotic \ac{RL} environments.
@@ -77,6 +80,7 @@ The need for photorealistic rendering is a crucial component in this use case.
 Modern \acp{GPU} are becoming more capable of efficiently computing extremely complex light interactions in the simulated environment, and technologies such as ray tracing are becoming suitable for real-time usage.
 %
 \end{description}
+\end{addmargin}
 
 \subsection{Existing frameworks}
 
@@ -203,7 +207,9 @@ Considering that most of the robotics libraries and simulators are available in 
 Instead, the most popular language for the \ac{RL} logic is Python.
 Gym-Ignition is a pure Python package that provides the \verb|Runtime| and \verb|Task| interfaces, together with high-level helpers to compute model-based quantities based on the iDynTree~\parencite{nori_icub_2015} library.
 
+\begin{addmargin}{-0.6cm}
 \section{ScenarIO: SCENe interfAces for Robot Input/Output}
+\end{addmargin}
 
 \scenario\footnote{\url{https://github.com/robotology/gym-ignition/tree/master/scenario}} is a \cpp library acting as a \ac{HAL} over either simulated or real robots.
 The abstraction of the scene is structured in different interfaces:
@@ -250,9 +256,9 @@ In the robot learning setting, this can be particularly beneficial for \emph{sim
 It communicates with the new \emph{Gazebo Sim} simulator, also known in its earlier releases as Ignition Gazebo.
 
 Gazebo Sim is the new generation of the widely used Gazebo Classic simulator, developed by Open Robotics\footnote{\url{https://www.openrobotics.org/}}.
-It was used in the new DARPA SubT Challenge\footnote{\url{https://www.subtchallenge.com/}} for both local and cloud simulations.
-The monolithic architecture of Gazebo Classic has been split into a suite of multiple independent libraries, with Gazebo Sim being only one among them, and refactored with a more pervasive plugin-based architecture.
-For our target applications, we chose to use Gazebo Sim as our main simulation backend for the following two key features:
+It was used in the new {\small DARPA} SubT Challenge\footnote{\url{https://www.subtchallenge.com/}} for both local and cloud simulations.
+The monolithic architecture of Gazebo Classic has been split into a suite of multiple libraries, with Gazebo Sim being only one among them, and refactored with a more pervasive plugin-based architecture.
+For our target applications, we selected Gazebo Sim as our main simulation backend due to the following two key features:
 %
 \begin{description}
 %
@@ -301,8 +307,8 @@ Future releases of the simulator will include official Python bindings.}.
     \resizebox{0.75\textwidth}{!}{
     \includegraphics{images/contributions/chapter_5/scenario_and_gym_ignition.tikz}
     }
-    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acp{API} to interact with the robots part of the environment.\\
-    A typical data flow starts with the agent setting the action with \texttt{gym.Env.step}. The processing of the action is a combination of logic inside the active runtime and the active task. In particular, the runtime receives the action and directly forwards it to the task for being processed. The task, by operating transparently over the \scenario \acp{API}, applies the action to the robot, and then waits the runtime to perform the time stepping. After this phase, the task computes the reward, packs the observation, detects if the environment reached the terminal state, and returns all this data back to the agent passing through the \texttt{gym.Env} \acp{API}.}
+    \caption{Architecture of \scenario and Gym-Ignition. Users of the overall framework just need to provide the \acs{URDF} or \acs{SDF} description of their robot and implement the \texttt{Task} interface with the desired decision-making logic. The framework, following a top-down approach, exposes to the \texttt{Agent} algorithms the unified \texttt{gym.Env} interface. The provided \texttt{Runtime} classes either instantiate the simulator, or handle soft real-time logic for real-world robots. The runtimes are generic and can operate on any decision-making logic that exposes the \texttt{Task} interface. Finally, \texttt{Task} implementations use the \scenario \acsp{API} to interact with the robots part of the environment.\\
+    A typical data flow starts with the agent setting the action with \texttt{gym.Env.step}. The processing of the action is a combination of logic inside the active runtime and the active task. In particular, the runtime receives the action and directly forwards it to the task for being processed. The task, by operating transparently over the \scenario \acsp{API}, applies the action to the robot, and then waits the runtime to perform the time stepping. After this phase, the task computes the reward, packs the observation, detects if the environment reached the terminal state, and returns all this data back to the agent passing through the \texttt{gym.Env} \acsp{API}.}
     \label{fig:scenario_and_gym_ignition}
 \end{figure}
 

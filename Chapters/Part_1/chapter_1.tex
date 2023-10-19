@@ -16,6 +16,9 @@ Other important benefits include the execution in a controlled and repeatable en
 This section describes the high-level software architecture of a robot simulator.
 We introduce and describe the main components existing simulators typically implement, and then identify a list of properties that could be used as a means of comparison.
 
+\begin{addmargin}{0cm}
+\setstretch{1.45}
+
 \subsection{Components}
 
 A \emph{robotics simulator} is a collection of different independent components that, when combined, expose to the user a virtual environment where simulated robots can move and interact.
@@ -58,6 +61,8 @@ Often, in order to reduce differences with the actual setup, they might allow in
 The simulation of sensors like cameras requires the inclusion of a \emph{rendering engine} to draw the environment where the simulated robot operates and captures its information.
 Many simulators implement rendering either by integrating external rendering engines or exposing new custom functionalities.
 Depending on the selected engine, rendering could be more or less realistic, with the cost of becoming the overall bottleneck of the simulation in case of too detailed rendering.
+
+\end{addmargin}
 
 \paragraph{Graphical User Interface}
 
@@ -111,6 +116,9 @@ However, not all simulators can render the scene on a headless setup when render
 
 In this section, we describe the technology enablers that made developing the experiments presented in this thesis possible.
 
+\begin{addmargin}{0cm}
+\setstretch{1.4}
+
 \subsection{Gazebo Sim}
 
 Gazebo~\parencite{koenig_design_2004}, developed by Open Robotics, is among the most used and widely adopted simulators by the robotics community.
@@ -128,6 +136,8 @@ Gazebo Sim, contrarily to its predecessor, offers programmatic \acp{API} to inst
 
 One of the simulation architectures presented in this thesis is based on Gazebo Sim.
 A more detailed overview of the features that motivated the adoption of the simulator and why they represent a valid choice for the contributed architecture is discussed in more detail in Section~\ref{sec:scenario_gazebo}.
+
+\end{addmargin}
 
 \subsection{The iCub humanoid robot}
 

@@ -1,3 +1,11 @@
+\begin{flushright}
+    \textsl{
+    All models are wrong.\\
+    But some are useful.
+    }\\
+    --- {George Box}
+\end{flushright}
+
 \chapter{Robot Modelling}
 \label{ch:robot_modelling}
 
@@ -445,6 +453,9 @@ where the last term is the matrix representation of the cross-product on $\realn
     .
 \end{equation*}
 
+\begin{addmargin}{0cm}
+\setstretch{1.45}
+
 \section{Accelerations and Forces}
 
 \subsection{Accelerations}
@@ -579,6 +590,8 @@ where the last term is the matrix representation of the cross-product in $\realn
 %
 Note that the relation $(\crossvelsix[{\velsix[B]_{A,B}}])^{-\top} = \crossforsix[{\velsix[B]_{A,B}}]$ holds.
 The combination of the overline with the star marks mnemonically the $(\cdot)^{-\top}$ operator.
+
+\end{addmargin}
 
 \section{Rigid-body Kinematics}
 \label{sec:rigid_body_kinematics}
@@ -943,7 +956,7 @@ where $\ddot{s} \in \realn$ is the joint acceleration.
 
 \begin{table}
 \centering
-\caption{List of motion subspaces for the supported 1 \ac{DoF} joints.}
+\caption{List of motion subspaces for the supported 1 \acs{DoF} joints.}
 \label{tab:motion_subspaces}
 \begin{tblr}{
     colspec={Q[l, m]Q[c, m]},
@@ -1274,6 +1287,7 @@ This verbose notation results particularly useful in this case, because in the e
 %
 \end{remark}
 
+\newpage
 \subsection{Dynamics}
 \label{sec:multibody_dynamics}
 

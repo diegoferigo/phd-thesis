@@ -41,12 +41,33 @@
 \newcommand{\myOtherProf}{\xspace}
 \newcommand{\mySupervisor}{Daniele Pucci\xspace}
 \newcommand{\myFaculty}{Faculty of Science and Engineering\xspace}
+\newcommand{\mySchool}{School of Engineering\xspace}
 \newcommand{\myDepartment}{Department of Computer Science\xspace}
 \newcommand{\myUni}{University of Manchester\xspace}
 \newcommand{\myLocation}{Genoa (IT)\xspace}
 \newcommand{\myYear}{2022\xspace}
 \newcommand{\myTime}{July \myYear\xspace}
 \newcommand{\myVersion}{\classicthesis}
+
+% ==========
+% Cover page
+% ==========
+
+% Necessary for the alignment of the logos
+\usepackage[export]{adjustbox}
+
+\usepackage{xcolor}
+\definecolor{mypurple}{HTML}{6b2c90}
+\definecolor{myyellow}{HTML}{ffd400}
+\definecolor{mygrey}{HTML}{8a8c8e}
+%\definecolor{color1}{HTML}{bbbfc3} % Light
+%\definecolor{color2}{HTML}{3c424c}
+\definecolor{color3}{HTML}{303640} % Dark
+%\definecolor{color4}{HTML}{A1A4A9}
+\usepackage{tikz}
+\usepackage{fix-cm}
+\usetikzlibrary{calc}
+\usetikzlibrary{math}
 
 % ****************************************************************************************************
 % 3. Loading some handy packages
@@ -71,14 +92,19 @@
   maxbibnames=10, % default: 3, et al.
   maxcitenames=1,
   uniquelist=false,
-  url=false,
+  url=true,
   doi=false,
   isbn=false,
   hyperref=true,
   %backref=true,%
+  clearlang=true,
   natbib=true % natbib compatibility mode (\citep and \citet still work)
 }{biblatex}
     \usepackage{biblatex}
+
+\AtEveryBibitem{\clearfield{note}}
+\AtEveryBibitem{\clearlist{extra}}
+\AtEveryBibitem{\clearlist{language}}
 
 % Square brackets with style=authoryear
 % https://tex.stackexchange.com/a/16792
