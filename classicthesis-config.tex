@@ -72,14 +72,19 @@
   maxbibnames=10, % default: 3, et al.
   maxcitenames=1,
   uniquelist=false,
-  url=false,
+  url=true,
   doi=false,
   isbn=false,
   hyperref=true,
   %backref=true,%
+  clearlang=true,
   natbib=true % natbib compatibility mode (\citep and \citet still work)
 }{biblatex}
     \usepackage{biblatex}
+
+\AtEveryBibitem{\clearfield{note}}
+\AtEveryBibitem{\clearlist{extra}}
+\AtEveryBibitem{\clearlist{language}}
 
 % Square brackets with style=authoryear
 % https://tex.stackexchange.com/a/16792
