@@ -20,7 +20,7 @@ This approach allows utilising the widely used family of model-free \ac{RL} algo
 The priors act only as exploration hints, therefore, the model description does not need to be excessively accurate.
 We also apply domain randomization over the model description used in simulation, resulting in differences between the simulated robot's dynamics and the model's dynamic from which the reward-shaping priors are computed.
 
-\newpage
+\pagebreak
 \section{Training Environment}
 
 \begin{figure}
@@ -59,8 +59,6 @@ Commanding joint velocities rather than joint positions prevents target joint po
 Especially at training onset, this would lead to jumpy references that the \pid controllers cannot track, affecting the discovery of the relation between the states $\mathbf{x}_t$ and $\mathbf{x}_{t+1}$.
 The integration process, instead, enables to use a policy that generates discontinuous actions while maintaining continuous \pid inputs with no need for additional filters.
 
-\subsection{State}
-
 \begin{table}
     \centering
     \caption{Observation components.}
@@ -84,6 +82,12 @@ The integration process, instead, enables to use a policy that generates discont
         \bottomrule
     \end{tblr}
 \end{table}
+
+\pagebreak
+\begin{addmargin}{0cm}
+\setstretch{1.3}
+
+\subsection{State}
 
 Since no perception is involved, the state of the \ac{MDP} contains information about the robot's kinematics and dynamics.
 It is defined as the tuple $\mathbf{x} := \langle \mathbf{q}, \mathbf{\boldsymbol{\nu}}, \mathbf{f}_L, \mathbf{f}_R \rangle \in \mathcal{X}$, where $(\mathbf{f}_L, \mathbf{f}_R)$ are the 6D forces exchanged between the feet and the terrain.
@@ -127,6 +131,8 @@ To promote policy transfer, we avoid measurements from noisy sensors and values 
 In fact, any significant mismatch between simulated and real data would hinder transfer, increasing the reliance on policy robustness.
 We select minimal state components encoding the environment dynamics without affecting learning performance.
 
+\end{addmargin}
+
 \subsection{Other specifications}\label{sec:env-other}
 
 \paragraph{Initial State Distribution}
@@ -138,7 +144,7 @@ As a result, the robot may or may not start with the feet in contact with the gr
 
 \paragraph{Exploration}
 
-In order to promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame located over its pelvis.
+To promote exploration beyond the initial state distribution and favour the emergence of push-recovery strategies, we apply external perturbations in the form of a 3D force to the robot's base frame located over its pelvis.
 The applied force vector has a fixed magnitude of 200~N and is applied for 200~ms.
 Considering the weight of the iCub, approximately 33~kg, the normalised impulse sums up to 1.21~Ns/Kg.
 We sample the direction of the applied force from a uniform spherical distribution.
@@ -214,7 +220,7 @@ Each trial is stopped once it reaches 20~M agent steps, roughly equivalent to 7~
 Worker nodes run only on \ac{CPU} resources, while the trainer has access to the \ac{GPU} for accelerating the optimisation process.
 We use the RLlib~\parencite{liang_rllib_2018} framework, OpenAI Gym, and distributed training.
 
-\newpage
+\pagebreak
 \section{Reward Shaping}
 \label{sec:reward_shaping}
 
@@ -242,7 +248,7 @@ This formulation results in the following properties:
 In practice, $\epsilon$ can be kept constant for each reward component.
 The sensitivity of individual components is tuned by adjusting $x_c$.
 We refer to $x_c$ as \emph{cutoff} value of the kernel, since each norm of the distance in the input space bigger than $x_c$ yields output values smaller than $\epsilon$.
-This formulation eases the composition of the total reward $r_t$ when reward components are calculated from measurements of different dimensionalities and scales.
+This formulation eases the composition of the total reward $r_t$ when its components are calculated from measurements of different dimensionalities and scales.
 In fact, once the sensitivities have been properly tuned for each component, they can simply be weighted differently as:
 %
 \begin{equation}
@@ -268,6 +274,11 @@ This process could be thought as tuning the variance of a Gaussian curve having 
 Secondly, the reward terms with their tuned kernels are composed together by a weighted sum.
 We started the tuning process from a weight of $1.0$ for all reward terms, and increased individual weights heuristically in case we wanted to adjust their relative importance.
 Table~\ref{tab:reward} reports all the parameters of the reward function. 
+
+\pagebreak
+\begin{addmargin}{0cm}
+\setstretch{1.4}
+\vspace*{-1cm}
 
 \subsubsection{Regularisers}
 
@@ -313,6 +324,8 @@ In order to promote faster motions if the \ac{CoM} is relatively close to the gr
 This component encourages the motion of the \ac{CoM} projection towards the center of the \ac{SP}.
 
 \end{description}
+
+\end{addmargin}
 
 \subsubsection{Transient}
 
@@ -413,7 +426,7 @@ A larger variety of push-recovery strategies are displayed in the following vide
 We evaluate the push-recovery performance by assessing the resilience from the application of external forces to the horizontal transverse plane of the robot.
 Forces are applied for 0.2~s after 3~s from the simulation start, when the robot is stably standing still and front-facing.
 Success is defined if the robot is still standing after 7~s, defining as a standing state the configuration in which only the feet can be in contact with the ground.
-In Fig.~\ref{fig:force_polar}, success rates for forces pointing in 12 directions are reported.
+Fig.~\ref{fig:force_polar} reports success rates for forces pointing in 12 directions.
 Magnitudes increase from 50~N to 700~N at 25~N intervals.
 Five repetitions are performed for each magnitude and direction, randomising the initial joints configuration by adding zero-mean Gaussian noise ($\sigma = 2$~deg).
 Magnitudes within the training range (0-200~N) are counteracted successfully.
@@ -493,8 +506,8 @@ Depending on the magnitude of the disturbance, and the state of the system, the 
 
 The learning pipeline described in this chapter presents different limitations and shortcomings.
 First, the training process to obtain a single policy requires an experience equivalent to approximately 7 simulated days, which is not surprising considering the low sample-efficiency typical of model-free \ac{RL} algorithms based on policy gradient.
-Two possible ways to mitigate this problem are either switching to algorithms with better sample-efficiency, or optimising the performance of the experience generation.
-The execution of the 7 simulated days, on a powerful workstation able to run 32 parallel simulations, lasts more than 2 real-world days, resulting in a long and extenuating parameters tuning process.
+Two possible ways to mitigate this problem are either switching to algorithms with better sample-efficiency, or optimising the speed of the experience generation.
+The execution of the 7 simulated days on a powerful workstation running 32 parallel simulations lasted more than 2 real-world days, resulting in a long and extenuating parameters tuning process.
 A second limitation comes from the chosen low-level control architecture, composed of independent \pid controllers.
 Despite the benefits of their simplicity, they introduce in the system a stiffness that can prevent the emergence of natural and more human-like motions.
 Finally, the applicability to real robots has yet to be assessed, since the simulation does not take into account second-order dynamic effects characterising real systems.

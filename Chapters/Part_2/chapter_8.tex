@@ -1,5 +1,10 @@
+\begin{addmargin}{-4mm}
+\setstretch{1.4}
+\vspace*{-4mm}
+
 \chapter{Scaling rigid-body simulations}
 \label{ch:scaling_rigid_body_simulations}
+\vspace*{-4mm}
 
 In this final chapter, we provide our most recent results for addressing the problem of generating synthetic data for robot planning and control.
 As an initial attempt, in Chapter~\ref{ch:rl_env_for_robotics} we proposed the \scenario \acp{API} and the Gym-Ignition framework that exploited the general purpose simulator Gazebo Sim to sample trajectories for training policies with \ac{RL}.
@@ -14,6 +19,8 @@ In the second part of this chapter, we propose  \jaxsim, a new physics engine in
 In fact, the problem of the previous architectures was not really the general-purpose simulator, but the limited parallel capabilities of \acsp{CPU} in which it was executed.
 The \acp{RBDA} presented at the beginning of this chapter enable the combination of model-based algorithms with applications requiring high sampling rates like \acs{RL}.
 They have been implemented such that they can be executed transparently on any supported hardware.
+
+\end{addmargin}
 
 \vspace{-3mm}
 \section{Floating-base rigid-body dynamics algorithms}
@@ -69,6 +76,10 @@ In fact, the most straightforward implementation of forward dynamics involves is
 This computation, however, can be optimised by exploiting the sparsity of the kinematic tree that describes the multibody system.
 We will also present an algorithm that can efficiently compute forward dynamics by exploiting an iterative approach.
 
+\begin{addmargin}{-0.7cm}
+\pagebreak
+\setstretch{1.4}
+\vspace*{-12mm}
 \subsection{Implementation differences}
 
 The algorithms introduced in the next sections are an adaptation of those presented by \textcite{featherstone_rigid_2008}.
@@ -99,7 +110,9 @@ Our algorithm returns the 6D force $\forcesix[W]_B$ that, when exerted on the ba
 The effects of gravity are handled internally.
 %
 \end{enumerate}
+\end{addmargin}
 
+\begin{addmargin}{-0.3cm}
 \subsection{Model specification}
 
 The information about the kinematics, the inertial properties of all links, and the joint types, are included in the model specification $\mathcal{M}$\footnote{All information included in the model $\mathcal{M}$ could be directly computed from model descriptions like \acs{SDF}, \acs{URDF}, \acs{MJCF}, \etc}:
@@ -151,6 +164,7 @@ Selectors of multiple elements use the $:$ delimiter, for example $A_{(1:3,1:3)}
 Note that, while this notation simplifies pseudocode, it requires a careful implementation with 0-based array libraries.
 %
 \end{enumerate}
+\end{addmargin}
 
 \subsection{CRBA: Composite Rigid Body Algorithm}
 
@@ -334,6 +348,8 @@ This implementation provides such quantities in inertial-fixed representation, a
 \end{algorithmic}
 \end{algorithm}
 
+\begin{addmargin}{0mm}
+\setstretch{1.45}
 \subsection{Free-floating Jacobian}
 
 The free-floating Jacobian of a link $E \in \mathcal{L}$, already defined in Definition~\ref{definition:link_jacobian} has the following block structure:
@@ -405,6 +421,7 @@ and returns the following output:
 
 \end{algorithmic}
 \end{algorithm}
+\end{addmargin}
 
 \subsection{ABA: Articulated-Body Algorithm}
 
@@ -586,6 +603,7 @@ Considering the state-space system introduced in Equation~\eqref{equation:floati
 \end{algorithmic}
 \end{algorithm}
 
+\pagebreak
 \subsection{Soft-contacts Algorithm}
 \label{sec:soft_contacts_algorithm}
 
@@ -866,8 +884,17 @@ Instead, the \ac{GPU} execution of a single instance of the algorithms exceeds 1
     \label{fig:jaxsim_benchmark_algos}
 \end{figure}
 
-\newpage
+\pagebreak
 \subsubsection{Scalability}
+
+\begin{figure}
+    \centering
+    \resizebox{\textwidth}{!}{
+        \includegraphics{images/contributions/chapter_8/jaxsim_benchmark_parallel.tikz}
+    }
+    \caption{Comparison of parallelization performance of a simulation step executed on \acs{CPU} and \acsp{GPU}. The simulated models are 23~\acsp{DoF} replicas of the iCub humanoid robot, and the simulation step length is $1~ms$ with a forward Euler scheme. The time taken by the \acs{CPU} scales mostly linearly with the number of simulated models, while the \acsp{GPU} are able to exploit the parallel capability almost up to their CUDA cores (640 on the laptop, 4608 on the workstation). For each sample, we show the equivalent \acs{RTF}. The \acs{CPU} cannot scale well over the number of models when integrating more than 16 replicas. Instead, the \acsp{GPU} show an interval that depends on their parallellization capabilities in which the execution time is not affected significantly by the number of integrated models. Also on \acsp{GPU}, however, the performance start degrading when the number of integrated models exceeds the available CUDA cores.}
+    \label{fig:jaxsim_benchmark_parallel}
+\end{figure}
 
 In the previous test, we assessed the performance of a single execution of the benchmarked algorithms implemented in \jaxsim.
 The major strengths of \jaxsim appear when the characteristics of hardware accelerators are exploited, performing multiple executions in parallel.
@@ -890,23 +917,19 @@ However, the parallel integration on \ac{GPU} is able to scale without showing a
 The equivalent \ac{RTF} on \ac{GPU} peaks at a value of about $19$ between 512 and 1024 parallel models.
 On this hardware, the 512-1024 range is justified by the number of CUDA cores equal to 640.
 
+\begin{addmargin}{-2mm}
+\setstretch{1.41}
+
 A similar trend is observed regarding the workstation \ac{GPU}.
 Although being more modern and powerful, the execution is slightly slower on this high-end \ac{GPU} compared to the laptop, starting from a \ac{RTF} of 0.08.
 In this case, the \ac{GPU} has 4608 CUDA cores.
 It can be noticed that the region in which the performance on \ac{GPU} scales horizontally without additional overhead is much larger, and start flattening in the range 4096-8192, which also in this case is close to the number of CUDA cores of the setup.
 The peak \ac{RTF} of this high-end \ac{GPU} is about 200.
 
-\begin{figure}
-    \centering
-    \resizebox{\textwidth}{!}{
-        \includegraphics{images/contributions/chapter_8/jaxsim_benchmark_parallel.tikz}
-    }
-    \caption{Comparison of parallelization performance of a simulation step executed on \acs{CPU} and \acsp{GPU}. The simulated models are 23~\acsp{DoF} replicas of the iCub humanoid robot, and the simulation step length is $1~ms$ with a forward Euler scheme. The time taken by the \acs{CPU} scales mostly linearly with the number of simulated models, while the \acsp{GPU} are able to exploit the parallel capability almost up to their CUDA cores (640 on the laptop, 4608 on the workstation). For each sample, we show the equivalent \acs{RTF}. The \acs{CPU} cannot scale well over the number of models when integrating more than 16 replicas. Instead, the \acsp{GPU} show an interval that depends on their parallellization capabilities in which the execution time is not affected significantly by the number of integrated models. Also on \acsp{GPU}, however, the performance start degrading when the number of integrated models exceeds the available CUDA cores.}
-    \label{fig:jaxsim_benchmark_parallel}
-\end{figure}
-
+\vspace*{-13mm}
 \section{Validation}
 \label{sec:jaxsim_validation}
+\vspace*{-3mm}
 
 In this section, we perform a validation of \jaxsim for generating synthetic data for robot learning.
 We develop an environment exposing the \texttt{gym.Env} interface with \jaxsim, and show the sampling performance that can be reached by stepping a large number of parallel environments on a laptop \ac{GPU}.
@@ -921,6 +944,8 @@ The swing-up task makes the policy learning much more difficult by starting the 
 This diversity makes a big difference since it requires the policy to be considerably long-sighted, to the extent to learn to perform some initial swing to build up momentum before attempting to perform a proper balancing.
 
 All experiments presented in this section have been executed on a laptop whose specifications are reported in Table~\ref{tab:laptop_specifications_validation}.
+
+\end{addmargin}
 
 \begin{table}
 \small
@@ -948,19 +973,19 @@ All experiments presented in this section have been executed on a laptop whose s
 \end{tblr}
 \end{table}
 
-\subsection{Sampling Experience for Robot Learning}
-
-The cartpole is a fixed-base model composed by a pole (shaped as a long and thin cylinder) connected through an un-actuated revolute joint to a cart (shaped as a box).
-The cart can move along a track, whose displacement is simulated as a prismatic joint.
-The linear force corresponding to this prismatic joint is the control input of the system.
-Figure~\ref{fig:cartpole_swingup} reports a visualisation of the cartpole model.
-
 \begin{figure}
     \centering
     \includegraphics[width=0.85\textwidth]{images/contributions/chapter_8/cartpole.png}
     \caption{Illustration of the cartpole model in the $\theta = d = 0$ configuration.}
     \label{fig:cartpole_swingup}
 \end{figure}
+
+\subsection{Sampling Experience for Robot Learning}
+
+The cartpole is a fixed-base model composed by a pole (shaped as a long and thin cylinder) connected through an un-actuated revolute joint to a cart (shaped as a box).
+The cart can move along a track, whose displacement is simulated as a prismatic joint.
+The linear force corresponding to this prismatic joint is the control input of the system.
+Figure~\ref{fig:cartpole_swingup} reports a visualisation of the cartpole model.
 
 \begin{table}
 \centering
@@ -1075,12 +1100,12 @@ Finally, in order to obtain a more robust policy, we inject some Gaussian noise 
     \label{fig:learning_curve_cartpole_swingup}
 \end{figure}
 
-\newpage
 Figure~\ref{fig:learning_curve_cartpole_swingup} shows the learning curve of 10 trainings initialised with different seeds.
 The policy is able to learn effective swing-up and balancing behaviours in $500000$ steps, corresponding to about $7$ hours of equivalent experience.
 On the machine used to run this experiment, each training runs for approximately $15$ minutes.
 The reward grows mostly monotonically with a limited variance, showing that the chosen parameters ensure stable policy updates, preventing optimisation steps too large that would destroy the previously obtained performance.
 
+\pagebreak
 \subsection{Sim-to-sim Policy Transfer}
 
 \begin{table}
@@ -1156,6 +1181,7 @@ In our case, we did not randomize any parameter.
     \label{fig:cartpole_mujoco_change_parameters}
 \end{figure}
 
+\pagebreak
 \section{Conclusions}
 
 In this chapter, we proposed \jaxsim, a new physics engine capable of executing multibody simulations on modern hardware accelerators.

@@ -101,7 +101,7 @@ Despite decades of research, the situation of bipedal locomotion is quite differ
 Many fundamental methods, techniques, and control architectures widely adopted by bipedal locomotion research have been first studied in the simplified case of push recovery.
 In fact, the ability to react appropriately to external perturbations is paramount for achieving robust locomotion capabilities, and often advances in push recovery research are preparatory for advances in locomotion research~\parencite{jeong_robust_2019}.
 
-Humans are able to employ different strategies to keep their balance, such as \emph{ankle}, \emph{hip}, and \emph{stepping} strategies~\parencite{nashner_organization_1985, maki_role_1997, stephens_humanoid_2007}.
+Humans use various strategies to maintain balance, including \emph{ankle}, \emph{hip}, and \emph{stepping} strategies~\parencite{nashner_organization_1985, maki_role_1997, stephens_humanoid_2007}.
 The adoption of these strategies follows an activation proportional to the magnitude of external disturbances.
 The effectiveness of human capabilities mainly stems from how different strategies are combined into a continuous motion~\parencite{mcgreavy_unified_2020}.
 The applicability of these principles for the generation of control actions applied to robots has traditionally relied on \emph{simplified models} approximating their dynamics, such as the \ac{LIP} model~\parencite{kajita_3d_2001} and the \ac{CP}~\parencite{pratt_capture_2006}.
@@ -242,6 +242,7 @@ This work was nominated by the conference committee among the finalists for the 
 Software architectures typically used to train \ac{RL} policies for application in robotics, in most cases rely on general-purpose rigid-body simulators from which experience is sampled.
 As experienced in the experiment of the previous contribution, often the bottleneck that limits the performance of such architectures does not reside in the optimisation problem that utilises the data, but rather in the process of data generation.
 
+\pagebreak
 \paragraph{Open Problem}
 
 Most of the physics engines included in general-purpose simulators, besides computing the evolution of a multibody system considering its law of motion, also need to implement routines for detecting and solving collisions.
@@ -267,6 +268,7 @@ The activities leading to the publication of the contribution to knowledge are c
     \textbf{Daniele Pucci:} Resources, Supervision, Funding acquisition.
 \end{quote}
 
+\pagebreak
 \subsection{\autoref{ch:scaling_rigid_body_simulations}: Scaling Rigid Body Simulations}
 
 Towards the aim of maximising the performance of sampling synthetic data for robot locomotion started in the previous contribution, we combine the contact-aware state-space representation of free-floating robots dynamics with state-of-the-art \acp{RBDA} to create a novel physics engine that can exploit modern hardware accelerators.
